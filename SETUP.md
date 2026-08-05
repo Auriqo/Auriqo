@@ -14,8 +14,8 @@ This document provides instructions for setting up the Auriqo project for develo
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/iad1tya/Auriqo-Music.git
-cd Auriqo-Music
+git clone https://github.com/Auriqo/Auriqo.git
+cd Auriqo
 ```
 
 ### 2. Configure Local Properties

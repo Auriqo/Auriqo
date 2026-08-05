@@ -119,9 +119,9 @@ We may update this Privacy Policy from time to time. We will notify you of any c
 
 If you have any questions about this Privacy Policy or our data practices, please contact us:
 
-- **GitHub**: [https://github.com/iad1tya/Auriqo-Music](https://github.com/iad1tya/Auriqo-Music)
-- **Issues**: [https://github.com/iad1tya/Auriqo-Music/issues](https://github.com/iad1tya/Auriqo-Music/issues)
-- **Discussions**: [https://github.com/iad1tya/Auriqo-Music/discussions](https://github.com/iad1tya/Auriqo-Music/discussions)
+- **GitHub**: [https://github.com/Auriqo/Auriqo](https://github.com/Auriqo/Auriqo)
+- **Issues**: [https://github.com/Auriqo/Auriqo/issues](https://github.com/Auriqo/Auriqo/issues)
+- **Discussions**: [https://github.com/Auriqo/Auriqo/discussions](https://github.com/Auriqo/Auriqo/discussions)
 
 ## Data Protection Compliance
 

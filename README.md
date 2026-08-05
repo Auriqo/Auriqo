@@ -3,29 +3,11 @@
 
   <h1>Auriqo</h1>
 
-  <p><strong>A modern Android music app with ad-free streaming, synced lyrics, offline playback, and an intuitive user experience.
-</strong></p>
+  <p><strong>A modern Android music player with ad-free streaming, synced lyrics, offline playback, and an intuitive user experience.</strong></p>
 
-  [![GitHub Release](https://img.shields.io/github/v/release/iad1tya/Auriqo-Music?style=for-the-badge&color=6f42c1)](https://github.com/iad1tya/Auriqo-Music/releases)
-  [![GitHub Stars](https://img.shields.io/github/stars/iad1tya/Auriqo-Music?style=for-the-badge&color=e3b341)](https://github.com/iad1tya/Auriqo-Music/stargazers)
-  [![License](https://img.shields.io/github/license/iad1tya/Auriqo-Music?style=for-the-badge&color=28a745)](LICENSE)
-  [![Telegram](https://img.shields.io/badge/Telegram-Join-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/AuriqoApp)
-  [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/EcfV3AxH5c)
-  [![Weblate](https://img.shields.io/weblate/progress/echo-music?server=https%3A%2F%2Fhosted.weblate.org&style=for-the-badge)](https://hosted.weblate.org/projects/echo-music/)
-  
-  <a href="https://trendshift.io/repositories/20485" target="_blank">
-    <img src="https://trendshift.io/api/badge/repositories/20485" alt="AuriqoApp%2FAuriqo-Music | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/>
-  </a>
-
-  <br>
-
-  <a href="https://auriqo.fun/download">
-    <img src="assets/download.png" alt="Download" width="180"/>
-  </a>
-  &nbsp;
-  <a href="https://auriqo.fun/obtainium">
-    <img src="assets/obtainium.png" alt="Get it on Obtainium" width="180"/>
-  </a>
+  [![GitHub Release](https://img.shields.io/github/v/release/Auriqo/Auriqo?style=for-the-badge&color=6f42c1)](https://github.com/Auriqo/Auriqo/releases)
+  [![GitHub Stars](https://img.shields.io/github/stars/Auriqo/Auriqo?style=for-the-badge&color=e3b341)](https://github.com/Auriqo/Auriqo/stargazers)
+  [![License](https://img.shields.io/github/license/Auriqo/Auriqo?style=for-the-badge&color=28a745)](LICENSE)
 </div>
 
 ---
@@ -36,61 +18,19 @@ Auriqo delivers a seamless, premium listening experience by leveraging YouTube M
 
 ---
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Screenshots](#screenshots)
-- [Features](#features)
-  - [What's New](#whats-new)
-  - [Streaming & Playback](#streaming--playback)
-  - [Discovery & Echo Find](#discovery--echo-find)
-  - [Lyrics](#lyrics)
-  - [Integrations](#integrations)
-  - [Smart Playback](#smart-playback)
-  - [Customization](#customization)
-- [Installation & Setup](#installation--setup)
-  - [Android Installation](#android-installation)
-  - [Building from Source](#building-from-source)
-- [Translations](#translations)
-- [Community & Support](#community--support)
-- [Support the Project](#support-the-project)
-  - [Cryptocurrency](#cryptocurrency)
-- [Special Thanks](#special-thanks)
-- [Star History](#star-history)
-
----
-
 ## Screenshots
 
 <div align="center">
-  <table style="margin: 0 auto; border-collapse: collapse;">
+  <table>
     <tr>
-      <td align="center" style="padding: 10px; border: none;">
-        <strong>Home Screen</strong><br><br>
-        <img src="Screenshots/sc_1.png" alt="Home Screen" width="200" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);"/>
-      </td>
-      <td align="center" style="padding: 10px; border: none;">
-        <strong>Music Player</strong><br><br>
-        <img src="Screenshots/sc_2.png" alt="Music Player" width="200" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);"/>
-      </td>
-      <td align="center" style="padding: 10px; border: none;">
-        <strong>Synchronized Lyrics</strong><br><br>
-        <img src="Screenshots/sc_3.png" alt="Synchronized Lyrics" width="200" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);"/>
-      </td>
+      <td align="center"><strong>Home Screen</strong><br><img src="Screenshots/sc_1.png" alt="Home Screen" width="200"/></td>
+      <td align="center"><strong>Music Player</strong><br><img src="Screenshots/sc_2.png" alt="Music Player" width="200"/></td>
+      <td align="center"><strong>Synchronized Lyrics</strong><br><img src="Screenshots/sc_3.png" alt="Synced Lyrics" width="200"/></td>
     </tr>
     <tr>
-      <td align="center" style="padding: 10px; border: none;">
-        <strong>Search & Explore</strong><br><br>
-        <img src="Screenshots/sc_4.png" alt="Search & Explore" width="200" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);"/>
-      </td>
-      <td align="center" style="padding: 10px; border: none;">
-        <strong>Music Library</strong><br><br>
-        <img src="Screenshots/sc_5.png" alt="Music Library" width="200" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);"/>
-      </td>
-      <td align="center" style="padding: 10px; border: none;">
-        <strong>Echo Find (Recognition)</strong><br><br>
-        <img src="Screenshots/sc_6.png" alt="Echo Find" width="200" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);"/>
-      </td>
+      <td align="center"><strong>Search & Explore</strong><br><img src="Screenshots/sc_4.png" alt="Search" width="200"/></td>
+      <td align="center"><strong>Music Library</strong><br><img src="Screenshots/sc_5.png" alt="Library" width="200"/></td>
+      <td align="center"><strong>Music Recognition</strong><br><img src="Screenshots/sc_6.png" alt="Recognition" width="200"/></td>
     </tr>
   </table>
 </div>
@@ -99,19 +39,8 @@ Auriqo delivers a seamless, premium listening experience by leveraging YouTube M
 
 ## Features
 
-### What's New
-- **Lossless Music Hub** — Stream and contribute 16-bit/24-bit FLAC files directly to the Auriqo ecosystem.
-- **Data Saver Mode (Beta)** — Automatically reduces data usage during playback for limited connections.
-- **Settings Search Index** — Quickly find and navigate to any settings option instantly.
-- **Redesigned UI** — Cleaner, faster, and more intuitive interface from the ground up.
-- **Import from Spotify** — Bring your playlists and tracks over with ease.
-- **Listen Together** — Sync music in real time, similar to Spotify Jam.
-- **Podcast Support** — Listen to podcasts alongside your music library.
-- **Local Media Support** — Play music files stored directly on your device.
-- **Dynamic Island Support** — Enhanced playback notifications on supported Android devices.
-
 ### Streaming & Playback
-- **Ad-Free** — Stream without any interruptions.
+- **Ad-Free** — Stream without interruptions.
 - **Lossless Audio** — Support for 16-bit and 24-bit high fidelity FLAC audio.
 - **Data Saver Mode** — Reduce data consumption when streaming on cellular networks.
 - **Seamless Playback** — Switch effortlessly between audio-only and video modes.
@@ -120,9 +49,8 @@ Auriqo delivers a seamless, premium listening experience by leveraging YouTube M
 - **Crossfade** — Smooth transitions between tracks.
 - **Canvas Animations** — Visual animations while playing music.
 
-### Discovery & Echo Find
-- **Echo Find** — Identify songs playing around you using advanced audio recognition.
-- **Echo Brain** — An intelligent, on-device engine that analyzes your listening momentum and auto-injects perfectly aligned tracks into your queue. Read more in the [Echo Brain Documentation](ECHO_BRAIN_DOCS.md).
+### Discovery & Recognition
+- **Music Recognition** — Identify songs playing around you using advanced audio recognition.
 - **Smart Recommendations** — Personalized suggestions based on your listening history.
 - **Comprehensive Browsing** — Explore Charts, Podcasts, Moods, and Genres.
 
@@ -135,6 +63,8 @@ Auriqo delivers a seamless, premium listening experience by leveraging YouTube M
 ### Integrations
 - **Music Sharing via Odesli** — Share songs as Song.link for cross-platform listening.
 - **Set as Ringtone** — Directly set any song as your device ringtone.
+- **Import from Spotify** — Bring your playlists and tracks over with ease.
+- **Listen Together** — Sync music in real time with friends.
 
 ### Smart Playback
 - **Pause on Mute** — Auto-pause when your device is muted.
@@ -145,23 +75,19 @@ Auriqo delivers a seamless, premium listening experience by leveraging YouTube M
 - **High Refresh Rate Support** — Smoother UI and animations on supported displays.
 - **Hide Player Thumbnail** — Keep the player minimal without album art.
 - **Crop Album Art** — Adjust album art display to fit your style.
-- **Hide Video Songs** — Filter out video content from your feed.
-- **Hide YouTube Shorts** — Keep Shorts out of your music browsing.
 
 ---
 
-## Installation & Setup
+## Installation
 
-### Android Installation
-
-Download the latest pre-compiled APK from the [Releases Page](https://github.com/iad1tya/Auriqo-Music/releases/latest).
+Download the latest APK from the [Releases Page](https://github.com/Auriqo/Auriqo/releases/latest).
 
 ### Building from Source
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/iad1tya/Auriqo-Music.git
-   cd Auriqo-Music
+   git clone https://github.com/Auriqo/Auriqo.git
+   cd Auriqo
    ```
 
 2. **Configure Android SDK**
@@ -169,70 +95,31 @@ Download the latest pre-compiled APK from the [Releases Page](https://github.com
    ```bash
    echo "sdk.dir=/path/to/your/android/sdk" > local.properties
    ```
-   *(For detailed paths on Windows/macOS/Linux, refer to [SETUP.md](SETUP.md))*
 
-3. **Firebase Configuration (Optional)**
-   Firebase is required for analytics and crash reporting. See the instructions in [SETUP.md](SETUP.md#3-configure-firebase-optional) for adding your `google-services.json`.
+3. **Build the Application**
+   Auriqo has two build variants: **FOSS** (without Google Play Services/Cast) and **GMS** (with Cast support).
 
-4. **Build the Application**
-   Auriqo has two build variants: **FOSS** (without Google Play Services / Cast) and **GMS** (with Cast support).
-   
-   To build the FOSS Universal Debug variant:
+   FOSS Universal Debug:
    ```bash
    ./gradlew assembleUniversalFossDebug
    ```
-   To build the GMS Universal Debug variant:
+
+   GMS Universal Debug:
    ```bash
    ./gradlew assembleUniversalGmsDebug
    ```
-   *(For optimized ARM64 builds, release builds, or other options, refer to [SETUP.md](SETUP.md))*
 
 ---
 
-## Translations
+## License
 
-<h3>We use Weblate to translate Auriqo. <a href="https://hosted.weblate.org/projects/echo-music/">Help us bring Auriqo to more people!</a></h3>
-
-<a href="https://hosted.weblate.org/projects/echo-music/">
-  <img src="https://hosted.weblate.org/widgets/echo-music/-/horizontal-auto.svg" alt="Translation status" />
-</a>
+Licensed under [GPL-3.0](LICENSE).
 
 ---
 
-## Community & Support
+## Acknowledgments
 
-Join the community for updates, discussions, and help.
-
-<div align="center">
-  <a href="https://discord.gg/EcfV3AxH5c" style="text-decoration:none;"><img src="assets/discord.png" alt="Discord Logo" width="140" style="margin: 0 10px;"/></a>
-  <a href="https://t.me/AuriqoApp" style="text-decoration:none;"><img src="assets/telegram.png" alt="Telegram Logo" width="130" style="margin: 0 10px;"/></a>
-</div>
-
----
-
-## Support the Project
-
-If Auriqo has been useful to you, consider supporting its development.
-
-<div align="center">
-  <a href="https://buymeacoffee.com/iad1tya" style="text-decoration:none;"><img src="assets/bmac.png" alt="Buy Me A Coffee Logo" width="140" style="margin: 0 10px;"/></a>
-  <a href="https://intradeus.github.io/http-protocol-redirector/?r=upi://pay?pa=iad1tya@upi&pn=Aditya%20Yadav&am=&tn=Thank%20You" style="text-decoration:none;"><img src="assets/upi.svg" alt="UPI Logo" width="100" style="margin: 0 10px;"/></a>
-  <a href="https://www.patreon.com/cw/iad1tya" style="text-decoration:none;"><img src="assets/patreon3.png" alt="Patreon Logo" width="100" style="margin: 0 10px;"/></a>
-</div>
-
-### Cryptocurrency
-
-| Network | Address |
-| :--- | :--- |
-| Bitcoin | `bc1qcvyr7eekha8uytmffcvgzf4h7xy7shqzke35fy` |
-| Ethereum | `0x51bc91022E2dCef9974D5db2A0e22d57B360e700` |
-| Solana | `9wjca3EQnEiqzqgy7N5iqS1JGXJiknMQv6zHgL96t94S` |
-
----
-
-## Special Thanks
-
-Auriqo stands on the shoulders of several excellent open-source projects. Sincere thanks to:
+Auriqo stands on the shoulders of several excellent open-source projects:
 
 | Project | Description |
 | :--- | :--- |
@@ -240,12 +127,5 @@ Auriqo stands on the shoulders of several excellent open-source projects. Sincer
 | [ArchiveTune](https://github.com/koiverse/ArchiveTune) | Material You UI inspiration |
 | [Better Lyrics](https://better-lyrics.boidu.dev/) | Lyrics enhancement and synchronization |
 | [SimpMusic](https://github.com/maxrave-dev/SimpMusic) | Lyrics implementation reference |
-| [Music Recognizer](https://github.com/aleksey-saenko/MusicRecognizer) | Audio recognition (Echo Find) |
-| [Flow](https://github.com/a-edev/Flow) | AI queue generation engine (Echo Brain) |
-| [zemer-cipher](hhttps://github.com/ZemerTeam/zemer-cipher) | YouTube cipher deobfuscation and PoToken generation |
-
----
-
-<div align="center">
-  Licensed under <a href="LICENSE">GPL-3.0</a>
-</div>
+| [Music Recognizer](https://github.com/aleksey-saenko/MusicRecognizer) | Audio recognition engine |
+| [zemer-cipher](https://github.com/ZemerTeam/zemer-cipher) | YouTube cipher deobfuscation and PoToken generation |
