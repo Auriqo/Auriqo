@@ -70,6 +70,7 @@ import com.auriqo.music.constants.ListenTogetherSmartResyncKey
 import com.auriqo.music.constants.ListenTogetherSyncVolumeKey
 import com.auriqo.music.constants.ListenTogetherUsernameKey
 import com.auriqo.music.listentogether.ListenTogetherEvent
+import com.auriqo.music.listentogether.ListenTogetherConfiguration
 import com.auriqo.music.listentogether.ListenTogetherServer
 import com.auriqo.music.listentogether.ListenTogetherServers
 import com.auriqo.music.listentogether.LogEntry
@@ -336,7 +337,12 @@ highlightKey: String? = null) {
         )
         
         
-        val selectedServer = remember(serverUrl) { ListenTogetherServers.findByUrl(serverUrl) }
+        val resolvedServerUrl = remember(serverUrl) {
+            ListenTogetherServers.resolveServerUrl(serverUrl)
+        }
+        val selectedServer = remember(resolvedServerUrl) {
+            resolvedServerUrl?.let { ListenTogetherServers.findByUrl(it) }
+        }
         
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             IntegrationCard(
@@ -364,7 +370,7 @@ highlightKey: String? = null) {
                             Text(
                                 selectedServer?.let { server ->
                                     "${server.name} - ${server.location}"
-                                } ?: serverUrl,
+                                } ?: resolvedServerUrl ?: stringResource(R.string.listen_together_not_configured),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -578,6 +584,7 @@ private fun ServerChooserDialog(
 ) {
     var customUrl by rememberSaveable(currentUrl) { mutableStateOf(currentUrl) }
     val trimmedCustomUrl = customUrl.trim()
+    val validCustomUrl = ListenTogetherConfiguration.validServerUrl(trimmedCustomUrl)
 
     DefaultDialog(
         onDismiss = onDismiss,
@@ -661,11 +668,19 @@ private fun ServerChooserDialog(
                     Icon(painterResource(R.drawable.link), contentDescription = null)
                 },
                 singleLine = true,
+                isError = trimmedCustomUrl.isNotBlank() && validCustomUrl == null,
                 modifier = Modifier.fillMaxWidth()
             )
+            if (trimmedCustomUrl.isNotBlank() && validCustomUrl == null) {
+                Text(
+                    text = stringResource(R.string.listen_together_server_url_invalid),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
             Button(
-                onClick = { onUseCustom(trimmedCustomUrl) },
-                enabled = trimmedCustomUrl.isNotBlank(),
+                onClick = { validCustomUrl?.let(onUseCustom) },
+                enabled = validCustomUrl != null,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             ) {

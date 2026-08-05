@@ -88,10 +88,12 @@ import com.auriqo.music.LocalPlayerAwareWindowInsets
 import com.auriqo.music.R
 import com.auriqo.music.constants.AppBarHeight
 import com.auriqo.music.constants.ListenTogetherInTopBarKey
+import com.auriqo.music.constants.ListenTogetherServerUrlKey
 import com.auriqo.music.constants.ListenTogetherUsernameKey
 import com.auriqo.music.listentogether.ConnectionState
 import com.auriqo.music.listentogether.JoinRequestPayload
 import com.auriqo.music.listentogether.ListenTogetherEvent
+import com.auriqo.music.listentogether.ListenTogetherServers
 import com.auriqo.music.listentogether.SuggestionReceivedPayload
 import com.auriqo.music.listentogether.UserInfo
 import com.auriqo.music.ui.component.ListDialog
@@ -112,8 +114,9 @@ fun ListenTogetherScreen(
     val context = LocalContext.current
     val listenTogetherManager = LocalListenTogetherManager.current
     val windowInsets = LocalPlayerAwareWindowInsets.current
+    val (storedServerUrl) = rememberPreference(ListenTogetherServerUrlKey, defaultValue = "")
 
-    if (listenTogetherManager == null) {
+    if (listenTogetherManager == null || !ListenTogetherServers.isAvailable(storedServerUrl)) {
         NotConfiguredContent()
         return
     }
@@ -742,30 +745,30 @@ private fun RoomStatusCard(
 
             if (isHost) {
                 Spacer(modifier = Modifier.height(16.dp))
-                val inviteLink = remember(roomCode) {
-                    "https://auriqo-listen-together.example.com/listen?code=$roomCode"
-                }
+                val inviteLink = remember(roomCode) { ListenTogetherServers.inviteLink(roomCode) }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    FilledTonalButton(
-                        onClick = {
-                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                            val clip = android.content.ClipData.newPlainText("Listen Together Link", inviteLink)
-                            clipboard.setPrimaryClip(clip)
-                            Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
-                        },
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.link),
-                            contentDescription = stringResource(R.string.copy_link),
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(stringResource(R.string.copy_link))
+                    inviteLink?.let { link ->
+                        FilledTonalButton(
+                            onClick = {
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                val clip = android.content.ClipData.newPlainText("Listen Together Link", link)
+                                clipboard.setPrimaryClip(clip)
+                                Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+                            },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.link),
+                                contentDescription = stringResource(R.string.copy_link),
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.copy_link))
+                        }
                     }
 
                     FilledTonalButton(
