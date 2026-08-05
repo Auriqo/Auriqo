@@ -1,49 +1,34 @@
 ---
-name: Bug Report
-about: Create a report to help us improve Auriqo
+name: Bug report
+about: Report a reproducible Auriqo problem
 title: '[BUG] '
 labels: bug
 assignees: ''
-
 ---
 
-## 🐛 Bug Description
-A clear and concise description of what the bug is.
+## What happened?
 
-## 🔄 Steps to Reproduce
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+Describe the actual behavior and the expected behavior.
 
-## ✅ Expected Behavior
-A clear and concise description of what you expected to happen.
+## Steps to reproduce
 
-## ❌ Actual Behavior
-A clear and concise description of what actually happened.
+1.
+2.
+3.
 
-## 📱 Device Information
-- **Device**: [e.g. Samsung Galaxy S21]
-- **Android Version**: [e.g. Android 12]
-- **App Version**: [e.g. v1.4]
-- **Build Variant**: [e.g. FOSS/Full]
+## Environment
 
-## 📸 Screenshots
-If applicable, add screenshots to help explain your problem.
+- App version/version code:
+- Build variant: FOSS or GMS; ABI if known:
+- Android version and device:
+- Network/service involved, if any:
 
-## 📋 Additional Context
-Add any other context about the problem here.
+## Evidence
 
-## 🔍 Logs
-If applicable, add relevant logs or error messages.
+Attach safe screenshots or redacted logs. Do not include account data, tokens, media-library data, identifiers, or signing material.
 
-```
-Paste logs here
-```
+## Checklist
 
-## ✅ Checklist
-- [ ] I have searched for existing issues
-- [ ] I have provided all required information
-- [ ] I have tested on the latest version
-- [ ] I have included device information
+- [ ] I searched existing reports available to me.
+- [ ] This is not a security vulnerability; if it is, I will use the private route in `SECURITY.md`.
+- [ ] I removed sensitive information from this report.

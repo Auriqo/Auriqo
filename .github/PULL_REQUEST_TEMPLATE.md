@@ -1,37 +1,33 @@
-## 📋 Pull Request Description
-Brief description of the changes made in this PR.
+## Summary
 
-## 🔄 Type of Change
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update
-- [ ] Code refactoring
-- [ ] Performance improvement
-- [ ] Other: _______________
+Describe the problem and the change.
 
-## 🎯 Related Issues
-Fixes #(issue number)
-Closes #(issue number)
+## Scope
 
-## 📱 Testing
-- [ ] I have tested these changes locally
-- [ ] I have tested on different devices/Android versions
-- [ ] I have tested both FOSS and Full build variants
-- [ ] I have verified the app builds successfully
+- [ ] Bug fix
+- [ ] Feature
+- [ ] Documentation or metadata
+- [ ] Build, CI, signing, or release process
+- [ ] Privacy, security, permission, or third-party-service behavior
 
-## 📸 Screenshots
-If applicable, add screenshots to show the changes.
+## Validation
 
-## 📋 Checklist
-- [ ] My code follows the project's style guidelines
-- [ ] I have performed a self-review of my code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] Any dependent changes have been merged and published
+List the exact commands run and their result. For ordinary Android changes, include the affected variant(s). The baseline CI path is:
 
-## 🔍 Additional Notes
-Any additional information about the PR.
+```text
+:app:assembleUniversalFossDebug
+:app:testUniversalFossDebugUnitTest
+:app:lintUniversalFossDebug
+```
+
+## Review checklist
+
+- [ ] I reviewed the diff and kept the change focused.
+- [ ] I updated user-facing documentation, privacy notes, or store metadata where needed.
+- [ ] I did not include `local.properties`, `google-services.json`, a keystore, token, APK/AAB, or other credential/generated artifact.
+- [ ] I identified any FOSS/GMS variant impact.
+- [ ] I included safe screenshots or explained why they are not applicable.
+
+## Related work
+
+Link related private issues or describe the context available to reviewers.

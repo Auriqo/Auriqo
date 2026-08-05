@@ -1,65 +1,34 @@
-# Security Policy
+# Security policy
 
-## Supported Versions
+## Supported builds
 
-We release patches for security vulnerabilities in the following versions:
+No release line is currently designated as receiving security updates. Version `1.0.0` (version code `527`) is prepared in the tracked source, but no signed APK, tag, GitHub release, or store publication has been created. It is therefore not a published or supported release. A maintainer must define supported versions when a release channel is established.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 3.x.x   | :white_check_mark: |
-| > 3.0   | :x:                |
+## Reporting a vulnerability
 
-## Reporting a Vulnerability
+Do not open a public issue or pull request for a suspected vulnerability. Use the private vulnerability-reporting/advisory facility available to repository members, or contact a repository maintainer through an already established private channel. Include:
 
-If you discover a security vulnerability in Auriqo, please report it responsibly:
+- affected version, variant, and device/Android version when known;
+- a minimal reproduction or proof of concept;
+- impact and any constraints; and
+- whether credentials, account data, or other sensitive material may have been exposed.
 
-1. **Do NOT** create a public GitHub issue
-2. Email us at: [security@auriqo.fun](mailto:security@auriqo.fun)
-3. Include the following information:
-   - Description of the vulnerability
-   - Steps to reproduce
-   - Potential impact
-   - Any suggested fixes
+Do not attach secrets, keystores, account tokens, or private media data. If a report requires sensitive details, first ask the maintainer for a safe exchange method.
 
-## Security Best Practices
+## Release and build integrity
 
-### For Developers
+CI validates the FOSS debug variant without Firebase configuration or release secrets. Signing and publishing run only for a `v*` tag or a manual dispatch with publishing enabled, and fail if the required signing inputs are absent, the tag/release-note heading differs, or candidate notes contain an unresolved `PENDING:` gate. This is an automation control, not a guarantee that every artifact is safe or suitable for distribution.
 
-- **Never commit sensitive files**: API keys, tokens, and credentials should never be committed to version control
-- **Use environment variables**: Store sensitive configuration in environment variables or secure properties files
-- **Regular updates**: Keep dependencies updated to patch security vulnerabilities
-- **Code review**: All code changes should be reviewed before merging
+Before trusting a release artifact, maintainers should verify its tag, source revision, variant, package ID, signer certificate fingerprint, and checksum using their approved release process. Do not distribute developer keystores or locally built artifacts as official releases.
 
-### For Users
+## Sensitive files
 
-- **Download from official sources**: Only download APKs from official releases or trusted sources
-- **Keep the app updated**: Install updates promptly to receive security patches
-- **Review permissions**: Be aware of the permissions the app requests
+Keep the following untracked and out of reports:
 
-## Sensitive Information
+- `local.properties`
+- `app/google-services.json`
+- release or debug keystores and key material
+- OAuth/API credentials and tokens
+- local media, downloads, backups, and diagnostic logs containing user data
 
-The following files contain sensitive information and should never be committed:
-
-- `google-services.json` - Firebase configuration with API keys
-- `local.properties` - Local development configuration
-- `*.keystore` / `*.jks` - App signing keys
-- `secrets.properties` - API keys and secrets
-- `**/assets/po_token.html` - YouTube authentication tokens
-
-## Data Privacy
-
-Auriqo is committed to user privacy:
-
-- **No personal data collection**: We don't collect personal information
-- **Local storage**: User data is stored locally on the device
-- **Analytics**: We collect minimal usage data and crash reports through Firebase Analytics to improve app stability and enhance the overall user experience.
-- **Open source**: All code is available for review
-
-## Contact
-
-For security-related questions or to report vulnerabilities:
-
-- Email: [security@auriqo.fun](mailto:security@auriqo.fun)
-- GitHub: Create a private security advisory
-
-Thank you for helping keep Auriqo secure!
+See [SETUP.md](SETUP.md) and [BUILD.md](BUILD.md) for the expected local and CI configuration.
