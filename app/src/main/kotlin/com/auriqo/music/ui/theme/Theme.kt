@@ -3,12 +3,9 @@
 package com.auriqo.music.ui.theme
 
 import android.graphics.Bitmap
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -17,7 +14,6 @@ import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.palette.graphics.Palette
 import com.auriqo.music.fonts.LocalLyricsFontFamily
@@ -27,7 +23,7 @@ import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.rememberDynamicColorScheme
 import com.materialkolor.score.Score
 
-val DefaultThemeColor = Color(0xFFED5564)
+val DefaultThemeColor = Color(0xFFFFB20F)
 
 @Composable
 fun auriqoTheme(
@@ -39,23 +35,14 @@ fun auriqoTheme(
     playerFontFamily: FontFamily? = null,
     content: @Composable () -> Unit,
 ) {
-    val context = LocalContext.current
-    
-    val useSystemDynamicColor = (themeColor == DefaultThemeColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-
-    
-    val baseColorScheme = if (useSystemDynamicColor) {
-        
-        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-    } else {
-        
-        rememberDynamicColorScheme(
-            seedColor = themeColor, 
-            isDark = darkTheme,
-            specVersion = ColorSpec.SpecVersion.SPEC_2025,
-            style = PaletteStyle.TonalSpot 
-        )
-    }
+    // Auriqo's solar gold remains the default on every Android version. User-selected
+    // colors still produce a Material tonal scheme with the same contrast guarantees.
+    val baseColorScheme = rememberDynamicColorScheme(
+        seedColor = themeColor,
+        isDark = darkTheme,
+        specVersion = ColorSpec.SpecVersion.SPEC_2025,
+        style = PaletteStyle.TonalSpot,
+    )
 
     
     val colorScheme = remember(baseColorScheme, pureBlack, darkTheme) {
@@ -105,7 +92,7 @@ fun Bitmap.extractGradientColors(): List<Color> {
     return if (orderedColors.size >= 2)
         listOf(Color(orderedColors[0]), Color(orderedColors[1]))
     else
-        listOf(Color(0xFF595959), Color(0xFF0D0D0D))
+        listOf(Color(0xFFFFB20F), Color(0xFF16213E))
 }
 
 fun ColorScheme.pureBlack(apply: Boolean) =
