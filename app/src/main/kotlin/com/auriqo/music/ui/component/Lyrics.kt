@@ -2028,7 +2028,7 @@ private fun LyricsContent(
                                     action = Intent.ACTION_SEND
                                     type = "text/plain"
                                     val songLink =
-                                        "https://auriqo.app/watch?v=${mediaMetadata?.id}"
+                                        "https://music.youtube.com/watch?v=${mediaMetadata?.id}"
                                     
                                     putExtra(
                                         Intent.EXTRA_TEXT,

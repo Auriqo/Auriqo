@@ -46,7 +46,7 @@ data class PlaylistEntity(
     val shareLink: String?
         get() {
             return if (browseId != null)
-                "https://auriqo.app/playlist?list=$browseId"
+                "https://music.youtube.com/playlist?list=$browseId"
             else null
         }
 

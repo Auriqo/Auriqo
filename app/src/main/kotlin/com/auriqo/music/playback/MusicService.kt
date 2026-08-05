@@ -3415,7 +3415,7 @@ class MusicService :
 
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, "https://auriqo.app/watch?v=$songId")
+            putExtra(Intent.EXTRA_TEXT, "https://music.youtube.com/watch?v=$songId")
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         startActivity(Intent.createChooser(shareIntent, null).apply {

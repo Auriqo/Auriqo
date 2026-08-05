@@ -247,14 +247,14 @@ fun SettingDialoge(
                         text = "Privacy Policy",
                         style = MaterialTheme.typography.bodySmall,
                         color = onSecondaryColor,
-                        modifier = Modifier.clickable { uriHandler.openUri("https://auriqo.app/p/privacy-policy") }.padding(4.dp)
+                        modifier = Modifier.clickable { uriHandler.openUri("https://github.com/Auriqo/Auriqo/p/privacy-policy") }.padding(4.dp)
                     )
                     Text(text = " • ", color = onSecondaryColor, style = MaterialTheme.typography.bodySmall)
                     Text(
                         text = "Terms of Service",
                         style = MaterialTheme.typography.bodySmall,
                         color = onSecondaryColor,
-                        modifier = Modifier.clickable { uriHandler.openUri("https://auriqo.app/p/toc") }.padding(4.dp)
+                        modifier = Modifier.clickable { uriHandler.openUri("https://github.com/Auriqo/Auriqo/p/toc") }.padding(4.dp)
                     )
                 }
             }

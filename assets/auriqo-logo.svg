@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffb20f"/>
+      <stop offset="100%" stop-color="#ff8c00"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#bg)"/>
+
+  <!-- Stylized "A" with musical integration -->
+  <!-- Left stroke of A -->
+  <path d="M 120 380 L 220 140 L 240 140 L 180 380 Z" fill="url(#accent)"/>
+
+  <!-- Right stroke of A -->
+  <path d="M 392 380 L 292 140 L 272 140 L 332 380 Z" fill="url(#accent)"/>
+
+  <!-- Crossbar of A morphed into sound wave -->
+  <path d="M 158 280
+           Q 170 280 180 280
+           Q 200 240 220 280
+           Q 240 320 260 280
+           Q 280 240 300 280
+           Q 320 320 340 280
+           Q 350 280 354 280"
+        fill="none" stroke="url(#accent)" stroke-width="10" stroke-linecap="round"/>
+
+  <!-- Musical note dot near top right -->
+  <circle cx="310" cy="175" r="18" fill="url(#accent)"/>
+
+  <!-- Outer ring -->
+  <circle cx="256" cy="256" r="234" fill="none" stroke="url(#accent)" stroke-width="4" opacity="0.3"/>
+</svg>

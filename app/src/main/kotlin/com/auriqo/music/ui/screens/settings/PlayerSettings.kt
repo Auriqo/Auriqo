@@ -338,7 +338,7 @@ highlightKey: String? = null) {
                 title = { Text("Enable Lossless Audio?") },
                 buttons = {
                     TextButton(onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://auriqo.app/donate"))
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Auriqo/Auriqo"))
                         context.startActivity(intent)
                     }) {
                         Text("Donate")
@@ -365,7 +365,7 @@ highlightKey: String? = null) {
                 title = { Text("Enable Lossless Downloads?") },
                 buttons = {
                     TextButton(onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://auriqo.app/donate"))
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Auriqo/Auriqo"))
                         context.startActivity(intent)
                     }) {
                         Text("Donate")

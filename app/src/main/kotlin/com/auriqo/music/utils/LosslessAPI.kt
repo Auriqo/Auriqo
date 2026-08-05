@@ -101,7 +101,7 @@ object LosslessAPI {
         
         return track?.let {
             val resolvedUrl = it.url.replace(
-                "https://auriqo.app/Music/",
+                "https://music.youtube.com/",
                 "https://raw.githubusercontent.com/Auriqo/Auriqo/main/Music/"
             )
             it.copy(url = resolvedUrl)
@@ -111,7 +111,7 @@ object LosslessAPI {
     suspend fun getDonationGoal(): DonationGoal = withContext(Dispatchers.IO) {
         try {
             val request = Request.Builder()
-                .url("https://auriqo.app/goal.json")
+                .url("https://music.youtube.com/")
                 .get()
                 .build()
 
