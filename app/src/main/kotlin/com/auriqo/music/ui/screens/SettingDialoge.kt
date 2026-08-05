@@ -170,7 +170,7 @@ fun SettingDialoge(
                                         )
                                     },
                                     onClick = {
-                                        uriHandler.openUri("https://support.iad1tya.cyou")
+                                        uriHandler.openUri("https://github.com/Auriqo/Auriqo")
                                         onDismissRequest()
                                     }
                                 )

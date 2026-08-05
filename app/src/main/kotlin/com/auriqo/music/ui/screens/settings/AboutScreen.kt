@@ -116,56 +116,6 @@ highlightKey: String? = null) {
             item { AboutAppCard() }
 
             item {
-                AboutSectionCard(title = "Developer") {
-                    AboutActionRow(
-                        icon = painterResource(R.drawable.website),
-                        title = "Website",
-                        subtitle = "iad1tya.cyou",
-                        onClick = { uriHandler.openUri("https://iad1tya.cyou") },
-                    )
-                    AboutDivider()
-                    AboutActionRow(
-                        icon = painterResource(R.drawable.ic_instagram_new),
-                        title = "Instagram",
-                        subtitle = "@iad1tya",
-                        onClick = { uriHandler.openUri("https://instagram.com/iad1tya") },
-                    )
-                    AboutDivider()
-                    AboutActionRow(
-                        icon = painterResource(R.drawable.ic_x_new),
-                        title = "X (Twitter)",
-                        subtitle = "@xad1tya",
-                        onClick = { uriHandler.openUri("https://x.com/xad1tya") },
-                    )
-                }
-            }
-
-            item {
-                AboutSectionCard(title = "Support") {
-                    AboutActionRow(
-                        icon = painterResource(R.drawable.coffee),
-                        title = "Buy Me a Coffee",
-                        subtitle = "buymeacoffee.com/iad1tya",
-                        onClick = { uriHandler.openUri("https://buymeacoffee.com/iad1tya") },
-                    )
-                    AboutDivider()
-                    AboutActionRow(
-                        icon = painterResource(R.drawable.ic_patreon_new),
-                        title = "Patreon",
-                        subtitle = "patreon.com/cw/iad1tya",
-                        onClick = { uriHandler.openUri("https://www.patreon.com/cw/iad1tya") },
-                    )
-                    AboutDivider()
-                    AboutActionRow(
-                        icon = painterResource(R.drawable.upi_new),
-                        title = "UPI",
-                        subtitle = "iad1tya@upi",
-                        onClick = { uriHandler.openUri("https://intradeus.github.io/http-protocol-redirector/?r=upi://pay?pa=iad1tya@upi&pn=Aditya%20Yadav&am=&tn=Thank%20You%20so%20much%20for%20this%20support") },
-                    )
-                }
-            }
-
-            item {
                 AboutSectionCard(title = "App") {
                     AboutActionRow(
                         icon = painterResource(R.drawable.github),
@@ -177,8 +127,8 @@ highlightKey: String? = null) {
                     AboutActionRow(
                         icon = painterResource(R.drawable.ic_discord_new),
                         title = "Discord",
-                        subtitle = "discord.gg/EcfV3AxH5c",
-                        onClick = { uriHandler.openUri("https://discord.gg/EcfV3AxH5c") },
+                        subtitle = "discord.gg/auriqo",
+                        onClick = { uriHandler.openUri("https://discord.gg/auriqo") },
                     )
                     AboutDivider()
                     AboutActionRow(
