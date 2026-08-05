@@ -24,13 +24,13 @@ if (hasGoogleServicesConfig) {
 }
 
 android {
-    namespace = "iad1tya.echo.music"
+    namespace = "com.auriqo.music"
     compileSdk = 36
     ndkVersion = "27.0.12077973"
 
 
     defaultConfig {
-        applicationId = "iad1tya.echo.music"
+        applicationId = "com.auriqo.music"
         minSdk = 26
         targetSdk = 36
         versionCode = 526
@@ -328,7 +328,7 @@ dependencies {
     implementation(project(":shazamkit"))
     implementation(project(":artistvideo"))
     implementation(project(":applecanvas"))
-    implementation(project(":echomusiccanvas"))
+    implementation(project(":auriqocanvas"))
     implementation(project(":paxsenixlyrics"))
     implementation(project(":unison"))
 

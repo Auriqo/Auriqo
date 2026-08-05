@@ -6,16 +6,16 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # WEB_REMIX Streaming - WebView JavaScript interfaces
--keepclassmembers class iad1tya.echo.music.utils.sabr.EjsNTransformSolver$SolverWebView {
+-keepclassmembers class com.soniqo.music.utils.sabr.EjsNTransformSolver$SolverWebView {
     @android.webkit.JavascriptInterface public *;
 }
--keepclassmembers class iad1tya.echo.music.utils.potoken.PoTokenWebView {
+-keepclassmembers class com.soniqo.music.utils.potoken.PoTokenWebView {
     @android.webkit.JavascriptInterface public *;
 }
 
 # Keep streaming utility classes
--keep class iad1tya.echo.music.utils.sabr.** { *; }
--keep class iad1tya.echo.music.utils.potoken.** { *; }
+-keep class com.soniqo.music.utils.sabr.** { *; }
+-keep class com.soniqo.music.utils.potoken.** { *; }
 
 # Keep coroutine continuation for WebView callbacks
 -keepclassmembers class * {
@@ -113,11 +113,11 @@
 
 ## Queue Persistence Rules
 # Keep queue-related classes to prevent serialization issues in release builds
--keep class iad1tya.echo.music.models.PersistQueue { *; }
--keep class iad1tya.echo.music.models.PersistPlayerState { *; }
--keep class iad1tya.echo.music.models.QueueData { *; }
--keep class iad1tya.echo.music.models.QueueType { *; }
--keep class iad1tya.echo.music.playback.queues.** { *; }
+-keep class com.soniqo.music.models.PersistQueue { *; }
+-keep class com.soniqo.music.models.PersistPlayerState { *; }
+-keep class com.soniqo.music.models.QueueData { *; }
+-keep class com.soniqo.music.models.QueueType { *; }
+-keep class com.soniqo.music.playback.queues.** { *; }
 
 # Keep serialization methods for queue persistence
 -keepclassmembers class * implements java.io.Serializable {
@@ -131,7 +131,7 @@
 -keep interface com.yalantis.ucrop** { *; }
 
 ## Google Cast Rules
--keep class iad1tya.echo.music.cast.** { *; }
+-keep class com.soniqo.music.cast.** { *; }
 -keep class com.google.android.gms.cast.** { *; }
 -keep class androidx.mediarouter.** { *; }
 
@@ -139,8 +139,8 @@
 -dontwarn com.google.re2j.**
 
 # Vibra fingerprint library
--keep class iad1tya.echo.music.recognition.VibraSignature { *; }
--keepclassmembers class iad1tya.echo.music.recognition.VibraSignature {
+-keep class com.soniqo.music.recognition.VibraSignature { *; }
+-keepclassmembers class com.soniqo.music.recognition.VibraSignature {
     native <methods>;
 }
 
@@ -170,13 +170,13 @@
 }
 
 ## Listen Together Serialization
--keep class iad1tya.echo.music.listentogether.** { *; }
--keepclassmembers class iad1tya.echo.music.listentogether.** {
+-keep class com.soniqo.music.listentogether.** { *; }
+-keepclassmembers class com.soniqo.music.listentogether.** {
     *;
 }
--keepclassmembers class iad1tya.echo.music.listentogether.** {
+-keepclassmembers class com.soniqo.music.listentogether.** {
     *** Companion;
 }
--keepclasseswithmembers class iad1tya.echo.music.listentogether.** {
+-keepclasseswithmembers class com.soniqo.music.listentogether.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
