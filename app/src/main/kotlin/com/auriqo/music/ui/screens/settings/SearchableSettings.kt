@@ -383,7 +383,6 @@ fun getAllSearchableSettings(): List<Triple<String, String, String>> {
             Triple("Suggestions Region", "Content", "settings/content"),
             Triple(stringResource(R.string.content_sponsor_block), "Content", "settings/content"),
             Triple("Speed Dial", "Content", "settings/content"),
-            Triple(stringResource(R.string.service_uptime), "Content", "settings/content"),
             Triple("Hide volume slider", "Appearance", "settings/appearance"),
             Triple("Show codec on player", "Appearance", "settings/appearance")
 ,

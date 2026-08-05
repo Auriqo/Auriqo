@@ -9,6 +9,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.os.Trace
 import android.widget.Toast
 import androidx.datastore.preferences.core.edit
 import coil3.ImageLoader
@@ -31,6 +32,7 @@ import com.auriqo.music.extensions.toInetSocketAddress
 import com.auriqo.music.utils.CrashHandler
 import com.auriqo.music.utils.dataStore
 import com.auriqo.music.utils.reportException
+import com.auriqo.music.utils.StartupMetrics
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +42,6 @@ import android.content.Intent
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.Credentials
 import timber.log.Timber
@@ -101,20 +102,29 @@ class App : Application(), SingletonImageLoader.Factory {
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
+        StartupMetrics.mark("Application created")
 
-        com.auriqo.music.utils.cipher.CipherDeobfuscator.initialize(this)
+        Trace.beginSection("Auriqo.CipherDeobfuscator.initialize")
+        try {
+            com.auriqo.music.utils.cipher.CipherDeobfuscator.initialize(this)
+        } finally {
+            Trace.endSection()
+        }
 
         applicationScope.launch(Dispatchers.IO) {
             cachedCoilCacheSize = dataStore.data.map { it[MaxImageCacheSizeKey] ?: 512 }.first()
+            StartupMetrics.mark("Image cache preference loaded")
         }
 
         applicationScope.launch {
             initializeSettings()
+            StartupMetrics.mark("Initial settings applied")
             
             observeSettingsChanges()
             
             launch(Dispatchers.Main) {
                 runCatching { com.auriqo.music.utils.cipher.CipherDeobfuscator.prewarm() }
+                StartupMetrics.mark("Cipher prewarm scheduled")
             }
         }
     }
@@ -264,13 +274,15 @@ class App : Application(), SingletonImageLoader.Factory {
         }
     }
 
+    /**
+     * Coil can request its singleton loader before DataStore has emitted. Use the
+     * documented default in that case instead of blocking the caller thread.
+     */
     @Volatile
-    private var cachedCoilCacheSize: Int? = null
+    private var cachedCoilCacheSize: Int = DEFAULT_COIL_CACHE_SIZE_MB
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {
-        val cacheSize = cachedCoilCacheSize ?: runBlocking {
-            dataStore.data.map { it[MaxImageCacheSizeKey] ?: 512 }.first()
-        }
+        val cacheSize = cachedCoilCacheSize
         return ImageLoader.Builder(this).apply {
             crossfade(true)
             allowHardware(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
@@ -294,6 +306,8 @@ class App : Application(), SingletonImageLoader.Factory {
     }
 
     companion object {
+        private const val DEFAULT_COIL_CACHE_SIZE_MB = 512
+
         lateinit var appContext: Context
             private set
 

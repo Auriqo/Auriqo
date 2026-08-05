@@ -77,7 +77,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.auriqo"
+            android:theme="@style/Theme.auriqo.Starting"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -96,18 +96,6 @@
             <intent-filter>
                 <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
                 <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <!-- Listen Together invite link (HTTPS App Link - works after APK installation verification) -->
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="https" />
-                <data android:host="auriqo-listen-together.example.com" />
-                <data android:pathPrefix="/listen" />
             </intent-filter>
 
             <!-- Custom scheme for direct opens from browser (works in ALL browsers) -->

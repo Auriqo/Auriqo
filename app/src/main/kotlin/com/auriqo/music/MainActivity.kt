@@ -119,6 +119,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
 import android.view.HapticFeedbackConstants
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.util.fastAny
@@ -199,6 +200,8 @@ import com.auriqo.music.playback.MusicService
 import com.auriqo.music.playback.MusicService.MusicBinder
 import com.auriqo.music.playback.PlayerConnection
 import com.auriqo.music.playback.queues.YouTubeQueue
+import com.auriqo.music.privacy.TelemetryConsentDialog
+import com.auriqo.music.privacy.TelemetryConsentStore
 import com.auriqo.music.ui.component.*
 import com.auriqo.music.ui.component.backdrop.backdrops.rememberLayerBackdrop
 import com.auriqo.music.ui.component.backdrop.backdrops.layerBackdrop
@@ -247,7 +250,15 @@ class MainActivity : ComponentActivity() {
         const val ACTION_LIBRARY = "com.auriqo.music.action.LIBRARY"
         const val ACTION_RECOGNITION = "com.auriqo.music.action.RECOGNITION"
         const val EXTRA_AUTO_START_RECOGNITION = "auto_start_recognition"
+        /** Debug/instrumentation-only controls for deterministic Compose smoke tests. */
+        const val EXTRA_UI_SMOKE_TEST = "com.auriqo.music.extra.UI_SMOKE_TEST"
+        const val EXTRA_UI_SMOKE_START_DESTINATION = "com.auriqo.music.extra.UI_SMOKE_START_DESTINATION"
     }
+
+    private fun isUiSmokeTest(): Boolean = BuildConfig.DEBUG && (
+        android.app.ActivityManager.isRunningInTestHarness() ||
+            intent?.getBooleanExtra(EXTRA_UI_SMOKE_TEST, false) == true
+        )
 
     @Inject
     lateinit var database: MusicDatabase
@@ -300,7 +311,7 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (!isUiSmokeTest() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1000)
             }
@@ -369,6 +380,10 @@ class MainActivity : ComponentActivity() {
 
         
         listenTogetherManager.initialize()
+
+        lifecycleScope.launch {
+            TelemetryConsentStore.synchronize(this@MainActivity)
+        }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             val locale = dataStore[AppLanguageKey]
@@ -446,14 +461,14 @@ class MainActivity : ComponentActivity() {
                 delay(2000L)
                 checkForUpdate(
                     context = context,
-                    onSuccess = { latestVersion, isAvailable, _, _, _, _, _, _ ->
+                    onSuccess = { latestVersion, isAvailable, _, _, _, _, _, apkUrl ->
                         val currentVersion = BuildConfig.VERSION_NAME
                         Log.d("UpdateCheck", "Startup check success. Latest: $latestVersion, Current: $currentVersion, isAvailable: $isAvailable")
                         saveUpdateAvailableState(context, isAvailable)
                         
-                        if (isAvailable && getUpdateNotificationsSetting(context)) {
+                        if (isAvailable && apkUrl != null && getUpdateNotificationsSetting(context)) {
                             Log.d("UpdateCheck", "Posting update notification for $latestVersion")
-                            UpdateNotificationHelper.showUpdateNotification(context, latestVersion)
+                            UpdateNotificationHelper.showUpdateNotification(context, latestVersion, apkUrl)
                         }
                     },
                     onError = {
@@ -622,6 +637,10 @@ class MainActivity : ComponentActivity() {
                 val (useNewMiniPlayerDesign) = rememberPreference(UseNewMiniPlayerDesignKey, defaultValue = true)
                 val defaultOpenTab = remember {
                     dataStore[DefaultOpenTabKey].toEnum(defaultValue = NavigationTab.HOME)
+                }
+                val uiSmokeStartDestination = remember(intent) {
+                    intent?.getStringExtra(EXTRA_UI_SMOKE_START_DESTINATION)
+                        ?.takeIf { isUiSmokeTest() && it in setOf("home", "search_input", "settings") }
                 }
                 val tabOpenedFromShortcut = remember {
                     when (intent?.action) {
@@ -1014,7 +1033,10 @@ class MainActivity : ComponentActivity() {
                                                     )
                                                 }
                                             }
-                                             IconButton(onClick = { showSettingDialoge = true }) {
+                                             IconButton(
+                                                onClick = { showSettingDialoge = true },
+                                                modifier = Modifier.testTag("home.settings"),
+                                            ) {
                                                 BadgedBox(badge = {}) {
                                                     if (accountImageUrl != null) {
                                                         AsyncImage(
@@ -1080,7 +1102,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
 
-                            if (!showRail && currentRoute != "update" && currentRoute != "listen_together/chat" && currentRoute != "ambient_mode" && currentRoute != "uptime" && currentRoute?.startsWith("settings") != true) {
+                            if (!showRail && currentRoute != "update" && currentRoute != "listen_together/chat" && currentRoute != "ambient_mode" && currentRoute?.startsWith("settings") != true) {
                                 Box {
                                     BottomSheetPlayer(
                                         state = playerBottomSheetState,
@@ -1179,7 +1201,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             } else {
-                                if (currentRoute != "update" && currentRoute != "listen_together/chat" && currentRoute != "ambient_mode" && currentRoute != "uptime" && currentRoute?.startsWith("settings") != true) {
+                                if (currentRoute != "update" && currentRoute != "listen_together/chat" && currentRoute != "ambient_mode" && currentRoute?.startsWith("settings") != true) {
                                     BottomSheetPlayer(
                                         state = playerBottomSheetState,
                                         navController = navController,
@@ -1257,7 +1279,7 @@ class MainActivity : ComponentActivity() {
                                 
                                 NavHost(
                                     navController = navController,
-                                    startDestination = when (tabOpenedFromShortcut ?: defaultOpenTab) {
+                                    startDestination = uiSmokeStartDestination ?: when (tabOpenedFromShortcut ?: defaultOpenTab) {
                                         NavigationTab.HOME -> Screens.Home
                                         NavigationTab.LIBRARY -> Screens.Library
                                         else -> Screens.Home
@@ -1404,13 +1426,17 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    if (showWelcomeDialog) {
+                    if (showWelcomeDialog && !isUiSmokeTest()) {
                         WelcomeDialog(
                             onDismissRequest = {
                                 showWelcomeDialog = false
                                 setLastOpenedVersionCode(BuildConfig.VERSION_CODE)
                             }
                         )
+                    }
+
+                    if (!isUiSmokeTest()) {
+                        TelemetryConsentDialog()
                     }
 
                 }
