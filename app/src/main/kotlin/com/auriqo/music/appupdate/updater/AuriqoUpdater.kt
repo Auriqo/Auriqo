@@ -61,6 +61,8 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.auriqo.music.BuildConfig
 import com.auriqo.music.R
+import com.auriqo.music.appupdate.ReleaseApkArtifacts
+import com.auriqo.music.appupdate.ReleaseApkAsset
 import coil3.compose.AsyncImage
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -335,7 +337,11 @@ fun UpdateScreen(navController: NavHostController) {
                                                 ContextCompat.startActivity(context, installIntent, null)
                                             }
                                         } else {
-                                            val urlToDownload = currentStatus.apkUrl ?: "https://github.com/Auriqo/Auriqo/releases/download/${currentStatus.version}/auriqo.apk"
+                                            val urlToDownload = currentStatus.apkUrl
+                                                ?: ReleaseApkArtifacts.downloadUrl(
+                                                    currentStatus.version,
+                                                    BuildConfig.ARCHITECTURE,
+                                                )
                                             
                                             val constraints = Constraints.Builder()
                                                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -716,22 +722,36 @@ suspend fun checkForUpdate(
                 val formattedReleaseDate = formatGitHubDate(publishedAt)
                 val assets = targetRelease.getJSONArray("assets")
 
-                var apkSizeInMB = ""
-                var apkDownloadUrl = ""
-                for (j in 0 until assets.length()) {
-                    val asset = assets.getJSONObject(j)
-                    val assetName = asset.getString("name")
-                    if (assetName.endsWith(".apk", ignoreCase = true) && !assetName.lowercase().contains("debug")) {
-                        val apkSizeInBytes = asset.getLong("size")
-                        apkSizeInMB = String.format("%.1f", apkSizeInBytes / (1024.0 * 1024.0))
-                        apkDownloadUrl = asset.getString("browser_download_url")
-                        break
+                val releaseAssets = buildList {
+                    for (j in 0 until assets.length()) {
+                        val asset = assets.getJSONObject(j)
+                        add(
+                            ReleaseApkAsset(
+                                name = asset.getString("name"),
+                                downloadUrl = asset.getString("browser_download_url"),
+                                sizeBytes = asset.getLong("size"),
+                            )
+                        )
                     }
                 }
+                val apkAsset = ReleaseApkArtifacts.selectCompatibleAsset(
+                    assets = releaseAssets,
+                    architecture = BuildConfig.ARCHITECTURE,
+                )
 
-                if (apkDownloadUrl.isNotEmpty()) {
+                if (apkAsset != null) {
+                    val apkSizeInMB = String.format("%.1f", apkAsset.sizeBytes / (1024.0 * 1024.0))
                     withContext(Dispatchers.Main) {
-                        onSuccess(displayTag, true, changelogList, apkSizeInMB, formattedReleaseDate, description, imageUrl, apkDownloadUrl)
+                        onSuccess(
+                            displayTag,
+                            true,
+                            changelogList,
+                            apkSizeInMB,
+                            formattedReleaseDate,
+                            description,
+                            imageUrl,
+                            apkAsset.downloadUrl,
+                        )
                     }
                     return@withContext
                 }

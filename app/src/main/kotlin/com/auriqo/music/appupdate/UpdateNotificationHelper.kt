@@ -18,7 +18,7 @@ object UpdateNotificationHelper {
     private const val CHANNEL_ID = "updates"
     private const val NOTIFICATION_ID = 1001
 
-    fun showUpdateNotification(context: Context, versionName: String) {
+    fun showUpdateNotification(context: Context, versionName: String, apkUrl: String) {
         val nm = context.getSystemService(NotificationManager::class.java)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -30,19 +30,13 @@ object UpdateNotificationHelper {
             nm.createNotificationChannel(channel)
         }
 
-        
-        val apkUrl = if (versionName.contains("nightly", ignoreCase = true)) {
-            "https://nightly.link/Auriqo/Auriqo/workflows/nightly.yml/main/auriqo-gms-nightly.zip"
-        } else {
-            "https://github.com/Auriqo/Auriqo/releases/download/$versionName/auriqo.apk"
-        }
         val intent = Intent(Intent.ACTION_VIEW, apkUrl.toUri())
 
         val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         val pending = PendingIntent.getActivity(context, NOTIFICATION_ID, intent, flags)
 
         val notif = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_nobg)
+            .setSmallIcon(R.drawable.ic_auriqo_notification)
             .setContentTitle(context.getString(R.string.update_available_title))
             .setContentText(versionName)
             .setContentIntent(pending)
