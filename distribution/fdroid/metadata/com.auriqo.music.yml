@@ -1,0 +1,30 @@
+Categories:
+  - Multimedia
+License: GPL-3.0-only
+AutoName: Auriqo
+Summary: Android music playback with downloads, lyrics, and optional services
+Description: |-
+  Auriqo is an Android music application.
+
+  This is a preparatory F-Droid metadata record, not a submission. The application ID is
+  `com.auriqo.music`. F-Droid publication is blocked until a maintainer provides a public,
+  reviewable source location; the source repository is private at present.
+Builds:
+  - versionName: 1.0.0
+    versionCode: 527
+    commit: PENDING_RELEASE_REVISION
+    gradle:
+      - yes
+    build:
+      - ./gradlew :app:assembleUniversalFossRelease
+    output: app/build/outputs/apk/universalFoss/release/app-universal-foss-release-unsigned.apk
+    prebuild:
+      - 'echo "Publication blocked: replace this template after source availability, reproducible build, and signing policy review."'
+AutoUpdateMode: None
+UpdateCheckMode: None
+CurrentVersion: 1.0.0
+CurrentVersionCode: 527
+Disabled: >-
+  Publication prerequisite: repository source is private. Before submitting to F-Droid, provide
+  a public reviewable source URL, a real immutable release commit/tag, reproducible FOSS build
+  instructions, licensing/dependency review, and maintainership/contact metadata.
