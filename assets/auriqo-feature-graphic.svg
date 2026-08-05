@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+  <defs>
+    <linearGradient id="night" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1A1A2E"/><stop offset="1" stop-color="#16213E"/></linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFB20F"/><stop offset="1" stop-color="#FF8C00"/></linearGradient>
+  </defs>
+  <rect width="1024" height="500" fill="url(#night)"/>
+  <path d="M0 398 C150 344 258 452 418 396 S682 337 1024 414" fill="none" stroke="#F7F5EF" stroke-opacity=".12" stroke-width="2"/>
+  <path d="M0 430 C171 368 288 483 462 426 S740 362 1024 452" fill="none" stroke="#FFB20F" stroke-opacity=".34" stroke-width="3"/>
+  <g transform="translate(86 88)">
+    <circle cx="162" cy="162" r="154" fill="#16213E" stroke="#FFB20F" stroke-opacity=".35" stroke-width="4"/>
+    <path d="M65 246 L130 82 L144 82 L105 246 Z M259 246 L194 82 L180 82 L219 246 Z" fill="url(#sun)"/>
+    <path d="M92 178 Q106 178 116 178 Q133 151 149 178 Q165 205 181 178 Q197 151 213 178 Q229 205 244 178 Q252 178 258 178" fill="none" stroke="url(#sun)" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="207" cy="106" r="12" fill="url(#sun)"/>
+  </g>
+  <text x="438" y="219" fill="#F7F5EF" font-family="sans-serif" font-size="88" font-weight="700" letter-spacing="-3">Auriqo</text>
+  <text x="444" y="276" fill="#FFB20F" font-family="sans-serif" font-size="20" font-weight="600" letter-spacing="5">LISTEN WITH INTENT</text>
+  <path d="M444 313 H878" stroke="#F7F5EF" stroke-opacity=".25"/>
+  <text x="444" y="353" fill="#F7F5EF" fill-opacity=".76" font-family="sans-serif" font-size="22">Your music, in focus.</text>
+</svg>
