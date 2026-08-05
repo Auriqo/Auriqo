@@ -67,6 +67,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -258,7 +259,7 @@ private fun ToolbarItemsContainer(
                     modifier = Modifier.onGloballyPositioned { coordinates ->
                         itemWidths[screen] = with(density) { coordinates.size.width.toDp() }
                         itemPositions[screen] = with(density) { coordinates.positionInParent().x.toDp() }
-                    }
+                    }.testTag("navigation.${screen.route}")
                 )
             }
         }

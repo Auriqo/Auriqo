@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -88,6 +89,7 @@ highlightKey: String? = null) {
             .windowInsetsPadding(LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Horizontal))
             .verticalScroll(scrollState)
             .padding(horizontal = 16.dp)
+            .testTag("settings.surface")
     ) {
         Spacer(
             Modifier.windowInsetsPadding(
@@ -129,6 +131,7 @@ highlightKey: String? = null) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp, bottom = 16.dp)
+                .testTag("settings.filter")
         )
 
         val itemsList = buildList {
@@ -164,28 +167,6 @@ highlightKey: String? = null) {
                 )
             }
 
-            val contributeLosslessText = stringResource(R.string.contribute_to_lossless)
-            if (contributeLosslessText.lowercase().contains(searchLower)) {
-                add(
-                    Material3SettingsItem(
-                        isHighlighted = (highlightKey == contributeLosslessText),
-                        customIcon = {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_apple_lossless),
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp),
-                                tint = if (highlightKey == contributeLosslessText)
-                                    MaterialTheme.colorScheme.primary
-                                else
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.9f)
-                            )
-                        },
-                        title = { Text(contributeLosslessText) },
-                        onClick = { navController.navigate("settings/lossless") }
-                    )
-                )
-            }
-
             if (appearanceText.lowercase().contains(searchLower)) {
                 add(
                     Material3SettingsItem(
@@ -199,9 +180,10 @@ highlightKey: String? = null) {
             if (playerText.lowercase().contains(searchLower)) {
                 add(
                     Material3SettingsItem(
-    isHighlighted = (highlightKey == playerText),
+                        isHighlighted = (highlightKey == playerText),
                         icon = painterResource(R.drawable.play),
                         title = { Text(playerText) },
+                        testTag = "settings.player",
                         onClick = { navController.navigate("settings/player") }
                     )
                 )

@@ -27,9 +27,8 @@ object PlayerSliderColors {
                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                 }
             }
-            PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT, PlayerBackgroundStyle.GLOW_ANIMATED, PlayerBackgroundStyle.APPLE_MUSIC, PlayerBackgroundStyle.LIVE_MESH, PlayerBackgroundStyle.LIQUID_GLASS -> {
-                Color.White.copy(alpha = 0.4f)
-            }
+            PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT, PlayerBackgroundStyle.GLOW_ANIMATED, PlayerBackgroundStyle.APPLE_MUSIC, PlayerBackgroundStyle.LIVE_MESH, PlayerBackgroundStyle.LIQUID_GLASS ->
+                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.42f)
         }
         
         return SliderDefaults.colors(

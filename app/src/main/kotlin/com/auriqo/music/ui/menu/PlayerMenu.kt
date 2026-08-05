@@ -84,6 +84,7 @@ import com.auriqo.music.constants.ExportingSongIdsKey
 import com.auriqo.music.constants.ListItemHeight
 import com.auriqo.music.listentogether.ConnectionState
 import com.auriqo.music.listentogether.ListenTogetherEvent
+import com.auriqo.music.listentogether.ListenTogetherServers
 import com.auriqo.music.models.MediaMetadata
 import com.auriqo.music.playback.ExoDownloadService
 import com.auriqo.music.ui.component.BottomSheetState
@@ -1388,30 +1389,32 @@ fun ListenTogetherDialog(
                             if (isHost) {
                                 Spacer(modifier = Modifier.height(12.dp))
                                 val inviteLink = remember(room.roomCode) {
-                                    "https://auriqo-listen-together.example.com/listen?code=${room.roomCode}"
+                                    ListenTogetherServers.inviteLink(room.roomCode)
                                 }
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.Center
                                 ) {
-                                    FilledTonalButton(
-                                        onClick = {
-                                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                                            val clip = android.content.ClipData.newPlainText("Listen Together Link", inviteLink)
-                                            clipboard.setPrimaryClip(clip)
-                                            Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+                                    inviteLink?.let { link ->
+                                        FilledTonalButton(
+                                            onClick = {
+                                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                                val clip = android.content.ClipData.newPlainText("Listen Together Link", link)
+                                                clipboard.setPrimaryClip(clip)
+                                                Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
+                                            }
+                                        ) {
+                                            Icon(
+                                                painter = painterResource(R.drawable.link),
+                                                contentDescription = stringResource(R.string.copy_link),
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(stringResource(R.string.copy_link))
                                         }
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.link),
-                                            contentDescription = stringResource(R.string.copy_link),
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(stringResource(R.string.copy_link))
-                                    }
 
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                    }
 
                                     FilledTonalButton(
                                         onClick = {

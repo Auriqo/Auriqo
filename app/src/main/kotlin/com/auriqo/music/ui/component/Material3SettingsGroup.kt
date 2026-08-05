@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 
@@ -102,6 +103,7 @@ private fun Material3SettingsItemRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .then(if (item.testTag != null) Modifier.testTag(item.testTag) else Modifier)
             .clickable(
                 enabled = item.enabled && item.onClick != null,
                 onClick = { item.onClick?.invoke() }
@@ -257,5 +259,7 @@ data class Material3SettingsItem(
     val tintIcon: Boolean = true,
     val iconShape: Shape? = null,
     val enabled: Boolean = true,
+    /** Optional stable semantics identifier for automation. */
+    val testTag: String? = null,
     val onClick: (() -> Unit)? = null
 )

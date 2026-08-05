@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -110,6 +111,7 @@ fun AppNavigationRail(
                     
                 },
                 interactionSource = interactionSource,
+                modifier = Modifier.testTag("navigation.${screen.route}"),
                 icon = {
                     Icon(
                         painter = painterResource(id = iconRes),
@@ -197,6 +199,7 @@ fun AppNavigationBar(
                     
                 },
                 interactionSource = interactionSource,
+                modifier = Modifier.testTag("navigation.${screen.route}"),
                 icon = {
                     Icon(
                         painter = painterResource(id = iconRes),

@@ -63,6 +63,12 @@ fun AboutScreen(
 highlightKey: String? = null) {
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
+    var showOssLicenses by remember { mutableStateOf(false) }
+
+    if (showOssLicenses) {
+        OssLicensesScreen(onBack = { showOssLicenses = false })
+        return
+    }
 
     Scaffold(
         modifier = Modifier
@@ -122,6 +128,13 @@ highlightKey: String? = null) {
                         title = "GitHub",
                         subtitle = "Auriqo/Auriqo",
                         onClick = { uriHandler.openUri("https://github.com/Auriqo/Auriqo") },
+                    )
+                    AboutDivider()
+                    AboutActionRow(
+                        icon = painterResource(R.drawable.info),
+                        title = stringResource(R.string.oss_licenses),
+                        subtitle = stringResource(R.string.oss_licenses_subtitle),
+                        onClick = { showOssLicenses = true },
                     )
                     AboutDivider()
                     AboutActionRow(

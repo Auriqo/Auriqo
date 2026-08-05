@@ -105,7 +105,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.delay
 import com.auriqo.music.applecanvas.AppleMusicCanvasProvider
-import com.auriqo.music.appupdatecanvas.AuriqoCanvasProvider
 import java.util.Locale
 
 
@@ -753,14 +752,10 @@ private fun ThumbnailItem(
                                     )?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }?.let { return@firstNotNullOfOrNull it }
                                 }
 
-                                AuriqoCanvasProvider.getBySongArtist(
+                                TidalCanvasProvider.getBySongArtist(
                                     song = s,
-                                    artist = a
-                                )?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
-                                    ?: TidalCanvasProvider.getBySongArtist(
-                                        song = s,
-                                        artist = a,
-                                        album = albumName
+                                    artist = a,
+                                    album = albumName
                                     )?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
                                     ?: AppleMusicCanvasProvider.getBySongArtist(
                                         song = s,
