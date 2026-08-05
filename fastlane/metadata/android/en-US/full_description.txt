@@ -1,11 +1,18 @@
-Auriqo delivers a seamless, premium listening experience by leveraging YouTube Music's vast library — without the ads. It adds powerful extras including offline downloads, real-time synchronized lyrics, and environment-aware music recognition.
+Auriqo is an Android music app for playback, local library use, downloads, lyrics, and optional music services.
 
 Features:
-* Ad-Free — Stream without any interruptions.
-* Seamless Playback — Switch effortlessly between audio-only and video modes.
-* Background Playback — Listen while using other apps or with the screen off.
-* Offline Mode — Download tracks, albums, and playlists via a dedicated download manager.
-* Echo Find — Identify songs playing around you using advanced audio recognition.
-* Multiple Lyric Animations — Choose from various lyric display styles with word-by-word synchronization.
-* Smart Recommendations — Personalized suggestions based on your listening history.
-* Echo Brain — An intelligent, on-device engine that analyzes your listening momentum and auto-injects perfectly aligned tracks into your queue.
+
+* Stream and play supported music sources.
+* Keep selected media available for offline playback.
+* View synchronized lyrics where a lyric source provides them.
+* Search, manage playlists, and use playback controls in the background.
+* Identify music with the optional microphone-based recognition feature.
+* Import supported playlists and connect optional services when you choose to do so.
+* Choose FOSS or GMS distribution variants where they are made available by an authorized distributor.
+* Review bundled open-source attribution notices without a runtime network request.
+
+Privacy and service choices:
+
+Some features make requests to content, lyric, recognition, translation, or optional account providers. The GMS variant includes Firebase Analytics and Crashlytics dependencies, with collection disabled by default and enabled only after an explicit recorded opt-in. The FOSS variant excludes those flavor-specific dependencies and telemetry controls. Review the distribution-specific privacy notice, requested permissions, and third-party terms before enabling optional services.
+
+This listing text is prepared metadata only. It does not state that Auriqo has been submitted to or is available from Google Play.

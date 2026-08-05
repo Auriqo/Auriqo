@@ -1,1 +1,1 @@
-A modern Android music app with ad-free streaming, synced lyrics, offline playback, and an intuitive user experience.
+A music app with playback, downloads, lyrics, and optional services.
