@@ -3,7 +3,6 @@
 package com.auriqo.music.lyrics
 
 import android.content.Context
-import android.util.LruCache
 import com.auriqo.music.constants.LyricsProviderOrderKey
 import com.auriqo.music.constants.PreferredLyricsProvider
 import com.auriqo.music.constants.PreferredLyricsProviderKey
@@ -53,7 +52,7 @@ constructor(
 
 
 
-    private val cache = LruCache<String, List<LyricsResult>>(MAX_CACHE_SIZE)
+    private val cache = LyricsResultCache(MAX_CACHE_SIZE)
     private var currentLyricsJob: Job? = null
 
     suspend fun getLyrics(mediaMetadata: MediaMetadata): LyricsWithProvider {
@@ -107,25 +106,26 @@ constructor(
             }
 
             var responses = 0
-            val receivedUnsynced = mutableListOf<LyricsWithProvider>()
+            val receivedResults = mutableListOf<LyricsWithProvider>()
 
             val synced = withTimeoutOrNull(UNSYNCED_WAIT_TIMEOUT_MS) {
                 while (responses < providers.size) {
                     val result = channel.receive()
                     responses++
                     if (result != null) {
+                        receivedResults += result
                         val isSynced = result.lyrics.trimStart().startsWith("[")
                         if (isSynced) {
                             return@withTimeoutOrNull result
-                        } else {
-                            receivedUnsynced.add(result)
                         }
                     }
                 }
                 null
             }
             coroutineContext.cancelChildren()
-            return@coroutineScope synced ?: receivedUnsynced.firstOrNull() ?: LyricsWithProvider(LYRICS_NOT_FOUND, "Unknown")
+            return@coroutineScope synced
+                ?: LyricsFallbackPolicy.select(receivedResults)
+                ?: LyricsWithProvider(LYRICS_NOT_FOUND, "Unknown")
         }
     }
 
@@ -201,3 +201,25 @@ data class LyricsWithProvider(
     val lyrics: String,
     val provider: String,
 )
+
+/** Selects the preferred result after provider requests complete or time out. */
+internal object LyricsFallbackPolicy {
+    fun select(results: List<LyricsWithProvider>): LyricsWithProvider? =
+        results.firstOrNull { it.lyrics.trimStart().startsWith("[") } ?: results.firstOrNull()
+}
+
+/** Small access-ordered cache that bounds retained provider responses by media id. */
+internal class LyricsResultCache(private val maxEntries: Int) {
+    private val entries = object : LinkedHashMap<String, List<LyricsResult>>(maxEntries, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, List<LyricsResult>>?): Boolean =
+            size > maxEntries
+    }
+
+    @Synchronized
+    fun get(mediaId: String): List<LyricsResult>? = entries[mediaId]
+
+    @Synchronized
+    fun put(mediaId: String, results: List<LyricsResult>) {
+        entries[mediaId] = results
+    }
+}
