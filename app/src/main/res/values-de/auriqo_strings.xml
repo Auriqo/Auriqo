@@ -304,14 +304,13 @@
     <string name="wrapped_ready_title">Dein Wrapped ist bereit!</string>
     <string name="wrapped_ready_subtitle">Zeit, einen Blick auf die Highlights des Jahres zu werfen.</string>
     <string name="wrapped_thank_you">Danke fürs Zuhören</string>
-    <string name="wrapped_special_thanks">Besonderer Dank gilt MO Agamy für die Erstellung von auriqo.</string>
     <string name="wrapped_close">Wrapped schließen</string>
     <string name="wrapped_playlist_title">Dein %s Wrapped</string>
     <string name="wrapped_create_playlist">Playlist erstellen</string>
     <string name="wrapped_playlist_saved">Playlist gespeichert</string>
     <string name="casting_to">Übertragung auf %s</string>
     <string name="progress_percent">Fortschritt %s%%</string>
-    <string name="listening_to_auriqo"auriqo hören</string>
+    <string name="listening_to_auriqo">auriqo hören</string>
     <string name="listen_on_youtube_music">Auf YouTube Music anhören</string>
     <string name="visit_auriqo">Besuchen Sie auriqo</string>
     <string name="open">Öffnen</string>
@@ -322,7 +321,7 @@
     <string name="failed_to_parse_proxy">Die Proxy-URL konnte nicht analysiert werden.</string>
     <string name="wrapped_artist_image_content_description">Künstlerbild</string>
     <string name="wrapped_top_song_album_art_content_description">Albumcover</string>
-    <string name="wrapped_logo_content_description"auriqo Logo</string>
+    <string name="wrapped_logo_content_description">auriqo Logo</string>
     <string name="wrapped_year">2025</string>
     <string name="top_result">Top Ergebnis</string>
     <string name="wrapped_top_artist_image_content_description">Bild des Top-Künstlers</string>
@@ -487,7 +486,7 @@
     <string name="crash_description">Ein unerwarteter Fehler ist aufgetreten. Bitte teile uns den Absturzbericht mit, damit wir das Problem beheben können.</string>
     <string name="crash_share_logs">Protokolle teilen</string>
     <string name="crash_share_title">Absturzbericht teilen</string>
-    <string name="crash_report_subject"auriqo Absturzbericht</string>
+    <string name="crash_report_subject">auriqo Absturzbericht</string>
     <string name="crash_close">Schließen</string>
     <string name="crash_no_log">Kein Absturzprotokoll verfügbar</string>
     <string name="palette_dynamic">Dynamisch</string>

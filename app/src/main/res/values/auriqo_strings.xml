@@ -473,12 +473,11 @@
     <string name="wrapped_end_create_playlist">Create Your Wrapped Playlist</string>
     <string name="wrapped_end_creating_playlist">Creating...</string>
     <string name="wrapped_end_playlist_saved">Playlist Saved</string>
-    <string name="wrapped_logo_content_description"auriqo Logo</string>
+    <string name="wrapped_logo_content_description">Auriqo Logo</string>
     <string name="wrapped_year">2025</string>
     <string name="wrapped_ready_title">YOUR WRAPPED IS READY!</string>
     <string name="wrapped_ready_subtitle">Time to see what you loved this year.</string>
     <string name="wrapped_thank_you">Thank you for listening</string>
-    <string name="wrapped_special_thanks">Special thanks to echodh for creating auriqo</string>
     <string name="wrapped_close">Close wrapped</string>
     <string name="wrapped_playlist_title">Your %s Wrapped</string>
     <string name="wrapped_create_playlist">Create playlist</string>
@@ -605,6 +604,7 @@
     <string name="listen_together">Listen Together</string>
     <string name="listen_together_desc">Listen to music with friends in real-time</string>
     <string name="listen_together_server_url">Server URL</string>
+    <string name="listen_together_server_url_invalid">Enter a secure WebSocket URL beginning with wss://.</string>
     <string name="listen_together_choose_server">Choose server</string>
     <string name="listen_together_custom_server">Custom server</string>
     <string name="listen_together_use_custom_server">Use custom server</string>
@@ -700,20 +700,6 @@
 
     <!-- AI Lyrics Translation -->
     <string name="ai_lyrics_translation">AI Hub</string>
-    <string name="contribute_to_lossless">Contribute to Lossless Music</string>
-    <string name="lossless_music_hub">Lossless Music Hub</string>
-    <string name="lossless_desc">Add high-fidelity lossless .flac audio to the Auriqo ecosystem. Max file size: 99MB.</string>
-    <string name="login_with_github">Log in with GitHub</string>
-    <string name="lossless_audio_file">Lossless Audio File</string>
-    <string name="choose_file">Choose .flac file (Max 99MB)</string>
-    <string name="song_title_hint">Song title</string>
-    <string name="artist_name_hint">Artist name</string>
-    <string name="submit_to_github">Submit to GitHub</string>
-    <string name="uploading_track">Uploading Track...</string>
-    <string name="upload_success">Submission Sent! We have automatically created a Pull Request.</string>
-    <string name="upload_failed">Submission Failed</string>
-    <string name="file_size_error">File size must be under 99MB.</string>
-    <string name="file_format_error">Only .flac files are accepted.</string>
     <string name="ai_translating_lyrics">Translating lyrics...</string>
     <string name="ai_lyrics_translated">Lyrics translated</string>
     <string name="ai_provider">Provider</string>
@@ -758,7 +744,7 @@
     <string name="crash_share_logs">Share Logs</string>
     <string name="copy_logs">Copy Logs</string>
     <string name="crash_share_title">Share crash report</string>
-    <string name="crash_report_subject"auriqo Crash Report</string>
+    <string name="crash_report_subject">Auriqo Crash Report</string>
     <string name="crash_close">Close</string>
     <string name="crash_no_log">No crash log available</string>
 
@@ -906,6 +892,7 @@
 
     <!-- Onboarding -->
     <string name="welcome_to">Welcome to</string>
+    <string name="welcome_tagline">Your music, in focus.</string>
     <string name="welcome_preparing_subtitle">Let\'s get everything ready for you.</string>
     <string name="get_started">Get Started</string>
 
@@ -945,7 +932,7 @@
     <string name="welcome_update_status">Updated</string>
     <string name="welcome_update_intro">Ensuring you have the latest features and security improvements.</string>
     <string name="welcome_checking_updates">Checking for updates…</string>
-    <string name="welcome_up_to_date"auriqo is up to date!</string>
+    <string name="welcome_up_to_date">Auriqo is up to date!</string>
     <string name="welcome_update_available">New version is available: %s</string>
     <string name="welcome_everything_ready">Everything is now up to date</string>
     <string name="commits_title">Commits</string>

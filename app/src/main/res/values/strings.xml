@@ -446,15 +446,6 @@
     <string name="spotify_clear_selection">Clear</string>
     <string name="spotify_account">Spotify account</string>
     <string name="spotify_waiting_for_login">Waiting for Spotify login</string>
-    <string name="service_uptime">Service Uptime</string>
-    <string name="service_uptime_desc">Check the status of music providers</string>
-    <string name="music_providers">Music Providers</string>
-    <string name="canvas_providers">Canvas Providers</string>
-    <string name="lyrics_providers">Lyrics Providers</string>
-    <string name="other_services">Other Services</string>
-    <string name="status_online">Online</string>
-    <string name="status_offline">Offline</string>
-    <string name="status_checking">Checking...</string>
     <!-- Recognition Notification -->
     <string name="recognition_notification_channel_name">Music recognition</string>
     <string name="recognition_notification_channel_desc">Shows a notification while identifying a song from quick settings</string>
@@ -468,13 +459,6 @@
     <string name="listenbrainz_scrobbling_description">Automatically submit your listened tracks to ListenBrainz</string>
     <string name="export_directory_unavailable">Unable to access an export directory on this device. Please set one manually.</string>
     <string name="set_listenbrainz_token">Set ListenBrainz Token</string>
-
-    <!-- Player Extractor Settings -->
-    <string name="last_updated">Last updated</string>
-    <string name="last_updated_never">Never</string>
-    <string name="hours_label">Hours</string>
-    <string name="minutes_label">Minutes</string>
-    <string name="seconds_label">Seconds</string>
 
     <!-- Liquid Glass Effects -->
     <string name="liquid_glass">Liquid Glass (Beta)</string>

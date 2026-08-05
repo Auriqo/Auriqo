@@ -35,7 +35,6 @@
     <string name="mobile_network_warning">دانلود به‌روزرسانی‌ها از طریق شبکه موبایل یا رومینگ ممکن است هزینه‌های اضافی به همراه داشته باشد.</string>
     <string name="update_size">حجم به‌روزرسانی: %1$s مگابایت</string>
     <string name="check_internet_connection">اتصال اینترنت خود را بررسی کرده و دوباره تلاش کنید.</string>
-    <string name="echo_music_version">نسخه اکو موزیک %1$s</string>
     <string name="last_checked">آخرین بررسی: %1$s</string>
     <string name="install">نصب</string>
     <string name="check_for_update">بررسی برای به‌روزرسانی</string>
@@ -53,12 +52,10 @@
     <string name="later">بعداً</string>
 
 
-    <string name="echo_music_title">Auriqo</string>
     <string name="developer_section">توسعه‌دهنده</string>
     <string name="collaborator_section">همکاران</string>
     <string name="app_info_section">اطلاعات برنامه</string>
     <string name="community_section">انجمن</string>
-    <string name="developer_name">echoDH P ASHOKAN</string>
     <string name="app_developer">توسعه‌دهنده اصلی</string>
     <string name="website">وب‌سایت</string>
     <string name="collaborator_tboyke">T-Boyke</string>
@@ -70,8 +67,6 @@
     <string name="see_community_heroes">مشاهده قهرمانان انجمن ما</string>
     <string name="report_issue_title_about">گزارش مشکل</string>
     <string name="bugs_feedback">باگ‌ها و بازخوردها</string>
-    <string name="donate">حمایت مالی (Donate)</string>
-    <string name="support_development">حمایت از توسعه برنامه</string>
     <string name="beta_updates">به‌روزرسانی‌های آزمایشی (Beta)</string>
     <string name="beta_updates_subtitle">اگر مایل به دریافت نسخه‌های آزمایشی و بتا هستید این گزینه را فعال کنید (مانند b5.0.1)</string>
     <string name="on_latest_version">شما از آخرین نسخه استفاده می‌کنید</string>
