@@ -47,7 +47,7 @@ object MusicRecognitionService {
     @SuppressLint("MissingPermission")
     suspend fun recognize(context: Context): RecognitionStatus = withContext(Dispatchers.IO) {
         if (!hasRecordPermission(context)) {
-            return@withContext RecognitionStatus.Error("Microphone permission not granted")
+            return@withContext RecognitionStatusMapper.permissionDenied()
         }
         
         _recognitionStatus.value = RecognitionStatus.Listening
@@ -102,12 +102,7 @@ object MusicRecognitionService {
                     _recognitionStatus.value = RecognitionStatus.Success(recognitionResult)
                 },
                 onFailure = { error ->
-                    val message = error.message ?: "Unknown error"
-                    _recognitionStatus.value = if (message.contains("No match", ignoreCase = true)) {
-                        RecognitionStatus.NoMatch("No matches found. Try again with clearer audio.")
-                    } else {
-                        RecognitionStatus.Error(message)
-                    }
+                _recognitionStatus.value = RecognitionStatusMapper.fromProviderFailure(error.message)
                 }
             )
             

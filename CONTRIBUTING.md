@@ -1,434 +1,52 @@
 # Contributing to Auriqo
 
-Thank you for your interest in contributing to Auriqo! This document provides comprehensive guidelines and information for contributors.
+The repository is private at present. Contributions require access granted by a maintainer; do not assume that a public fork, public issue tracker, or public release channel exists.
 
-## Table of Contents
+## Before making a change
 
-- [Code of Conduct](#code-of-conduct)
-- [Getting Started](#getting-started)
-- [Development Setup](#development-setup)
-- [Handling Sensitive Information](#handling-sensitive-information)
-- [Contributing Guidelines](#contributing-guidelines)
-- [Pull Request Process](#pull-request-process)
-- [Issue Guidelines](#issue-guidelines)
-- [Coding Standards](#coding-standards)
-- [Testing](#testing)
-- [Documentation](#documentation)
-- [Release Process](#release-process)
-- [Community Guidelines](#community-guidelines)
+1. Read [ARCHITECTURE.md](ARCHITECTURE.md) and [BUILD.md](BUILD.md).
+2. Discuss significant work through the repository's available issue or pull-request process.
+3. Create a focused branch from the current integration branch.
+4. Keep unrelated formatting and generated files out of the change.
 
-## Code of Conduct
+## Local checks
 
-By participating in this project, you agree to abide by our Code of Conduct:
-
-### Our Pledge
-
-We are committed to providing a welcoming and inspiring community for all. We pledge to:
-
-- Be respectful and inclusive
-- Use welcoming and inclusive language
-- Be respectful of differing viewpoints and experiences
-- Accept constructive criticism gracefully
-- Focus on what's best for the community
-- Show empathy towards other community members
-
-### Expected Behavior
-
-- Use welcoming and inclusive language
-- Be respectful of differing viewpoints and experiences
-- Gracefully accept constructive criticism
-- Focus on what is best for the community
-- Show empathy towards other community members
-
-### Unacceptable Behavior
-
-- The use of sexualized language or imagery
-- Trolling, insulting/derogatory comments, and personal or political attacks
-- Public or private harassment
-- Publishing others' private information without explicit permission
-- Other conduct which could reasonably be considered inappropriate in a professional setting
-
-## Getting Started
-
-### Prerequisites
-
-- Android Studio Hedgehog or later
-- JDK 17 or later
-- Android SDK 26 or later
-- Git
-- Basic knowledge of Kotlin and Android development
-- Understanding of Jetpack Compose (preferred)
-- Familiarity with MVVM architecture pattern
-
-### Fork and Clone
-
-1. Fork the repository on GitHub
-2. Clone your fork locally:
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/Auriqo.git
-   cd Auriqo
-   ```
-3. Add the upstream repository:
-   ```bash
-   git remote add upstream https://github.com/Auriqo/Auriqo.git
-   ```
-
-## Development Setup
-
-### 1. Environment Setup
-
-1. **Install Android Studio** with the latest Android SDK
-2. **Set up local.properties**:
-   ```bash
-   cp local.properties.template local.properties
-   ```
-   Edit `local.properties` and add your Android SDK path:
-   ```properties
-   sdk.dir=/path/to/your/Android/sdk
-   ```
-   
-   > **IMPORTANT**: Never commit your `local.properties` file to the repository as it contains local configuration specific to your development environment. The `.gitignore` file is configured to exclude this file.
-
-### 2. Firebase Setup (Optional)
-
-If you want to test Firebase features:
-
-1. Create a Firebase project
-2. Add Android apps with package names:
-   - `com.auriqo.music` (release)
-   - `com.auriqo.music.debug` (debug)
-3. Copy the template and configure it with your Firebase credentials:
-   ```bash
-   cp app/google-services.json.template app/google-services.json
-   ```
-4. Edit `app/google-services.json` with your Firebase project details
-
-> **IMPORTANT**: Never commit your actual `google-services.json` file to the repository as it contains sensitive API keys. The `.gitignore` file is configured to exclude this file.
-
-## Handling Sensitive Information
-
-When contributing to Auriqo, it's crucial to handle sensitive information properly:
-
-### Files That Should Never Be Committed
-
-1. **local.properties**
-   - Contains your local SDK path
-   - Use the provided template (`local.properties.template`) instead
-
-2. **google-services.json**
-   - Contains Firebase API keys and project credentials
-   - Use the provided template (`app/google-services.json.template`) instead
-
-3. **Build outputs**
-   - Never commit `.apk`, `.aab`, `.class`, or other build artifacts
-   - These are automatically excluded by `.gitignore`
-
-4. **IDE-specific files**
-   - Most `.idea/` directory contents should not be committed
-   - Only commit IDE configuration files that are essential for project setup
-
-### Best Practices
-
-- **API Keys**: Never hardcode API keys in the source code
-- **Credentials**: Never include usernames, passwords, or tokens in commits
-- **Personal Information**: Remove any personal information before committing
-- **Before Committing**: Always review your changes to ensure no sensitive information is included
-- **If Accidentally Committed**: If you accidentally commit sensitive information, contact a project maintainer immediately
-
-### 3. Build the Project
+Run the relevant checks for the variant you changed. The baseline CI-equivalent check is:
 
 ```bash
-./gradlew assembleDebug
+./gradlew --no-daemon \
+  :app:assembleUniversalFossDebug \
+  :app:testUniversalFossDebugUnitTest \
+  :app:lintUniversalFossDebug
 ```
 
-### 4. Security Considerations
+Use `gradlew.bat` on Windows. The FOSS task is intentional: it can validate an authorized checkout without `google-services.json` or release-signing material. Changes specific to the GMS flavor need a maintainer-provided configuration and should state how they were checked.
 
-**IMPORTANT**: Never commit sensitive files to the repository:
+The unit-test suite includes privacy-consent, offline OSS-attribution, Listen Together configuration, lyrics fallback/cache, download state, recognition, integration-boundary, and widget-policy coverage. Room schema history is checked statically; do not claim Room or DataStore migration execution coverage unless a test actually performs that migration. Add or update focused tests when changing those behaviors.
 
-- `google-services.json` - Contains Firebase API keys
-- `local.properties` - Contains local development paths
-- `*.keystore` / `*.jks` - App signing keys
-- `secrets.properties` - API keys and secrets
-- `**/assets/po_token.html` - YouTube authentication tokens
+## Pull requests
 
-These files are automatically ignored by `.gitignore` but always double-check before committing.
+Describe the problem, approach, tests, variant(s), and any user-visible or privacy impact. Include screenshots only when they do not expose accounts, media library data, tokens, device identifiers, or API keys.
 
-## Contributing Guidelines
+Before requesting review:
 
-### Types of Contributions
+- [ ] The relevant FOSS build/test/lint command completed, or the reason it could not run is stated.
+- [ ] Documentation and distribution metadata changed when behavior or store disclosures changed.
+- [ ] No generated APK/AAB, `local.properties`, `google-services.json`, keystore, token, or credential is included.
+- [ ] The change does not silently modify versioning, signing, or release automation.
+- [ ] Affected privacy, security, backup, permission, or third-party-service behavior is called out.
+- [ ] Listen Together changes preserve blank-default deployment fields; no endpoint is added to source.
+- [ ] Telemetry changes preserve the FOSS/GMS boundary and explicit recorded opt-in semantics.
+- [ ] Direct runtime dependency changes update the offline OSS attribution asset and its validation as needed.
 
-We welcome various types of contributions:
+Use clear conventional-style commit subjects such as `fix:`, `feat:`, `docs:`, `test:`, or `chore:`.
 
-- **Bug Fixes**: Fix existing issues and improve stability
-- **New Features**: Add new functionality and capabilities
-- **Documentation**: Improve documentation and guides
-- **UI/UX Improvements**: Enhance user interface and experience
-- **Performance**: Optimize app performance and memory usage
-- **Testing**: Add or improve tests and test coverage
-- **Translations**: Add new language support and improve existing translations
-- **Code Quality**: Refactor code, improve architecture, and fix code smells
-- **Security**: Identify and fix security vulnerabilities
+## Sensitive information and security reports
 
-### Before You Start
+Never commit credentials, OAuth material, signing keys, device backups, or YouTube authentication material. If you suspect a secret was exposed, stop sharing it, rotate/revoke it through the owning service, and notify a maintainer through a private channel.
 
-1. **Check existing issues** to see if your idea is already being discussed
-2. **Create an issue** for significant changes to discuss the approach
-3. **Fork the repository** and create a feature branch
-4. **Follow the coding standards** outlined below
+Do not report security vulnerabilities in normal issues or pull requests. Follow [SECURITY.md](SECURITY.md).
 
-## Pull Request Process
+## Release-related changes
 
-### 1. Create a Branch
-
-```bash
-git checkout -b feature/your-feature-name
-# or
-git checkout -b fix/issue-number-description
-```
-
-### 2. Make Your Changes
-
-- Write clean, readable code
-- Follow the existing code style
-- Add comments for complex logic
-- Update documentation if needed
-- Add tests for new features
-
-### 3. Test Your Changes
-
-```bash
-# Run unit tests
-./gradlew test
-
-# Run instrumented tests
-./gradlew connectedAndroidTest
-
-# Run lint checks
-./gradlew lint
-
-# Build the project
-./gradlew assembleDebug
-```
-
-### 4. Commit Your Changes
-
-Use clear, descriptive commit messages:
-
-```bash
-git add .
-git commit -m "feat: add dark mode toggle to settings
-
-- Add dark mode preference in settings
-- Update theme switching logic
-- Add corresponding UI tests
-
-Fixes #123"
-```
-
-### 5. Push and Create PR
-
-```bash
-git push origin feature/your-feature-name
-```
-
-Then create a Pull Request on GitHub with:
-- Clear title and description
-- Reference to related issues
-- Screenshots for UI changes
-- Testing instructions
-
-## Issue Guidelines
-
-### Bug Reports
-
-When reporting bugs, please include:
-
-1. **Clear title** describing the issue
-2. **Steps to reproduce** the bug
-3. **Expected behavior** vs actual behavior
-4. **Screenshots** or videos if applicable
-5. **Device information** (Android version, device model)
-6. **App version** and build type
-7. **Logs** if available
-8. **Environment details** (build variant, configuration)
-
-### Feature Requests
-
-When requesting features, please include:
-
-1. **Clear title** describing the feature
-2. **Detailed description** of the feature
-3. **Use case** and why it would be useful
-4. **Mockups** or examples if applicable
-5. **Alternative solutions** you've considered
-6. **Impact assessment** (user experience, performance, etc.)
-
-### Issue Templates
-
-We provide issue templates for:
-- Bug reports
-- Feature requests
-- Documentation improvements
-- Performance issues
-- Security vulnerabilities
-
-## Coding Standards
-
-### Kotlin Style
-
-- Follow [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html)
-- Use meaningful variable and function names
-- Prefer `val` over `var` when possible
-- Use data classes for simple data holders
-- Use sealed classes for state management
-
-### Android Best Practices
-
-- Follow [Android Code Style Guidelines](https://source.android.com/setup/contribute/code-style)
-- Use Jetpack Compose for UI
-- Implement MVVM architecture
-- Use Repository pattern for data access
-- Handle lifecycle properly
-
-### Code Organization
-
-```
-app/src/main/java/com/maxrave/echo/
-├── ui/                    # UI components and screens
-│   ├── components/        # Reusable UI components
-│   ├── screens/          # Screen-specific UI
-│   └── theme/            # Theme and styling
-├── data/                 # Data layer
-│   ├── repository/       # Repository implementations
-│   ├── local/           # Local data sources
-│   └── remote/          # Remote data sources
-├── domain/              # Domain layer
-│   ├── model/           # Domain models
-│   ├── repository/      # Repository interfaces
-│   └── usecase/         # Use cases
-└── common/              # Common utilities
-    ├── utils/           # Utility functions
-    └── extensions/      # Extension functions
-```
-
-### Naming Conventions
-
-- **Classes**: PascalCase (`MusicPlayer`)
-- **Functions**: camelCase (`playMusic()`)
-- **Variables**: camelCase (`currentSong`)
-- **Constants**: UPPER_SNAKE_CASE (`MAX_VOLUME`)
-- **Packages**: lowercase (`com.maxrave.echo.ui`)
-
-## Testing
-
-### Unit Tests
-
-- Write unit tests for business logic
-- Test repository implementations
-- Test use cases and utilities
-- Aim for high code coverage
-
-### UI Tests
-
-- Write UI tests for critical user flows
-- Test different screen sizes and orientations
-- Test accessibility features
-
-### Running Tests
-
-```bash
-# Run all tests
-./gradlew test
-
-# Run specific test class
-./gradlew test --tests "com.auriqo.music.MusicPlayerTest"
-
-# Run tests with coverage
-./gradlew testDebugUnitTestCoverage
-```
-
-## Documentation
-
-### Code Documentation
-
-- Document public APIs with KDoc
-- Add inline comments for complex logic
-- Keep README files updated
-- Document configuration changes
-
-### Commit Messages
-
-Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
-
-- `feat:` for new features
-- `fix:` for bug fixes
-- `docs:` for documentation changes
-- `style:` for formatting changes
-- `refactor:` for code refactoring
-- `test:` for adding tests
-- `chore:` for maintenance tasks
-
-Examples:
-```
-feat: add playlist sharing functionality
-fix: resolve crash when switching songs
-docs: update API documentation
-style: format code according to style guide
-```
-
-## Release Process
-
-### Version Numbering
-
-We follow [Semantic Versioning](https://semver.org/):
-- **MAJOR**: Incompatible API changes
-- **MINOR**: New functionality (backward compatible)
-- **PATCH**: Bug fixes (backward compatible)
-
-### Release Checklist
-
-- [ ] All tests pass
-- [ ] Documentation is updated
-- [ ] Changelog is updated
-- [ ] Version numbers are bumped
-- [ ] Release notes are prepared
-
-## Community Guidelines
-
-### Communication Channels
-
-- **GitHub Discussions**: For general questions and discussions
-- **GitHub Issues**: For bug reports and feature requests
-- **Pull Requests**: For code contributions and reviews
-
-### Getting Help
-
-If you have questions about contributing:
-
-1. Check the [GitHub Discussions](https://github.com/Auriqo/Auriqo/discussions)
-2. Create a new discussion
-3. Contact maintainers directly through GitHub
-
-### Recognition
-
-Contributors will be recognized in:
-- README.md contributors section
-- Release notes
-- GitHub contributors page
-- App credits (if applicable)
-
-## Questions?
-
-If you have questions about contributing:
-
-1. Check the [GitHub Discussions](https://github.com/Auriqo/Auriqo/discussions)
-2. Create a new discussion
-3. Contact maintainers directly
-
-Thank you for contributing to Auriqo!
-
----
-<div align="center">
-    <img src="assets/LMEB.gif"/>
-  </a>
-</div>
+Only a maintainer should prepare a release. Update [CHANGELOG.md](CHANGELOG.md), the tag-specific [RELEASE_INFO.md](RELEASE_INFO.md), and the checklist in [BUILD.md](BUILD.md) together. A tag or dispatch with publishing enabled fails rather than creating an unsigned or ambiguously documented release when required signing secrets, matching release notes, or `PENDING:`-marked candidate evidence remain. Version `1.0.0` is prepared but not released.

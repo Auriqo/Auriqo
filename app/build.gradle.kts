@@ -1,12 +1,41 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
-import java.net.URL
 
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.inputStream())
 }
+
+/** Returns a BuildConfig-safe Java string literal for a value that may come from CI. */
+fun buildConfigString(value: String): String = buildString {
+    append('"')
+    value.forEach { character ->
+        append(
+            when (character) {
+                '\\' -> "\\\\"
+                '"' -> "\\\""
+                '\n' -> "\\n"
+                '\r' -> "\\r"
+                '\t' -> "\\t"
+                else -> character
+            }
+        )
+    }
+    append('"')
+}
+
+fun projectValue(name: String): String =
+    localProperties.getProperty(name)
+        ?: providers.gradleProperty(name).orNull
+        ?: System.getenv(name)
+        ?: ""
+
+val releaseKeystore = file("keystore/release.keystore")
+val releaseSigningValues = listOf("STORE_PASSWORD", "KEY_ALIAS", "KEY_PASSWORD")
+    .associateWith(::projectValue)
+val releaseSigningConfigured =
+    releaseKeystore.isFile && releaseSigningValues.values.all(String::isNotBlank)
 plugins {
     id("com.android.application")
     alias(libs.plugins.hilt)
@@ -33,32 +62,45 @@ android {
         applicationId = "com.auriqo.music"
         minSdk = 26
         targetSdk = 36
-        versionCode = 526
-        versionName = "5.2.84"
+        versionCode = 527
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
         // LastFM API keys from GitHub Secrets
-        val lastFmKey = localProperties.getProperty("LASTFM_API_KEY") ?: System.getenv("LASTFM_API_KEY") ?: ""
-        val lastFmSecret = localProperties.getProperty("LASTFM_SECRET") ?: System.getenv("LASTFM_SECRET") ?: ""
+        val lastFmKey = projectValue("LASTFM_API_KEY")
+        val lastFmSecret = projectValue("LASTFM_SECRET")
 
-        buildConfigField("String", "LASTFM_API_KEY", "\"$lastFmKey\"")
-        buildConfigField("String", "LASTFM_SECRET", "\"$lastFmSecret\"")
+        buildConfigField("String", "LASTFM_API_KEY", buildConfigString(lastFmKey))
+        buildConfigField("String", "LASTFM_SECRET", buildConfigString(lastFmSecret))
 
         // Google Fonts Web Fonts Developer API key (optional).
         // Without it the app falls back to the public, key-free Google Fonts metadata endpoint.
-        val googleFontsKey = localProperties.getProperty("GOOGLE_FONTS_API_KEY") ?: System.getenv("GOOGLE_FONTS_API_KEY") ?: ""
-        buildConfigField("String", "GOOGLE_FONTS_API_KEY", "\"$googleFontsKey\"")
+        val googleFontsKey = projectValue("GOOGLE_FONTS_API_KEY")
+        buildConfigField("String", "GOOGLE_FONTS_API_KEY", buildConfigString(googleFontsKey))
 
         // GitHub OAuth keys
-        val githubClientId = localProperties.getProperty("GH_CLIENT_ID") ?: System.getenv("GH_CLIENT_ID") ?: ""
-        val githubClientSecret = localProperties.getProperty("GH_CLIENT_SECRET") ?: System.getenv("GH_CLIENT_SECRET") ?: ""
-        buildConfigField("String", "GH_CLIENT_ID", "\"$githubClientId\"")
-        buildConfigField("String", "GH_CLIENT_SECRET", "\"$githubClientSecret\"")
+        val githubClientId = projectValue("GH_CLIENT_ID")
+        val githubClientSecret = projectValue("GH_CLIENT_SECRET")
+        buildConfigField("String", "GH_CLIENT_ID", buildConfigString(githubClientId))
+        buildConfigField("String", "GH_CLIENT_SECRET", buildConfigString(githubClientSecret))
 
-        buildConfigField("String", "FLOW_NEURO_BASE_URL", project.findProperty("FLOW_NEURO_BASE_URL")?.toString()?.let { "\"$it\"" } ?: "\"https://api.flowneuroengine.com\"")
-        buildConfigField("String", "FLOW_NEURO_API_KEY", project.findProperty("FLOW_NEURO_API_KEY")?.toString()?.let { "\"$it\"" } ?: "\"\"")
+        buildConfigField("String", "FLOW_NEURO_BASE_URL", buildConfigString(projectValue("FLOW_NEURO_BASE_URL").ifBlank { "https://api.flowneuroengine.com" }))
+        buildConfigField("String", "FLOW_NEURO_API_KEY", buildConfigString(projectValue("FLOW_NEURO_API_KEY")))
+
+        // Deployment-specific Listen Together endpoints. They are intentionally blank in
+        // source builds and must be supplied by local.properties, -P, or CI environment.
+        buildConfigField(
+            "String",
+            "LISTEN_TOGETHER_SERVER_URL",
+            buildConfigString(projectValue("LISTEN_TOGETHER_SERVER_URL")),
+        )
+        buildConfigField(
+            "String",
+            "LISTEN_TOGETHER_SHARE_BASE_URL",
+            buildConfigString(projectValue("LISTEN_TOGETHER_SHARE_BASE_URL")),
+        )
 
 //add nightly build label support
         val isNightly = project.hasProperty("nightly") && project.property("nightly") == "true"
@@ -124,10 +166,12 @@ android {
             keyPassword = "android"
         }
         create("release") {
-            storeFile = file("keystore/release.keystore")
-            storePassword = System.getenv("STORE_PASSWORD")
-            keyAlias = System.getenv("KEY_ALIAS")
-            keyPassword = System.getenv("KEY_PASSWORD")
+            if (releaseSigningConfigured) {
+                storeFile = releaseKeystore
+                storePassword = releaseSigningValues.getValue("STORE_PASSWORD")
+                keyAlias = releaseSigningValues.getValue("KEY_ALIAS")
+                keyPassword = releaseSigningValues.getValue("KEY_PASSWORD")
+            }
         }
         getByName("debug") {
             keyAlias = "androiddebugkey"
@@ -143,18 +187,18 @@ android {
             isShrinkResources = true
             isCrunchPngs = false
             isDebuggable = false
-            signingConfig = signingConfigs.getByName("release")
+            // Local and F-Droid validation can build an unsigned release. CI sets the
+            // three environment values and materializes app/keystore/release.keystore.
+            signingConfig = signingConfigs.getByName("release").takeIf { releaseSigningConfigured }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "ARCHITECTURE", "\"release\"")
         }
         debug {
             applicationIdSuffix = ".debug"
             isDebuggable = true
             signingConfig = signingConfigs.getByName("debug")
-            buildConfigField("String", "ARCHITECTURE", "\"debug\"")
         }
     }
 
@@ -189,6 +233,20 @@ android {
         checkDependencies = false
     }
 
+    // Lightweight AOSP test image for the Compose instrumentation smoke suite in CI.
+    // The task name is auriqoApi30UniversalFossDebugAndroidTest.
+    testOptions {
+        managedDevices {
+            localDevices {
+                create("auriqoApi30") {
+                    device = "Pixel 2"
+                    apiLevel = 30
+                    systemImageSource = "aosp-atd"
+                }
+            }
+        }
+    }
+
     androidResources {
         generateLocaleConfig = true
     }
@@ -209,6 +267,31 @@ android {
             excludes += "META-INF/INDEX.LIST"
             excludes += "META-INF/io.netty.versions.properties"
             excludes += "META-INF/DEPENDENCIES"
+        }
+    }
+}
+
+val releaseSigningGuardTaskName = "checkReleaseSigning"
+
+tasks.register(releaseSigningGuardTaskName) {
+    group = "verification"
+    description = "Checks that the environment-only release signing inputs are available."
+    doLast {
+        check(releaseSigningConfigured) {
+            "Release signing requires app/keystore/release.keystore and non-empty " +
+                "STORE_PASSWORD, KEY_ALIAS, and KEY_PASSWORD environment variables."
+        }
+    }
+}
+
+if (providers.gradleProperty("requireReleaseSigning").orNull == "true") {
+    val releaseSigningTaskPrefixes = listOf("validateSigning", "package", "bundle", "sign")
+    tasks.configureEach {
+        val isReleaseSigningTask =
+            releaseSigningTaskPrefixes.any { prefix -> name.startsWith(prefix, ignoreCase = true) } &&
+                name.contains("Release", ignoreCase = true)
+        if (name != releaseSigningGuardTaskName && isReleaseSigningTask) {
+            dependsOn(releaseSigningGuardTaskName)
         }
     }
 }
@@ -245,6 +328,14 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 dependencies {
+    testImplementation(libs.junit)
+
+    // Compose smoke tests exercise interaction semantics in a real instrumented
+    // Compose runtime. They deliberately do not require app network providers.
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:${libs.versions.compose.get()}")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:${libs.versions.compose.get()}")
+
     // Firebase - GMS flavor only (excluded from F-Droid / FOSS builds)
     "gmsImplementation"(platform("com.google.firebase:firebase-bom:33.1.0"))
     "gmsImplementation"("com.google.firebase:firebase-analytics")
@@ -271,7 +362,7 @@ dependencies {
     implementation(libs.compose.foundation)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.util)
-    implementation(libs.compose.ui.tooling)
+    debugImplementation(libs.compose.ui.tooling)
     implementation(libs.compose.animation)
     implementation(libs.compose.reorderable)
 
@@ -328,7 +419,6 @@ dependencies {
     implementation(project(":shazamkit"))
     implementation(project(":artistvideo"))
     implementation(project(":applecanvas"))
-    implementation(project(":auriqocanvas"))
     implementation(project(":paxsenixlyrics"))
     implementation(project(":unison"))
 
@@ -348,7 +438,7 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.smoothCorner)
     implementation(libs.lottie.compose)
-    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation(libs.compose.material.icons.extended)
     implementation(libs.work.runtime.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.ffmpeg.kit.audio)

@@ -1,0 +1,79 @@
+# id	name	license	source	variants
+app	Auriqo	GPL-3.0-or-later	https://github.com/Auriqo/Auriqo	all
+libs.haze	Haze	Apache-2.0	https://github.com/chrisbanes/haze	all
+libs.guava	Guava	Apache-2.0	https://github.com/google/guava	all
+libs.coroutines.guava	Kotlin coroutines Guava	Apache-2.0	https://github.com/Kotlin/kotlinx.coroutines	all
+libs.concurrent.futures	AndroidX Concurrent Futures	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/concurrent	all
+libs.activity	AndroidX Activity	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/activity	all
+libs.hilt.navigation	AndroidX Hilt Navigation Compose	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/hilt	all
+libs.datastore	AndroidX DataStore	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/datastore	all
+libs.compose.runtime	Jetpack Compose Runtime	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/compose-runtime	all
+libs.compose.foundation	Jetpack Compose Foundation	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/compose-foundation	all
+libs.compose.ui	Jetpack Compose UI	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/compose-ui	all
+libs.compose.ui.util	Jetpack Compose UI Util	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/compose-ui	all
+libs.compose.ui.tooling	Jetpack Compose UI Tooling	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/compose-ui	all
+libs.compose.animation	Jetpack Compose Animation Graphics	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/compose-animation	all
+libs.compose.reorderable	Compose Reorderable	Apache-2.0	https://github.com/Calvin-LL/ComposeReorderable	all
+libs.viewmodel	AndroidX Lifecycle ViewModel	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/lifecycle	all
+libs.viewmodel.compose	AndroidX Lifecycle ViewModel Compose	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/lifecycle	all
+libs.lifecycle.process	AndroidX Lifecycle Process	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/lifecycle	all
+libs.material3	Material 3	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/compose-material3	all
+libs.androidx.adaptive	Material 3 Adaptive	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/compose-material3-adaptive	all
+libs.androidx.adaptive.layout	Material 3 Adaptive Layout	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/compose-material3-adaptive	all
+libs.androidx.adaptive.navigation	Material 3 Adaptive Navigation	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/compose-material3-adaptive	all
+libs.palette	AndroidX Palette	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/palette	all
+libs.materialKolor	MaterialKolor	Apache-2.0	https://github.com/jordond/MaterialKolor	all
+libs.androidx.browser	AndroidX Browser	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/browser	all
+libs.appcompat	AndroidX AppCompat	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/appcompat	all
+libs.coil	Coil	Apache-2.0	https://github.com/coil-kt/coil	all
+libs.coil.network.okhttp	Coil Network OkHttp	Apache-2.0	https://github.com/coil-kt/coil	all
+libs.ucrop	uCrop	Apache-2.0	https://github.com/Yalantis/uCrop	all
+libs.shimmer	Compose Shimmer	Apache-2.0	https://github.com/valentinilk/compose-shimmer	all
+libs.media3	AndroidX Media3 ExoPlayer	Apache-2.0	https://developer.android.com/media	all
+libs.media3.session	AndroidX Media3 Session	Apache-2.0	https://developer.android.com/media	all
+libs.media3.hls	AndroidX Media3 HLS	Apache-2.0	https://developer.android.com/media	all
+libs.media3.ui	AndroidX Media3 UI	Apache-2.0	https://developer.android.com/media	all
+libs.media3.okhttp	AndroidX Media3 OkHttp	Apache-2.0	https://developer.android.com/media	all
+libs.room.runtime	AndroidX Room	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/room	all
+libs.room.ktx	AndroidX Room KTX	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/room	all
+libs.kuromoji.ipadic	Kuromoji IPADIC	Apache-2.0	https://github.com/atilika/kuromoji	all
+libs.tinypinyin	TinyPinyin	Apache-2.0	https://github.com/promeG/TinyPinyin	all
+libs.apache.lang3	Apache Commons Lang	Apache-2.0	https://commons.apache.org/proper/commons-lang/	all
+libs.hilt	Hilt	Apache-2.0	https://github.com/google/dagger	all
+libs.jsoup	jsoup	MIT	https://github.com/jhy/jsoup	all
+libs.ktor.client.core	Ktor Client Core	Apache-2.0	https://github.com/ktorio/ktor	all
+libs.retrofit	Retrofit	Apache-2.0	https://github.com/square/retrofit	all
+libs.retrofit.gson	Retrofit Gson Converter	Apache-2.0	https://github.com/square/retrofit	all
+libs.ktor.client.okhttp	Ktor Client OkHttp	Apache-2.0	https://github.com/ktorio/ktor	all
+libs.ktor.client.content.negotiation	Ktor Content Negotiation	Apache-2.0	https://github.com/ktorio/ktor	all
+libs.ktor.serialization.json	Ktor Kotlinx JSON Serialization	Apache-2.0	https://github.com/ktorio/ktor	all
+libs.protobuf.javalite	Protocol Buffers Java Lite	BSD-3-Clause	https://github.com/protocolbuffers/protobuf	all
+libs.protobuf.kotlin.lite	Protocol Buffers Kotlin Lite	BSD-3-Clause	https://github.com/protocolbuffers/protobuf	all
+libs.desugaring	Desugar JDK Libraries	GPL-2.0-with-classpath-exception	https://github.com/google/desugar_jdk_libs	all
+libs.timber	Timber	Apache-2.0	https://github.com/JakeWharton/timber	all
+libs.smoothCorner	Smooth Corner Rect Compose	MIT	https://github.com/racra/smooth-corner-rect-android-compose	all
+libs.lottie.compose	Lottie Compose	Apache-2.0	https://github.com/airbnb/lottie-android	all
+libs.compose.material.icons.extended	Compose Material Icons Extended	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/compose-material	all
+libs.work.runtime.ktx	AndroidX WorkManager	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/work	all
+libs.androidx.core.splashscreen	AndroidX Core Splashscreen	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/core	all
+libs.ffmpeg.kit.audio	FFmpegKit Audio	LGPL-3.0-or-later	https://github.com/arthenica/ffmpeg-kit	all
+innertube	Innertube module	GPL-3.0-or-later	https://github.com/Auriqo/Auriqo/tree/main/innertube	all
+kugou	Kugou module	GPL-3.0-or-later	https://github.com/Auriqo/Auriqo/tree/main/kugou	all
+lrclib	LRCLIB module	GPL-3.0-or-later	https://github.com/Auriqo/Auriqo/tree/main/lrclib	all
+betterlyrics	BetterLyrics module	GPL-3.0-or-later	https://github.com/Auriqo/Auriqo/tree/main/betterlyrics	all
+simpmusic	SimpMusic module	GPL-3.0-or-later	https://github.com/Auriqo/Auriqo/tree/main/simpmusic	all
+youlyplus	YoulyPlus module	GPL-3.0-or-later	https://github.com/Auriqo/Auriqo/tree/main/youlyplus	all
+canvas	Canvas module	GPL-3.0-or-later	https://github.com/Auriqo/Auriqo/tree/main/canvas	all
+shazamkit	ShazamKit module	GPL-3.0-or-later	https://github.com/Auriqo/Auriqo/tree/main/shazamkit	all
+artistvideo	ArtistVideo module	GPL-3.0-or-later	https://github.com/Auriqo/Auriqo/tree/main/artistvideo	all
+applecanvas	AppleCanvas module	GPL-3.0-or-later	https://github.com/Auriqo/Auriqo/tree/main/applecanvas	all
+paxsenixlyrics	PaxsenixLyrics module	GPL-3.0-or-later	https://github.com/Auriqo/Auriqo/tree/main/paxsenixlyrics	all
+unison	Unison module	GPL-3.0-or-later	https://github.com/Auriqo/Auriqo/tree/main/unison	all
+firebase-bom	Firebase Android BoM	Apache-2.0	https://firebase.google.com/docs/android/learn-more	gms
+firebase-analytics	Firebase Analytics	Apache-2.0	https://firebase.google.com/docs/analytics/get-started?platform=android	gms
+firebase-crashlytics	Firebase Crashlytics	Apache-2.0	https://firebase.google.com/docs/crashlytics/get-started?platform=android	gms
+libs.play.services.auth	Google Play services Auth	Apache-2.0	https://developers.google.com/android/guides/setup	gms
+libs.google.api.client.android	Google API Client Android	Apache-2.0	https://github.com/googleapis/google-api-java-client	gms
+libs.google.api.services.drive	Google Drive API	Apache-2.0	https://developers.google.com/drive/api/guides/about-sdk	gms
+libs.mediarouter	AndroidX MediaRouter	Apache-2.0	https://developer.android.com/jetpack/androidx/releases/mediarouter	gms
+libs.cast.framework	Google Cast Framework	Apache-2.0	https://developers.google.com/cast/docs/android_sender	gms

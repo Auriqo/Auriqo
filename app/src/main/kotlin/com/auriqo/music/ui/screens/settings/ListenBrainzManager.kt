@@ -3,6 +3,7 @@
 package com.auriqo.music.ui.screens.settings
 
 import android.content.Context
+import com.auriqo.music.BuildConfig
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -79,7 +80,7 @@ object ListenBrainzManager {
                     artistNames,
                 )}\",\"track_name\":\"${escapeJson(
                     title,
-                )}\",${releasePart}\"additional_info\":{\"duration_ms\":$durationMs,\"position_ms\":$positionMs,\"submission_client\":\"Auriqo\",\"submission_client_version\":\"5.2.84\"}}}"
+                )}\",${releasePart}\"additional_info\":{\"duration_ms\":$durationMs,\"position_ms\":$positionMs,\"submission_client\":\"Auriqo\",\"submission_client_version\":\"${BuildConfig.VERSION_NAME}\"}}}"
                 val listensJson = "[$trackMetadata]"
                 val bodyJson = "{\"listen_type\":\"playing_now\",\"payload\":$listensJson}"
                 Timber.tag(logTag).d("submitPlayingNow JSON: %s", bodyJson)
@@ -92,7 +93,7 @@ object ListenBrainzManager {
                         .post(body)
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Authorization", "Token $token")
-                        .addHeader("User-Agent", "Auriqo/5.2.84")
+                        .addHeader("User-Agent", "Auriqo/${BuildConfig.VERSION_NAME}")
                         .build()
 
                 httpClient.newCall(request).execute().use { resp ->
@@ -143,7 +144,7 @@ object ListenBrainzManager {
                     artistNames,
                 )}\",\"track_name\":\"${escapeJson(
                     title,
-                )}\",${releasePart}\"additional_info\":{\"duration_ms\":$durationMs,\"start_ms\":$startMs,\"end_ms\":$endMs,\"submission_client\":\"Auriqo\",\"submission_client_version\":\"5.2.84\"}}}"
+                )}\",${releasePart}\"additional_info\":{\"duration_ms\":$durationMs,\"start_ms\":$startMs,\"end_ms\":$endMs,\"submission_client\":\"Auriqo\",\"submission_client_version\":\"${BuildConfig.VERSION_NAME}\"}}}"
                 val listensJson = "[$trackMetadataSingle]"
                 val bodyJson = "{\"listen_type\":\"single\",\"payload\":$listensJson}"
                 Timber.tag(logTag).d("submitFinished JSON: %s", bodyJson)
@@ -156,7 +157,7 @@ object ListenBrainzManager {
                         .post(body)
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Authorization", "Token $token")
-                        .addHeader("User-Agent", "Auriqo/5.2.84")
+                        .addHeader("User-Agent", "Auriqo/${BuildConfig.VERSION_NAME}")
                         .build()
 
                 httpClient.newCall(request).execute().use { resp ->

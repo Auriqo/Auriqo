@@ -62,6 +62,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -242,7 +243,8 @@ fun SearchScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
-                                .focusRequester(focusRequester),
+                                .focusRequester(focusRequester)
+                                .testTag("search.query"),
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                             keyboardActions = KeyboardActions(onSearch = { 
@@ -337,6 +339,7 @@ fun SearchScreen(
                         .fillMaxWidth()
                         .padding(horizontal = searchBarHorizontalPadding)
                         .padding(top = searchBarTopPadding)
+                        .testTag("search.surface")
                 ) {
                     if (showSearchContent) {
                         when (searchSource) {

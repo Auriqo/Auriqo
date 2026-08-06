@@ -1,0 +1,5 @@
+Auriqo 1.0.0 is prepared release metadata, not a published Google Play release.
+
+This candidate includes the Auriqo visual/settings refresh, reliability and performance work for lyrics, downloads, recognition, widgets, and Listen Together configuration, GMS telemetry opt-in controls, offline OSS attribution, and release-process hardening.
+
+Do not submit this text until the final signed artifact, privacy/store disclosures, and maintainer release approval are complete.

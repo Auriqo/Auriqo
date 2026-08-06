@@ -9,7 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.auriqo.music.applecanvas.AppleMusicCanvasProvider
-import com.auriqo.music.appupdatecanvas.AuriqoCanvasProvider
 import com.auriqo.music.canvas.CanvasArtwork
 import com.auriqo.music.canvas.TidalCanvasProvider
 import com.auriqo.music.ui.player.CanvasArtworkPlaybackCache
@@ -63,11 +62,7 @@ fun rememberAlbumCanvas(
 
             searchTasks.filter { (s, a) -> s.isNotBlank() && a.isNotBlank() }
                 .firstNotNullOfOrNull { (s, a) ->
-                    AuriqoCanvasProvider.getBySongArtist(
-                        song = s,
-                        artist = a
-                    )?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
-                    ?: AppleMusicCanvasProvider.getByAlbumArtist(
+                    AppleMusicCanvasProvider.getByAlbumArtist(
                         album = s,
                         artist = a,
                         storefront = storefront

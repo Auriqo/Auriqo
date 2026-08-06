@@ -138,7 +138,6 @@ class ListenTogetherClient @Inject constructor(
 ) {
     companion object {
         private const val TAG = "ListenTogether"
-        private val DEFAULT_SERVER_URL = ListenTogetherServers.defaultServerUrl
         private const val MAX_RECONNECT_ATTEMPTS = 15  
         private const val INITIAL_RECONNECT_DELAY_MS = 1000L  
         private const val MAX_RECONNECT_DELAY_MS = 120000L  
@@ -399,7 +398,7 @@ class ListenTogetherClient @Inject constructor(
         .build()
 
     private fun getServerUrl(): String {
-        return context.dataStore.get(ListenTogetherServerUrlKey, DEFAULT_SERVER_URL)
+        return ListenTogetherServers.resolveServerUrl(context.dataStore[ListenTogetherServerUrlKey]).orEmpty()
     }
     
     
@@ -437,8 +436,16 @@ class ListenTogetherClient @Inject constructor(
             return
         }
 
-        _connectionState.value = ConnectionState.CONNECTING
         val serverUrl = getServerUrl()
+        if (serverUrl.isBlank()) {
+            val error = "Listen Together is unavailable because no server is configured."
+            _connectionState.value = ConnectionState.ERROR
+            log(LogLevel.WARNING, error)
+            _events.tryEmit(ListenTogetherEvent.ConnectionError(error))
+            return
+        }
+
+        _connectionState.value = ConnectionState.CONNECTING
         log(LogLevel.INFO, "Connecting to server", serverUrl)
 
         

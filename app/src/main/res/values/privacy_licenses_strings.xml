@@ -1,0 +1,17 @@
+<resources>
+    <string name="telemetry_consent_title">Optional diagnostics</string>
+    <string name="telemetry_consent_message">In the GMS build, you can choose whether to send anonymous analytics and crash reports to Firebase. This choice does not affect playback. You can change it later in Privacy settings.</string>
+    <string name="telemetry_consent_accept">Allow</string>
+    <string name="telemetry_consent_decline">Don\'t allow</string>
+    <string name="telemetry_settings_title">Diagnostics</string>
+    <string name="telemetry_settings_enabled">Anonymous analytics and crash reports are allowed.</string>
+    <string name="telemetry_settings_disabled">Anonymous analytics and crash reports are not allowed.</string>
+    <string name="telemetry_settings_allow">Allow diagnostics</string>
+    <string name="telemetry_settings_revoke">Turn off diagnostics</string>
+    <string name="oss_licenses">Open-source licenses</string>
+    <string name="oss_licenses_subtitle">Auriqo GPL license and third-party notices</string>
+    <string name="oss_licenses_title">Open-source licenses</string>
+    <string name="oss_app_license">Auriqo is licensed under GPL-3.0-or-later. The notices below cover direct shipped dependencies and bundled modules for this build.</string>
+    <string name="oss_licenses_empty">No license notices were found in the bundled attribution data.</string>
+    <string name="oss_licenses_back">Back</string>
+</resources>

@@ -1,8 +1,19 @@
 package com.dpi
 
 import android.content.Context
+import androidx.datastore.preferences.core.Preferences
+import com.auriqo.music.constants.DensityScaleKey
+import com.auriqo.music.utils.dataStore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
+internal const val DEFAULT_DENSITY_SCALE_FACTOR = 1.0f
+
+/** Returns the canonical persisted density value used before the app UI is created. */
+internal fun startupDensityScale(preferences: Preferences): Float =
+    preferences[DensityScaleKey] ?: DEFAULT_DENSITY_SCALE_FACTOR
 
 class DensityScaler : BaseLifecycleContentProvider() {
 
@@ -14,18 +25,14 @@ class DensityScaler : BaseLifecycleContentProvider() {
     }
 
     companion object {
-        private const val PREFS_NAME = "auriqo_settings"
-        private const val KEY_DENSITY_SCALE = "density_scale_factor"
-        private const val DEFAULT_SCALE_FACTOR = 1.0f
-
-        
         private fun getScaleFactorFromPreferences(context: Context): Float {
             return try {
-                val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                prefs.getFloat(KEY_DENSITY_SCALE, DEFAULT_SCALE_FACTOR)
+                runBlocking(Dispatchers.IO) {
+                    startupDensityScale(context.dataStore.data.first())
+                }
             } catch (e: Exception) {
-                Timber.tag("DensityScaler").w(e, "Failed to read scale factor from preferences")
-                DEFAULT_SCALE_FACTOR
+                Timber.tag("DensityScaler").w(e, "Failed to read scale factor from DataStore")
+                DEFAULT_DENSITY_SCALE_FACTOR
             }
         }
     }

@@ -3,11 +3,9 @@
 package com.auriqo.music.ui.screens.settings
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.compose.foundation.border
-import androidx.core.content.edit
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -53,8 +51,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.datastore.preferences.core.edit
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -118,9 +118,12 @@ import com.auriqo.music.ui.theme.DefaultThemeColor
 import com.auriqo.music.ui.theme.PlayerSliderColors
 import com.auriqo.music.ui.utils.backToMain
 import com.auriqo.music.utils.IconUtils
+import com.auriqo.music.utils.dataStore
 import com.auriqo.music.utils.rememberEnumPreference
 import com.auriqo.music.utils.rememberPreference
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.math.roundToInt
 import com.auriqo.music.constants.LyricsClickKey
 import com.auriqo.music.constants.AppleMusicLyricsBlurKey
@@ -140,6 +143,7 @@ fun AppearanceSettings(
     snackbarHostState: SnackbarHostState,
 highlightKey: String? = null) {
     val scrollState = androidx.compose.foundation.rememberScrollState()
+    val context = LocalContext.current
 
     val (dynamicTheme, onDynamicThemeChange) = rememberPreference(
         DynamicThemeKey,
@@ -276,21 +280,14 @@ highlightKey: String? = null) {
     )
 
     
-    val context = activity as Context
-    val sharedPreferences = remember { context.getSharedPreferences("auriqo_settings", Context.MODE_PRIVATE) }
-    val prefDensityScale = remember(sharedPreferences) {
-        sharedPreferences.getFloat("density_scale_factor", 1.0f)
-    }
-    val (densityScale, setDensityScale) = rememberPreference(DensityScaleKey, defaultValue = prefDensityScale)
+    val (densityScale, setDensityScale) = rememberPreference(DensityScaleKey, defaultValue = 1.0f)
+    var pendingDensityScale by rememberSaveable { mutableFloatStateOf(densityScale) }
     var showRestartDialog by rememberSaveable { mutableStateOf(false) }
     var showDensityScaleDialog by rememberSaveable { mutableStateOf(false) }
 
     val onDensityScaleChange: (Float) -> Unit = { newScale ->
+        pendingDensityScale = newScale
         setDensityScale(newScale)
-        
-        sharedPreferences.edit {
-            putFloat("density_scale_factor", newScale)
-        }
         showRestartDialog = true
     }
 
@@ -713,6 +710,11 @@ highlightKey: String? = null) {
                 TextButton(
                     onClick = {
                         showRestartDialog = false
+                        runBlocking(Dispatchers.IO) {
+                            context.dataStore.edit { preferences ->
+                                preferences[DensityScaleKey] = pendingDensityScale
+                            }
+                        }
                         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         }

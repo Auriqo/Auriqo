@@ -28,8 +28,6 @@ import com.auriqo.music.constants.AccountEmailKey
 import com.auriqo.music.constants.InnerTubeCookieKey
 import com.auriqo.music.constants.UseLoginForBrowse
 import com.auriqo.music.constants.YtmSyncKey
-import com.auriqo.music.constants.AudioQualityKey
-import com.auriqo.music.constants.AudioQuality
 import com.auriqo.music.ui.component.Material3SettingsGroup
 import com.auriqo.music.ui.component.Material3SettingsItem
 import com.auriqo.music.utils.rememberPreference
@@ -44,10 +42,6 @@ fun SettingDialoge(
     homeViewModel: HomeViewModel
 ) {
     val uriHandler = LocalUriHandler.current
-    val (audioQuality) = rememberEnumPreference(
-        AudioQualityKey,
-        defaultValue = AudioQuality.OPUS
-    )
     val (innerTubeCookie, _) = rememberPreference(InnerTubeCookieKey, "")
     val isLoggedIn = remember(innerTubeCookie) {
         innerTubeCookie.isNotEmpty() && "SAPISID" in parseCookieString(innerTubeCookie)
@@ -157,25 +151,6 @@ fun SettingDialoge(
                                 }
                             )
                         )
-                        if (audioQuality == AudioQuality.LOSSLESS) {
-                            add(
-                                Material3SettingsItem(
-                                    title = { Text("Donate for lossless music") },
-                                    customIcon = {
-                                        Text(
-                                            text = "$",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f)
-                                        )
-                                    },
-                                    onClick = {
-                                        uriHandler.openUri("https://github.com/Auriqo/Auriqo")
-                                        onDismissRequest()
-                                    }
-                                )
-                            )
-                        }
                     }
                 )
 
@@ -226,6 +201,7 @@ fun SettingDialoge(
                         Material3SettingsItem(
                             title = { Text("Settings") },
                             icon = painterResource(R.drawable.settings),
+                            testTag = "settings.dialog.open",
                             onClick = { onNavigate("settings") }
                         ),
                         Material3SettingsItem(

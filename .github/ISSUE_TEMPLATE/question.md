@@ -1,27 +1,15 @@
 ---
 name: Question
-about: Ask a question about Auriqo
+about: Ask a project question
 title: '[QUESTION] '
 labels: question
 assignees: ''
-
 ---
 
-## ❓ Question
-What would you like to know about Auriqo?
+## Question
 
-## 🔍 Context
-Provide any relevant context about your question.
+What would you like to know?
 
-## 📱 Environment
-- **Device**: [e.g. Samsung Galaxy S21]
-- **Android Version**: [e.g. Android 12]
-- **App Version**: [e.g. v1.4]
+## Context
 
-## 📋 Additional Information
-Any other information that might be helpful.
-
-## ✅ Checklist
-- [ ] I have searched existing issues and discussions
-- [ ] I have provided relevant context
-- [ ] I have included device information
+Include the app version, build variant (FOSS/GMS), device/Android version, and relevant feature where applicable. Do not post credentials, logs containing tokens, or private account/library information.

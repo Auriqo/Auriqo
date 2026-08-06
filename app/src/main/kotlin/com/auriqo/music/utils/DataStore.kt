@@ -12,7 +12,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.preferencesDataStore
+import com.auriqo.music.constants.DensityScaleKey
 import com.auriqo.music.extensions.toEnum
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -22,7 +24,25 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.properties.ReadOnlyProperty
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+/**
+ * The app's canonical preference store.
+ *
+ * `auriqo_settings` predates DataStore and contains the density scale under the
+ * same key. The Preferences migration skips keys already present in DataStore,
+ * so an existing canonical value always wins over the compatibility source.
+ */
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "settings",
+    produceMigrations = { context ->
+        listOf(
+            SharedPreferencesMigration(
+                context = context,
+                sharedPreferencesName = "auriqo_settings",
+                keysToMigrate = setOf(DensityScaleKey.name),
+            ),
+        )
+    },
+)
 
 operator fun <T> DataStore<Preferences>.get(key: Preferences.Key<T>): T? =
     runBlocking(Dispatchers.IO) {

@@ -20,12 +20,6 @@ data class LosslessTrack(
     val url: String
 )
 
-@Serializable
-data class DonationGoal(
-    val current: Int = 0,
-    val target: Int = 100
-)
-
 object LosslessAPI {
     private val httpClient = OkHttpClient.Builder().build()
     private val json = Json { ignoreUnknownKeys = true }
@@ -108,23 +102,4 @@ object LosslessAPI {
         }
     }
 
-    suspend fun getDonationGoal(): DonationGoal = withContext(Dispatchers.IO) {
-        try {
-            val request = Request.Builder()
-                .url("https://music.youtube.com/")
-                .get()
-                .build()
-
-            val response = httpClient.newCall(request).execute()
-            if (response.isSuccessful) {
-                val responseBody = response.body?.string()
-                if (responseBody != null) {
-                    return@withContext json.decodeFromString<DonationGoal>(responseBody)
-                }
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to fetch donation goal")
-        }
-        return@withContext DonationGoal()
-    }
 }

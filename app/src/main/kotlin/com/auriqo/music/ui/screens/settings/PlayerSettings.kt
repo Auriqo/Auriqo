@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -81,14 +82,6 @@ import com.auriqo.music.ui.utils.backToMain
 import com.auriqo.music.utils.rememberEnumPreference
 import com.auriqo.music.utils.rememberPreference
 import kotlin.math.roundToInt
-import android.content.Intent
-import android.net.Uri
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.auriqo.music.utils.cipher.PlayerConfigStore
-import com.auriqo.music.utils.cipher.PlayerDatesStore
-import kotlinx.coroutines.launch
-import android.text.format.DateUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -308,6 +301,7 @@ highlightKey: String? = null) {
             )
             .verticalScroll(scrollState)
             .padding(horizontal = 16.dp)
+            .testTag("settings.player.surface")
     ) {
         var showCrossfadeBetaDialog by remember { mutableStateOf(false) }
 
@@ -337,12 +331,6 @@ highlightKey: String? = null) {
                 onDismiss = { showLosslessAudioWarning = false },
                 title = { Text("Enable Lossless Audio?") },
                 buttons = {
-                    TextButton(onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Auriqo/Auriqo"))
-                        context.startActivity(intent)
-                    }) {
-                        Text("Donate")
-                    }
                     TextButton(onClick = { showLosslessAudioWarning = false }) {
                         Text(stringResource(R.string.cancel))
                     }
@@ -354,7 +342,7 @@ highlightKey: String? = null) {
                     }
                 }
             ) {
-                Text("Lossless is uncompressed music which is higher in size and requires significant server load. Continuous maintenance requires funding. We have a monthly goal of $200 to keep this active.\n\nPlease consider donating!")
+                Text("Lossless audio uses more data and storage. Continue?")
             }
         }
 
@@ -364,12 +352,6 @@ highlightKey: String? = null) {
                 onDismiss = { showLosslessDownloadWarning = false },
                 title = { Text("Enable Lossless Downloads?") },
                 buttons = {
-                    TextButton(onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Auriqo/Auriqo"))
-                        context.startActivity(intent)
-                    }) {
-                        Text("Donate")
-                    }
                     TextButton(onClick = { showLosslessDownloadWarning = false }) {
                         Text(stringResource(R.string.cancel))
                     }
@@ -381,7 +363,7 @@ highlightKey: String? = null) {
                     }
                 }
             ) {
-                Text("Lossless downloads require significant server load and bandwidth. Continuous maintenance requires funding. We have a monthly goal of $200 to keep this active.\n\nPlease consider donating!")
+                Text("Lossless downloads use more data and storage. Continue?")
             }
         }
 
@@ -397,8 +379,6 @@ highlightKey: String? = null) {
                 )
             )
         )
-
-        com.auriqo.music.ui.component.FundingProgressCard()
 
         Material3SettingsGroup(
             scrollState = scrollState,
@@ -1167,17 +1147,6 @@ highlightKey: String? = null) {
                         )
                     },
                     onClick = { onEnableExportAsMp3Change(!enableExportAsMp3) }
-                ),
-                Material3SettingsItem(
-                    isHighlighted = (highlightKey == "Player Extractor"),
-                    icon = painterResource(R.drawable.sync),
-                    title = { Text("Player Extractor") },
-                    description = { 
-                        Text("Manage cipher updates and view history") 
-                    },
-                    onClick = { 
-                        navController.navigate("settings/echo_extractor")
-                    }
                 ),
             )
         )

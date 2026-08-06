@@ -307,12 +307,11 @@
     <string name="wrapped_end_create_playlist">Crie Sua Lista de Reprodução Embrulhada</string>
     <string name="wrapped_end_creating_playlist">Criando...</string>
     <string name="wrapped_end_playlist_saved">Lista de Reprodução Salva</string>
-    <string name="wrapped_logo_content_description"auriqo Logo</string>
+    <string name="wrapped_logo_content_description">auriqo Logo</string>
     <string name="wrapped_year">2025</string>
     <string name="wrapped_ready_title">SEU EMBRULHO ESTÁ PRONTO!</string>
     <string name="wrapped_ready_subtitle">Hora de checar o que você amou esse ano.</string>
     <string name="wrapped_thank_you">Obrigado por ouvir</string>
-    <string name="wrapped_special_thanks">Agradecimentos especiais ao MO Agamy por criar o auriqo</string>
     <string name="wrapped_close">Feche o embrulho</string>
     <string name="wrapped_playlist_title">Seu %s Embrulhado</string>
     <string name="wrapped_create_playlist">Criar lista de reprodução</string>

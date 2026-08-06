@@ -45,7 +45,6 @@ import com.auriqo.music.ui.screens.settings.FontsSettings
 import com.auriqo.music.ui.screens.settings.GlassEffectSettings
 import com.auriqo.music.ui.screens.settings.BackupAndRestore
 import com.auriqo.music.ui.screens.settings.ContentSettings
-import com.auriqo.music.ui.screens.settings.UptimeScreen
 import com.auriqo.music.ui.screens.settings.DarkMode
 import com.auriqo.music.ui.screens.settings.PlayerSettings
 import com.auriqo.music.ui.screens.settings.PrivacySettings
@@ -65,7 +64,6 @@ import com.auriqo.music.utils.rememberEnumPreference
 import com.auriqo.music.utils.rememberPreference
 import com.auriqo.music.appupdate.changelog.ChangelogScreen
 import com.auriqo.music.appupdate.commitscreen.CommitScreen
-import com.auriqo.music.ui.screens.settings.PlayerExtractorScreen
 import com.auriqo.music.ui.screens.equalizer.axion.AxionEqScreen
 import com.auriqo.music.ui.screens.ambient.AmbientModeScreen
 
@@ -378,10 +376,6 @@ fun NavGraphBuilder.navigationBuilder(
         ContentSettings(navController, scrollBehavior, highlightKey = backStackEntry.arguments?.getString("highlightKey"))
     }
 
-    composable("uptime") {
-        UptimeScreen(navController, scrollBehavior)
-    }
-
     composable("settings/content/romanization") {
         RomanizationSettings(navController, scrollBehavior)
     }
@@ -391,10 +385,6 @@ fun NavGraphBuilder.navigationBuilder(
         arguments = listOf(navArgument("highlightKey") { type = NavType.StringType; nullable = true })
     ) { backStackEntry ->
         AiSettings(navController, scrollBehavior, highlightKey = backStackEntry.arguments?.getString("highlightKey"))
-    }
-    
-    composable("settings/lossless") {
-        com.auriqo.music.ui.screens.settings.LosslessContributeScreen(navController, scrollBehavior)
     }
     
     composable(
@@ -493,9 +483,5 @@ fun NavGraphBuilder.navigationBuilder(
     }
     composable("settings/commits") {
         CommitScreen(navController, scrollBehavior)
-    }
-    
-    composable("settings/echo_extractor") {
-        PlayerExtractorScreen(navController)
     }
 }

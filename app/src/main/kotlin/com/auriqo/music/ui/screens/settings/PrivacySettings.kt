@@ -25,6 +25,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,7 +44,11 @@ import com.auriqo.music.ui.component.IconButton
 import com.auriqo.music.ui.component.Material3SettingsGroup
 import com.auriqo.music.ui.component.Material3SettingsItem
 import com.auriqo.music.ui.utils.backToMain
+import com.auriqo.music.privacy.TelemetryConsent
+import com.auriqo.music.privacy.TelemetryConsentPolicy
+import com.auriqo.music.privacy.TelemetryConsentStore
 import com.auriqo.music.utils.rememberPreference
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,6 +57,11 @@ fun PrivacySettings(
     scrollBehavior: TopAppBarScrollBehavior,
 highlightKey: String? = null) {
     val scrollState = androidx.compose.foundation.rememberScrollState()
+    val context = LocalContext.current
+    val telemetryAvailable = TelemetryConsentStore.isAvailable(context)
+    val coroutineScope = rememberCoroutineScope()
+    val telemetryConsent by TelemetryConsentStore.consent(context)
+        .collectAsState(initial = TelemetryConsent.UNKNOWN)
 
     val database = LocalDatabase.current
     val (pauseListenHistory, onPauseListenHistoryChange) = rememberPreference(
@@ -187,6 +199,52 @@ highlightKey: String? = null) {
         )
 
         Spacer(modifier = Modifier.height(27.dp))
+
+        if (TelemetryConsentPolicy.shouldShowControls(telemetryAvailable)) {
+            Material3SettingsGroup(
+                scrollState = scrollState,
+                title = stringResource(R.string.telemetry_settings_title),
+                items = listOf(
+                    Material3SettingsItem(
+                        isHighlighted = false,
+                        icon = painterResource(R.drawable.info),
+                        title = {
+                            Text(
+                                stringResource(
+                                    if (telemetryConsent == TelemetryConsent.ACCEPTED) {
+                                        R.string.telemetry_settings_enabled
+                                    } else {
+                                        R.string.telemetry_settings_disabled
+                                    }
+                                )
+                            )
+                        },
+                        onClick = {
+                            val newChoice = if (telemetryConsent == TelemetryConsent.ACCEPTED) {
+                                TelemetryConsent.DECLINED
+                            } else {
+                                TelemetryConsent.ACCEPTED
+                            }
+                            coroutineScope.launch { TelemetryConsentStore.record(context, newChoice) }
+                        },
+                        trailingContent = {
+                            Text(
+                                stringResource(
+                                    if (telemetryConsent == TelemetryConsent.ACCEPTED) {
+                                        R.string.telemetry_settings_revoke
+                                    } else {
+                                        R.string.telemetry_settings_allow
+                                    }
+                                ),
+                                style = MaterialTheme.typography.labelLarge,
+                            )
+                        },
+                    ),
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(27.dp))
+        }
 
         Material3SettingsGroup(scrollState = scrollState, 
             title = stringResource(R.string.search_history),

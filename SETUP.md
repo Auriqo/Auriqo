@@ -1,164 +1,53 @@
-# Setup Instructions
+# Development setup
 
-This document provides instructions for setting up the Auriqo project for development.
+This setup applies to an authorized checkout of the private Auriqo repository. It intentionally contains no personal paths, tokens, or release credentials.
 
-## Prerequisites
+## Requirements
 
-- Android Studio (latest version recommended)
-- Android SDK (API level as specified in `build.gradle.kts`)
-- JDK 21
+- JDK 21 (the Android module compiles Java and Kotlin for JVM 21)
+- Android SDK with API 36 platform installed
+- Android NDK `27.0.12077973` when native dependencies require it
+- Android Studio or the command-line SDK tools
 - Git
 
-## Initial Setup
+The prepared release is version `1.0.0` (version code `527`), with `minSdk 26`, `targetSdk 36`, and namespace/application ID `com.auriqo.music`. See [BUILD.md](BUILD.md) for variants and exact tasks.
 
-### 1. Clone the Repository
+## Local SDK configuration
 
-```bash
-git clone https://github.com/Auriqo/Auriqo.git
-cd Auriqo
-```
-
-### 2. Configure Local Properties
-
-Create a `local.properties` file from the template:
+Copy the tracked template and replace only its placeholder:
 
 ```bash
 cp local.properties.template local.properties
 ```
 
-Edit `local.properties` and set your Android SDK path:
+Set `sdk.dir` to the Android SDK directory for the current workstation. `local.properties` is ignored and must not be committed.
 
-```properties
-sdk.dir=/path/to/your/android/sdk
-```
+On Windows, run `gradlew.bat` (for example, `gradlew.bat :app:assembleUniversalFossDebug`) instead of `./gradlew`.
 
-**Example paths:**
+## Optional service configuration
 
-- macOS: `/Users/username/Library/Android/sdk`
-- Linux: `/home/username/Android/sdk`
-- Windows: `C:\\Users\\username\\AppData\\Local\\Android\\sdk`
+The FOSS flavor neither needs nor uses `app/google-services.json`. The GMS flavor has Firebase Analytics and Crashlytics dependencies, and the Google Services/Crashlytics Gradle plugins are applied only when `app/google-services.json` exists. If a maintainer supplies that file for an authorized GMS build, keep it untracked; never copy it from another project or commit it.
 
-### 3. Configure Firebase (Optional)
+Some optional features accept credentials at runtime or build time (for example, Last.fm and GitHub OAuth). Leave them unset for normal FOSS validation. Do not put credentials in source, screenshots, documentation, issues, or commits.
 
-Firebase is used for analytics and crash reporting. If you want to use these features:
+### Listen Together deployment values
 
-1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
-2. Add an Android app to your Firebase project
-3. Download the `google-services.json` file
-4. Place it in the `app/` directory
+Listen Together has no built-in server or share URL. `LISTEN_TOGETHER_SERVER_URL` and `LISTEN_TOGETHER_SHARE_BASE_URL` default to blank and may be supplied through `local.properties`, a Gradle `-P` property, or the build environment. The server value must be a valid `wss://` URL; the share value must be a valid `https://` URL. Leave both blank unless an authorized deployment supplies them—blank values leave the feature unavailable rather than connecting to a placeholder service.
 
-**Note:** If you skip Firebase setup, the app will still build and run, but analytics and crash reporting will be disabled.
+### Telemetry variants
 
-### 4. Configure Release Signing (Optional)
+The FOSS source set has no Firebase telemetry SDK and exposes no telemetry prompt or control. In a GMS build with Firebase configuration, Analytics and Crashlytics collection default to disabled. The app records an explicit accept/decline choice before enabling collection, and the setting can later be changed in Privacy settings.
 
-For release builds, you need to configure signing credentials. Set these as environment variables or in `gradle.properties`:
+## Release signing
 
-```bash
-# Environment variables
-export KEYSTORE_PATH=/path/to/your/keystore.jks
-export STORE_PASSWORD=your_store_password
-export KEY_ALIAS=your_key_alias
-export KEY_PASSWORD=your_key_password
-```
+The release build configuration reads its keystore from `app/keystore/release.keystore` and its passwords/alias from the `STORE_PASSWORD`, `KEY_ALIAS`, and `KEY_PASSWORD` environment variables. The keystore directory and common keystore extensions are ignored. Do not add signing values to `gradle.properties` or version control.
 
-Or add to `gradle.properties` (never commit this file):
+For CI, the separately configured `RELEASE_KEYSTORE_BASE64`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, and `RELEASE_KEY_PASSWORD` secrets are required before a release job can sign anything. Missing values deliberately fail the release job.
 
-```properties
-KEYSTORE_PATH=/path/to/your/keystore.jks
-STORE_PASSWORD=your_store_password
-KEY_ALIAS=your_key_alias
-KEY_PASSWORD=your_key_password
-```
+`1.0.0` remains an unpublished candidate. Do not create a tag, upload an artifact, or use a store console unless an authorized maintainer has completed the release gates in [BUILD.md](BUILD.md).
 
-### 5. Build the Project
+## Next steps
 
-Open the project in Android Studio or build from the command line.
-
-**For FOSS variants (without Google Cast):**
-```bash
-# Debug build
-./gradlew assembleUniversalFossDebug
-
-# Release build (requires signing configuration)
-./gradlew assembleUniversalFossRelease
-```
-
-**For GMS variants (with Google Cast):**
-```bash
-# Debug build
-./gradlew assembleUniversalGmsDebug
-
-# Release build (requires signing configuration)
-./gradlew assembleUniversalGmsRelease
-```
-
-*(On Windows, use `.\gradlew.bat` instead of `./gradlew`)*
-
-### 6. Configure AI Translation (Optional)
-
-Auriqo supports AI-powered lyrics translation. You can configure this in **Settings -> AI Settings**.
-
-#### Option A: Using OpenRouter (Default)
-
-This is the recommended setup for most users.
-
-1. Get an API Key from [OpenRouter](https://openrouter.ai/).
-2. In the app, go to **Settings -> AI Settings**.
-3. Ensure **Provider** is set to **OpenRouter**.
-4. Enter your **API Key**.
-
-#### Option B: Using Custom Provider
-
-Use this for other services like OpenAI, Anthropic, or local LLMs.
-
-1. In the app, go to **Settings -> AI Settings**.
-2. Select your **Provider** (e.g., ChatGPT, Gemini, or Custom).
-3. If using **Custom**, enter your provider's **Base URL**.
-4. Enter your **API Key**.
-
-## Important Files
-
-### Confidential Files (Never commit these)
-
-- `local.properties` - Contains your local SDK path
-- `app/google-services.json` - Contains Firebase credentials
-- `*.keystore` - Contains signing keys for release builds
-- `gradle.properties` - May contain signing credentials
-
-These files are already listed in `.gitignore` and should never be committed to version control.
-
-### Template Files (Safe to commit)
-
-- `local.properties.template` - Template for local properties
-- `app/google-services.json` - Optional Firebase configuration
-
-## Troubleshooting
-
-### Build Fails with "SDK location not found"
-
-Make sure you've created `local.properties` with the correct SDK path.
-
-### Firebase-related Build Errors
-
-If you're not using Firebase, you can build the standard debug variant without `app/google-services.json`:
-
-```bash
-./gradlew assembleUniversalFossDebug
-```
-
-### Gradle Sync Issues
-
-Try cleaning and rebuilding:
-
-```bash
-./gradlew clean
-./gradlew build
-```
-
-## Contributing
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
-
-## License
-
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+1. Run the FOSS debug validation in [BUILD.md](BUILD.md).
+2. Consult [ARCHITECTURE.md](ARCHITECTURE.md) before changing modules or flavors.
+3. Follow [CONTRIBUTING.md](CONTRIBUTING.md) for review and secret-handling expectations.

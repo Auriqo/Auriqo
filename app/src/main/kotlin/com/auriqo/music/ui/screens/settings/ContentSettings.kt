@@ -1226,13 +1226,6 @@ highlightKey: String? = null) {
                     title = { Text(stringResource(R.string.playback_logs)) },
                     description = { Text(stringResource(R.string.playback_logs_desc)) },
                     onClick = { showPlaybackLogsDialog = true }
-                ),
-                Material3SettingsItem(
-    isHighlighted = (highlightKey == stringResource(R.string.service_uptime)),
-                    icon = painterResource(R.drawable.sync),
-                    title = { Text(stringResource(R.string.service_uptime)) },
-                    description = { Text(stringResource(R.string.service_uptime_desc)) },
-                    onClick = { navController.navigate("uptime") }
                 )
             )
         )

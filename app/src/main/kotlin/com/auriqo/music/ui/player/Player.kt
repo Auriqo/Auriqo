@@ -113,6 +113,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.toArgb
@@ -123,6 +124,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -243,14 +245,12 @@ import com.auriqo.music.extensions.metadata
 import com.auriqo.music.ui.player.CanvasArtworkPlaybackCache
 import com.auriqo.music.ui.player.normalizeCanvasArtistName
 import com.auriqo.music.ui.player.normalizeCanvasSongTitle
-import com.auriqo.music.appupdatecanvas.AuriqoCanvasProvider
 import java.util.Locale
 import kotlin.math.cos
 import kotlin.math.sin
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.geometry.Size
@@ -284,6 +284,51 @@ private data class WavyShape(
         }
         path.close()
         return Outline.Generic(path)
+    }
+}
+
+/**
+ * The primary transport action shared by the full player and instrumentation.
+ * Keeping its semantics here ensures a smoke test exercises the same control
+ * users see rather than a test-only imitation.
+ */
+@Composable
+fun PlayerTransportButton(
+    isPlaying: Boolean,
+    isListenTogetherGuest: Boolean,
+    isMuted: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
+    shape: Shape = CircleShape,
+    interactionSource: MutableInteractionSource? = null,
+) {
+    FilledIconButton(
+        onClick = onClick,
+        shape = shape,
+        interactionSource = interactionSource,
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+        ),
+        modifier = modifier.testTag("player.transport"),
+    ) {
+        Icon(
+            painter = painterResource(
+                if (isListenTogetherGuest) {
+                    if (isMuted) R.drawable.volume_off else R.drawable.volume_up
+                } else {
+                    if (isPlaying) R.drawable.pause else R.drawable.play
+                }
+            ),
+            contentDescription = if (isListenTogetherGuest) {
+                if (isMuted) stringResource(R.string.unmute) else stringResource(R.string.mute)
+            } else {
+                if (isPlaying) stringResource(R.string.pause) else stringResource(R.string.play)
+            },
+            modifier = Modifier.size(36.dp),
+        )
     }
 }
 
@@ -676,9 +721,7 @@ fun BottomSheetPlayer(
             val s = normalizeCanvasSongTitle(requestedTitle)
             val a = normalizeCanvasArtistName(requestedArtist)
             
-            val fetched = AuriqoCanvasProvider.getBySongArtist(s, a)
-                ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
-                ?: TidalCanvasProvider.getBySongArtist(s, a, requestedAlbum)
+            val fetched = TidalCanvasProvider.getBySongArtist(s, a, requestedAlbum)
                 ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
                 ?: AppleMusicCanvasProvider.getBySongArtist(s, a, requestedAlbum, storefront)
                 ?.takeIf { !it.preferredAnimationUrl.isNullOrBlank() }
@@ -2392,11 +2435,14 @@ fun BottomSheetPlayer(
                                 label = "rotation"
                             )
 
-                            FilledIconButton(
+                            PlayerTransportButton(
+                                isPlaying = effectiveIsPlaying,
+                                isListenTogetherGuest = isListenTogetherGuest,
+                                isMuted = isMuted,
                                 onClick = {
                                     if (isListenTogetherGuest) {
                                         playerConnection.toggleMute()
-                                        return@FilledIconButton
+                                        return@PlayerTransportButton
                                     }
                                     if (isCasting) {
                                         if (castIsPlaying) {
@@ -2413,35 +2459,12 @@ fun BottomSheetPlayer(
                                 },
                                 shape = if (cookieIndent > 0f) WavyShape(9, cookieIndent, rotation) else CircleShape,
                                 interactionSource = playPauseInteractionSource,
-                                colors = IconButtonDefaults.filledIconButtonColors(
-                                    containerColor = textButtonColor,
-                                    contentColor = iconButtonColor,
-                                ),
+                                containerColor = textButtonColor,
+                                contentColor = iconButtonColor,
                                 modifier = Modifier
                                     .size(84.dp)
                                     .graphicsLayer { scaleX = playPauseScale; scaleY = playPauseScale }
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Icon(
-                                        painter = painterResource(
-                                            if (isListenTogetherGuest) {
-                                                if (isMuted) R.drawable.volume_off else R.drawable.volume_up
-                                            } else {
-                                                if (effectiveIsPlaying) R.drawable.pause else R.drawable.play
-                                            }
-                                        ),
-                                        contentDescription = if (isListenTogetherGuest) {
-                                            if (isMuted) stringResource(R.string.unmute) else stringResource(R.string.mute)
-                                        } else {
-                                            if (effectiveIsPlaying) stringResource(R.string.pause) else stringResource(R.string.play)
-                                        },
-                                        modifier = Modifier.size(36.dp)
-                                    )
-                                }
-                            }
+                            )
 
                             Spacer(modifier = Modifier.width(24.dp))
 

@@ -22,6 +22,7 @@ import android.view.View
 import android.widget.RemoteViews
 import coil3.imageLoader
 import coil3.request.ImageRequest
+import coil3.request.CachePolicy
 import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.toBitmap
@@ -344,31 +345,17 @@ class PlaylistWidgetManager @Inject constructor(
         val minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
         val minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
 
-        return when {
-            minWidth < 210 -> 0
-            minHeight < 330 -> 4
-            minWidth >= 360 -> 8
-            else -> 4
-        }
+        return WidgetLayoutPolicy.maxQuickPicks(minWidth, minHeight)
     }
     // The widget intentionally avoids an incomplete second row:
     // show up to 4 playlists in one row, collapse 5-7 to 4, and only use two rows when 8 are available
     private fun balancedDisplayCount(available: Int, maxItems: Int): Int {
-        val capped = minOf(available, maxItems, 8)
-        return when {
-            capped >= 8 -> 8
-            capped >= 4 -> 4
-            else -> capped
-        }
+        return WidgetLayoutPolicy.balancedDisplayCount(available, maxItems)
     }
 
 
-    private fun reservedEmptySlotsFor(displayCount: Int): Set<Int> = when (displayCount) {
-        1 -> setOf(1, 2, 3)
-        2 -> setOf(2, 3)
-        3 -> setOf(3)
-        else -> emptySet()
-    }
+    private fun reservedEmptySlotsFor(displayCount: Int): Set<Int> =
+        WidgetLayoutPolicy.reservedEmptySlots(displayCount)
 
     private suspend fun buildQuickPicks(): List<QuickPick> = withContext(Dispatchers.IO) {
         val speedDialItemsDeferred = async { database.speedDialDao.getAll().first() }
@@ -528,6 +515,8 @@ class PlaylistWidgetManager @Inject constructor(
                 .size(size, size)
                 .allowHardware(false)
                 .crossfade(false)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .diskCachePolicy(CachePolicy.ENABLED)
                 .build()
             imageLoader.execute(request).image?.toBitmap()
         } catch (e: CancellationException) {

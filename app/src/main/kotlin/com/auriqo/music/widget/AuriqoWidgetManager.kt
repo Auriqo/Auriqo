@@ -18,8 +18,9 @@ import android.graphics.RectF
 import android.graphics.Shader
 import android.os.Bundle
 import android.widget.RemoteViews
-import coil3.ImageLoader
+import coil3.imageLoader
 import coil3.request.ImageRequest
+import coil3.request.CachePolicy
 import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.toBitmap
@@ -38,12 +39,6 @@ class AuriqoWidgetManager @Inject constructor(
     private val database: MusicDatabase,
     private val playlistWidgetManager: PlaylistWidgetManager,
 ) {
-    private val imageLoader by lazy {
-        ImageLoader.Builder(context)
-            .crossfade(false)
-            .build()
-    }
-
     // Cache for album art to avoid reloading
     private var cachedArtworkUri: String? = null
     private var cachedAlbumArt: Bitmap? = null
@@ -209,8 +204,10 @@ class AuriqoWidgetManager @Inject constructor(
                     .size(size, size)
                     .allowHardware(false)
                     .crossfade(300)
+                    .memoryCachePolicy(CachePolicy.ENABLED)
+                    .diskCachePolicy(CachePolicy.ENABLED)
                     .build()
-                val result = imageLoader.execute(request)
+                val result = context.imageLoader.execute(request)
                 result.image?.toBitmap()
             } catch (e: Exception) {
                 null

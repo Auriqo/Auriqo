@@ -6,10 +6,20 @@
         <item name="android:windowMinWidthMinor">100%</item>
         <item name="android:windowMinWidthMajor">100%</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">#ffffff</item>
+        <item name="android:windowBackground">@color/auriqo_off_white</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
         <item name="android:enforceNavigationBarContrast" tools:ignore="NewApi">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <!-- AndroidX SplashScreen backport for API 26-30; API 31+ resolves the same contract natively. -->
+    <style name="Theme.auriqo.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/auriqo_midnight</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_auriqo_splash</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/auriqo_midnight</item>
+        <item name="postSplashScreenTheme">@style/Theme.auriqo</item>
     </style>
 
     <!-- Widget Theme with Material 3 colors fallback for API < 31 -->

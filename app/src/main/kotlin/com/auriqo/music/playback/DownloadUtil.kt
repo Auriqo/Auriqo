@@ -201,17 +201,10 @@ constructor(
                         }
 
                         scope.launch {
-                            when (download.state) {
-                                Download.STATE_COMPLETED -> {
-                                    database.updateDownloadedInfo(download.request.id, true, LocalDateTime.now())
-                                }
-                                Download.STATE_FAILED,
-                                Download.STATE_STOPPED,
-                                Download.STATE_REMOVING -> {
-                                    database.updateDownloadedInfo(download.request.id, false, null)
-                                }
-                                else -> {
-                                }
+                            when (DownloadStatePolicy.downloadedValueFor(download.state)) {
+                                true -> database.updateDownloadedInfo(download.request.id, true, LocalDateTime.now())
+                                false -> database.updateDownloadedInfo(download.request.id, false, null)
+                                null -> Unit
                             }
                         }
                     }
