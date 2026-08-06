@@ -47,9 +47,9 @@ jobs:
         run: |
           mkdir -p "$HOME/.gradle"
           cat > "$HOME/.gradle/gradle.properties" <<'EOF'
-          org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
-          kotlin.daemon.jvmargs=-Xmx1536m
-          org.gradle.workers.max=2
+          org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
+          kotlin.compiler.execution.strategy=in-process
+          org.gradle.workers.max=1
           EOF
 
       - name: Create disposable Android debug keystore

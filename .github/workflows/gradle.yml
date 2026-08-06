@@ -44,10 +44,10 @@ jobs:
         run: |
           mkdir -p "$HOME/.gradle"
           cat > "$HOME/.gradle/gradle.properties" <<'EOF'
-          # Leave headroom for Android build tools and the managed-device emulator.
-          org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
-          kotlin.daemon.jvmargs=-Xmx1536m
-          org.gradle.workers.max=2
+          # Keep Kotlin in Gradle's single VM and leave emulator/build-tool headroom.
+          org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
+          kotlin.compiler.execution.strategy=in-process
+          org.gradle.workers.max=1
           EOF
 
       - name: Cache Gradle
@@ -145,10 +145,10 @@ jobs:
         run: |
           mkdir -p "$HOME/.gradle"
           cat > "$HOME/.gradle/gradle.properties" <<'EOF'
-          # Leave headroom for Android build tools and the managed-device emulator.
-          org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
-          kotlin.daemon.jvmargs=-Xmx1536m
-          org.gradle.workers.max=2
+          # Keep Kotlin in Gradle's single VM and leave emulator/build-tool headroom.
+          org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
+          kotlin.compiler.execution.strategy=in-process
+          org.gradle.workers.max=1
           EOF
 
       - name: Configure Android SDK path
@@ -216,10 +216,10 @@ jobs:
         run: |
           mkdir -p "$HOME/.gradle"
           cat > "$HOME/.gradle/gradle.properties" <<'EOF'
-          # Leave headroom for Android build tools and the managed-device emulator.
-          org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
-          kotlin.daemon.jvmargs=-Xmx1536m
-          org.gradle.workers.max=2
+          # Keep Kotlin in Gradle's single VM and leave emulator/build-tool headroom.
+          org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
+          kotlin.compiler.execution.strategy=in-process
+          org.gradle.workers.max=1
           EOF
 
       - name: Configure Android SDK path
