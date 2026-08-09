@@ -600,4 +600,16 @@
     <string name="content_country_desc">Gérer les paramètres par défaut relatifs au pays du contenu</string>
     <string name="display_density_desc">Gérer les paramètres de densité d\'affichage</string>
     <string name="download_quality_title_desc">Gérer les paramètres de qualité de téléchargement</string>
+    <string name="content_language_desc">Gérer les paramètres de langue par défaut du contenu</string>
+    <string name="crossfade_beta_message_desc">« Gérer les fondus enchaînés » est une nouvelle fonctionnalité qui peut présenter des bugs. Si vous rencontrez des problèmes, merci de les signaler.\n\nEn raison de contraintes techniques, cette fonctionnalité désactive le déchargement audio. Paramètres</string>
+    <string name="crossfade_beta_title_desc">Gérer les paramètres des fonctionnalités bêta</string>
+    <string name="crossfade_duration_desc">Gérer les paramètres de durée du fondu enchaîné</string>
+    <string name="dark_theme_follow_system_desc">Gérer les paramètres du système de suivi</string>
+    <string name="default__desc">Gérer les paramètres par défaut</string>
+    <string name="default_lib_chips_desc">Gérer les paramètres par défaut de la puce de bibliothèque</string>
+    <string name="default_open_tab_desc">Gérer les paramètres par défaut d\'ouverture des onglets</string>
+    <string name="default_style_desc">Gérer les paramètres par défaut</string>
+    <string name="enable_desc">Activer ou désactiver</string>
+    <string name="enable_authentication_desc">Activer ou désactiver l\'authentification</string>
+    <string name="enable_dynamic_theme_desc">Activer ou désactiver le thème dynamique</string>
 </resources>
