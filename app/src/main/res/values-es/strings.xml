@@ -560,4 +560,6 @@
     <string name="big_desc">Configurar la configuración de Grande</string>
     <string name="cache_size_warning_confirm_desc">Configurar la configuración de Continuar</string>
     <string name="cache_size_warning_message_desc">Configurar la configuración de has elegido un límite de tamaño de caché menor que el que la aplicación está usando actualmente (%1$s). Si continúas, la aplicación puede eliminar algunos %2$s en caché para ajustarse al nuevo límite. ¿Continuar de todos modos?</string>
+    <string name="cache_size_warning_title_desc">Administrar la configuración de espera</string>
+    <string name="cd_back_desc">Configuración del botón \"Atrás\"</string>
 </resources>
