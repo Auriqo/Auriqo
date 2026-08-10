@@ -19,6 +19,13 @@ internal class StreamRecoveryCoordinator(
         val expiresAtMs: Long,
     )
 
+    /** Whether a completed resolution was accepted into the current generation. */
+    enum class CacheWriteResult {
+        Stored,
+        Superseded,
+        Expired,
+    }
+
     data class ResolutionToken internal constructor(
         val mediaId: String,
         val generation: Long,
@@ -38,11 +45,14 @@ internal class StreamRecoveryCoordinator(
 
     enum class FailureKind(
         val refreshExtractorState: Boolean,
+        val invalidatesStreamResolution: Boolean,
     ) {
-        RejectedStream(refreshExtractorState = true),
-        ReloadRequired(refreshExtractorState = true),
-        CacheOrStreamCorruption(refreshExtractorState = false),
-        Permanent(refreshExtractorState = false),
+        RejectedStream(refreshExtractorState = true, invalidatesStreamResolution = true),
+        ReloadRequired(refreshExtractorState = true, invalidatesStreamResolution = true),
+        UnclassifiedStreamIo(refreshExtractorState = true, invalidatesStreamResolution = true),
+        CacheOrStreamCorruption(refreshExtractorState = false, invalidatesStreamResolution = true),
+        LocalSourceCorruption(refreshExtractorState = false, invalidatesStreamResolution = false),
+        Permanent(refreshExtractorState = false, invalidatesStreamResolution = false),
     }
 
     sealed interface RecoveryDecision {
@@ -85,22 +95,25 @@ internal class StreamRecoveryCoordinator(
     }
 
     /**
-     * Returns false when a recovery invalidated this media while a background resolution was in
-     * flight. This prevents a late preload from putting a stale URL back into the cache.
+     * A superseded result must be discarded by the caller rather than returned to Media3. This
+     * keeps a late preload or resolver from reintroducing a URL invalidated during recovery.
      */
     fun cacheStream(
         key: StreamKey,
         url: String,
         expiresAtMs: Long,
         token: ResolutionToken? = null,
-    ): Boolean = synchronized(lock) {
+    ): CacheWriteResult = synchronized(lock) {
         if (token != null &&
             (token.mediaId != key.mediaId || token.generation != resolutionGenerationLocked(key.mediaId))
         ) {
-            return@synchronized false
+            return@synchronized CacheWriteResult.Superseded
+        }
+        if (expiresAtMs <= clockMs()) {
+            return@synchronized CacheWriteResult.Expired
         }
         streams[key] = CachedStream(url, expiresAtMs)
-        true
+        CacheWriteResult.Stored
     }
 
     fun activeQuality(mediaId: String): String? = synchronized(lock) {
@@ -165,9 +178,11 @@ internal class StreamRecoveryCoordinator(
             return@synchronized RecoveryDecision.RecoveryInProgress
         }
 
-        // Even a terminal second failure must evict the known-bad fresh URL, so a later user
-        // initiated playback does not reuse it.
-        invalidateStreamLocked(snapshot.mediaId)
+        // Even a terminal second stream failure must evict the known-bad fresh URL, so a later
+        // user initiated playback does not reuse it. Local-source recovery has no URL to evict.
+        if (failure.invalidatesStreamResolution) {
+            invalidateStreamLocked(snapshot.mediaId)
+        }
 
         if (attemptedRecoveryFor == snapshot.mediaId) {
             return@synchronized RecoveryDecision.Exhausted

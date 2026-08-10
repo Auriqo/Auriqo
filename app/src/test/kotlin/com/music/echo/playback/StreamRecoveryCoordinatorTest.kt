@@ -5,7 +5,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -57,7 +56,8 @@ class StreamRecoveryCoordinatorTest {
         assertNull(coordinator.cachedStream(key))
 
         val freshToken = coordinator.resolutionToken(snapshot.mediaId)
-        assertTrue(
+        assertEquals(
+            StreamRecoveryCoordinator.CacheWriteResult.Stored,
             coordinator.cacheStream(
                 key,
                 "https://cdn.example/fresh",
@@ -100,6 +100,20 @@ class StreamRecoveryCoordinatorTest {
         )
 
         assertEquals(StreamRecoveryCoordinator.RecoveryDecision.NotRecoverable, decision)
+        assertEquals("https://cdn.example/valid", coordinator.cachedStream(key)?.url)
+    }
+
+    @Test
+    fun localSourceRecoveryDoesNotInvalidateAStreamResolution() {
+        coordinator.cacheStream(key, "https://cdn.example/valid", nowMs + 60_000L)
+        coordinator.beginPlayback(snapshot.mediaId)
+
+        val decision = coordinator.onFailure(
+            snapshot,
+            StreamRecoveryCoordinator.FailureKind.LocalSourceCorruption,
+        )
+
+        assertTrue(decision is StreamRecoveryCoordinator.RecoveryDecision.Recover)
         assertEquals("https://cdn.example/valid", coordinator.cachedStream(key)?.url)
     }
 
@@ -149,7 +163,8 @@ class StreamRecoveryCoordinatorTest {
         val oldResolution = coordinator.resolutionToken(key.mediaId)
         coordinator.invalidateStream(key.mediaId)
 
-        assertFalse(
+        assertEquals(
+            StreamRecoveryCoordinator.CacheWriteResult.Superseded,
             coordinator.cacheStream(
                 key,
                 "https://cdn.example/late",
@@ -157,6 +172,38 @@ class StreamRecoveryCoordinatorTest {
                 oldResolution,
             ),
         )
+        assertNull(coordinator.cachedStream(key))
+    }
+
+    @Test
+    fun aNewPlaybackGenerationRearmsRecoveryForTheSameMediaId() {
+        coordinator.beginPlayback(snapshot.mediaId)
+        val first = coordinator.onFailure(
+            snapshot,
+            StreamRecoveryCoordinator.FailureKind.RejectedStream,
+        ) as StreamRecoveryCoordinator.RecoveryDecision.Recover
+        coordinator.completeRecovery(first.token)
+
+        coordinator.beginPlayback(snapshot.mediaId, force = true)
+        val replay = coordinator.onFailure(
+            snapshot,
+            StreamRecoveryCoordinator.FailureKind.RejectedStream,
+        )
+
+        assertTrue(replay is StreamRecoveryCoordinator.RecoveryDecision.Recover)
+    }
+
+    @Test
+    fun alreadyExpiredResolutionIsNotCached() {
+        assertEquals(
+            StreamRecoveryCoordinator.CacheWriteResult.Expired,
+            coordinator.cacheStream(
+                key,
+                "https://cdn.example/already-expired",
+                nowMs,
+            ),
+        )
+
         assertNull(coordinator.cachedStream(key))
     }
 }
