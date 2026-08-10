@@ -568,13 +568,22 @@ object YTPlayerUtils {
         val isAgeRestricted: Boolean
     )
 
-    private fun getSignatureTimestampOrNull(videoId: String): SignatureTimestampResult {
+    private suspend fun getSignatureTimestampOrNull(videoId: String): SignatureTimestampResult {
         Timber.tag(logTag).d("Getting signature timestamp for videoId: $videoId")
+        val cipherTimestamp = try {
+            CipherDeobfuscator.signatureTimestamp()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Timber.tag(logTag).w(e, "Could not read signature timestamp from cipher player")
+            null
+        }
         val result = NewPipeExtractor.getSignatureTimestamp(videoId)
         return result.fold(
             onSuccess = { timestamp ->
-                Timber.tag(logTag).d("Signature timestamp obtained: $timestamp")
-                SignatureTimestampResult(timestamp, isAgeRestricted = false)
+                val selectedTimestamp = cipherTimestamp ?: timestamp
+                Timber.tag(logTag).d("Signature timestamp: cipher=$cipherTimestamp, fallback=$timestamp")
+                SignatureTimestampResult(selectedTimestamp, isAgeRestricted = false)
             },
             onFailure = { error ->
                 val isAgeRestricted = error.message?.contains("age-restricted", ignoreCase = true) == true ||
@@ -586,7 +595,7 @@ object YTPlayerUtils {
                     Timber.tag(logTag).e(error, "Failed to get signature timestamp")
                     reportException(error)
                 }
-                SignatureTimestampResult(null, isAgeRestricted)
+                SignatureTimestampResult(cipherTimestamp, isAgeRestricted)
             }
         )
     }

@@ -6,6 +6,8 @@ import java.security.MessageDigest
 object FunctionNameExtractor {
     private const val TAG = "echomusic_CipherFnExtract"
 
+    private val ANCHORED_STS_PATTERN = Regex("""signatureTimestamp['\":\s]+(\d+)""")
+    private val LOOSE_STS_PATTERN = Regex("""sts['\":\s]+(\d+)""")
     
     
     
@@ -86,6 +88,27 @@ object FunctionNameExtractor {
             Timber.tag(TAG).w("No config for hash: $playerHash")
         }
         return config
+    }
+
+    /**
+     * Returns the signature timestamp from the same player JS used for deciphering. A timestamp
+     * from a different player generation can mint a signature that the CDN later rejects.
+     */
+    fun extractSignatureTimestamp(playerJs: String, knownHash: String? = null): Int? {
+        ANCHORED_STS_PATTERN.find(playerJs)?.groupValues?.get(1)?.toIntOrNull()?.let { timestamp ->
+            Timber.tag(TAG).d("Signature timestamp from player JS: $timestamp")
+            return timestamp
+        }
+
+        val playerHash = knownHash ?: extractPlayerHash(playerJs)
+        playerHash?.let(::getHardcodedConfig)?.let { config ->
+            Timber.tag(TAG).d("Signature timestamp from player config: ${config.signatureTimestamp}")
+            return config.signatureTimestamp
+        }
+
+        return LOOSE_STS_PATTERN.find(playerJs)?.groupValues?.get(1)?.toIntOrNull()?.also { timestamp ->
+            Timber.tag(TAG).d("Signature timestamp from fallback player JS pattern: $timestamp")
+        }
     }
 
     fun extractSigFunctionInfo(playerJs: String): SigFunctionInfo? {

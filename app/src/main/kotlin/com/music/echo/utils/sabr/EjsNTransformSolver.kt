@@ -11,6 +11,8 @@ import iad1tya.echo.music.utils.cipher.PlayerJsFetcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
@@ -23,18 +25,18 @@ object EjsNTransformSolver {
     private const val TAG = "echomusic_EjsNSolver"
 
     private var solverWebView: SolverWebView? = null
+    private val solverMutex = Mutex()
 
-    
-    suspend fun transformNParamInUrl(url: String): String {
+    suspend fun transformNParamInUrl(url: String): String = solverMutex.withLock {
         val nMatch = Regex("[?&]n=([^&]+)").find(url)
         if (nMatch == null) {
             Timber.tag(TAG).d("No 'n' parameter in SABR URL")
-            return url
+            return@withLock url
         }
         val nValue = Uri.decode(nMatch.groupValues[1])
         Timber.tag(TAG).d("SABR n-param: $nValue")
 
-        return withContext(NonCancellable) {
+        withContext(NonCancellable) {
             val solver = getOrCreateSolver()
             if (solver == null) {
                 return@withContext url
@@ -84,7 +86,7 @@ object EjsNTransformSolver {
         }
     }
 
-    suspend fun close() {
+    suspend fun close() = solverMutex.withLock {
         withContext(Dispatchers.Main) {
             solverWebView?.close()
         }
