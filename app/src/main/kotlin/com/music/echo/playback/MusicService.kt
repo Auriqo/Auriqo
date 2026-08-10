@@ -3089,7 +3089,7 @@ class MusicService :
             Timber.tag("MusicService").i("FETCHING STREAM: $mediaId | quality=$lockedQuality")
             var resolutionToken = streamRecovery.resolutionToken(mediaId)
             var resolvedPlayback: YTPlayerUtils.PlaybackData? = null
-            for (_ in 0..MAX_SUPERSEDED_STREAM_RESOLUTION_RETRIES) {
+            for (attempt in 0..MAX_SUPERSEDED_STREAM_RESOLUTION_RETRIES) {
                 val candidate = resolvePlaybackDataForStream(mediaId, lockedQuality)
                 when (
                     streamRecovery.cacheStream(
@@ -3108,7 +3108,7 @@ class MusicService :
                     StreamRecoveryCoordinator.CacheWriteResult.Superseded -> {
                         Timber.tag(TAG).d(
                             "Discarded superseded stream resolution for $mediaId; " +
-                                "resolving once for the current generation",
+                                "resolving once for the current generation (attempt ${attempt + 1})",
                         )
                         resolutionToken = streamRecovery.resolutionToken(mediaId)
                     }
