@@ -3,6 +3,7 @@
 package iad1tya.echo.music.utils
 
 import android.net.ConnectivityManager
+import android.net.Uri
 import android.util.Log
 import androidx.media3.common.PlaybackException
 import com.music.innertube.NewPipeExtractor
@@ -366,12 +367,14 @@ object YTPlayerUtils {
                 } else {
                     STREAM_FALLBACK_CLIENTS[clientIndex]
                 }
+                val needsNTransform = currentClient.useWebPoTokens ||
+                    currentClient.clientName in setOf("WEB", "WEB_REMIX", "WEB_CREATOR", "TVHTML5")
 
                 
                 val isPrivatelyOwnedTrack = streamPlayerResponse.videoDetails?.musicVideoType == "MUSIC_VIDEO_TYPE_PRIVATELY_OWNED_TRACK"
 
                 
-                if (currentClient.useWebPoTokens) {
+                if (needsNTransform) {
                     try {
                         Timber.tag(logTag).d("Applying n-transform to stream URL for ${currentClient.clientName}")
                         val transformed = EjsNTransformSolver.transformNParamInUrl(streamUrl!!)
@@ -379,6 +382,8 @@ object YTPlayerUtils {
                             streamUrl = transformed
                             Timber.tag(logTag).d("N-transform applied successfully")
                         }
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         Timber.tag(logTag).e(e, "N-transform failed: ${e.message}")
                     }
@@ -389,7 +394,7 @@ object YTPlayerUtils {
                 if (currentClient.useWebPoTokens && poToken?.streamingDataPoToken != null) {
                     Timber.tag(logTag).d("Appending pot= parameter to stream URL")
                     val separator = if ("?" in streamUrl!!) "&" else "?"
-                    streamUrl = "${streamUrl}${separator}pot=${poToken.streamingDataPoToken}"
+                    streamUrl = "${streamUrl}${separator}pot=${Uri.encode(poToken.streamingDataPoToken)}"
                 }
 
                 streamExpiresInSeconds = streamPlayerResponse.streamingData?.expiresInSeconds
@@ -429,7 +434,7 @@ object YTPlayerUtils {
                     Timber.tag(logTag).d("Stream validation failed for client: ${currentClient.clientName}")
 
                     
-                    if (currentClient.useWebPoTokens) {
+                    if (needsNTransform) {
                         var nTransformWorked = false
 
                         
@@ -444,6 +449,8 @@ object YTPlayerUtils {
                                     Log.i(TAG, "Playback: client=${currentClient.clientName}, videoId=$videoId (cipher n-transform)")
                                 }
                             }
+                        } catch (e: kotlinx.coroutines.CancellationException) {
+                            throw e
                         } catch (e: Exception) {
                             Timber.tag(logTag).e(e, "CipherDeobfuscator n-transform error")
                         }
@@ -591,7 +598,7 @@ object YTPlayerUtils {
                 if (isAgeRestricted) {
                     Timber.tag(logTag).d("Age-restricted content detected from NewPipe")
                     Log.i(TAG, "Age-restricted detected early via NewPipe: videoId=$videoId")
-                } else {
+                } else if (cipherTimestamp == null) {
                     Timber.tag(logTag).e(error, "Failed to get signature timestamp")
                     reportException(error)
                 }
@@ -666,8 +673,15 @@ object YTPlayerUtils {
         return null
     }
 
-    fun forceRefreshForVideo(videoId: String) {
-        Timber.tag(logTag).d("Force refreshing for videoId: $videoId")
+    /**
+     * Clears the state that can make an otherwise syntactically valid stream URL fail at the CDN.
+     * The caller already owns a one-shot recovery gate, so this never retries on its own.
+     */
+    suspend fun refreshAfterStreamRejection(videoId: String) {
+        Timber.tag(logTag).d("Refreshing stream resolver state for videoId: $videoId")
+        poTokenGenerator.invalidate()
+        EjsNTransformSolver.close()
+        CipherDeobfuscator.onStreamRejected()
     }
 }
 
