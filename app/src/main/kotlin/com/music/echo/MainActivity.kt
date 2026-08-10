@@ -259,6 +259,8 @@ class MainActivity : ComponentActivity() {
 
     private var playerConnection by mutableStateOf<PlayerConnection?>(null)
 
+    private var isServiceBound = false
+
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             if (service is MusicBinder) {
@@ -308,10 +310,12 @@ class MainActivity : ComponentActivity() {
             serviceConnection,
             BIND_AUTO_CREATE
         )
+
+        isServiceBound = true
     }
 
     override fun onStop() {
-        unbindService(serviceConnection)
+        unbindMusicService()
         super.onStop()
     }
 
@@ -322,9 +326,22 @@ class MainActivity : ComponentActivity() {
             isFinishing
         ) {
             stopService(Intent(this, MusicService::class.java))
-            unbindService(serviceConnection)
+            unbindMusicService()
             playerConnection = null
         }
+    }
+
+    /**
+     * Unbinds from [MusicService] once, if it is still bound.
+     *
+     * [unbindService] throws IllegalArgumentException when the connection is not registered,
+     * and onStop() always runs before onDestroy(), so the second call would always hit an
+     * already unbound connection.
+     */
+    private fun unbindMusicService() {
+        if (!isServiceBound) return
+        isServiceBound = false
+        unbindService(serviceConnection)
     }
 
     override fun onNewIntent(intent: Intent) {
