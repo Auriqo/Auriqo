@@ -80,6 +80,7 @@ object YTPlayerUtils {
         .build()
 
     private val poTokenGenerator = PoTokenGenerator()
+    private val RAW_N_PARAMETER = Regex("[?&]n=[^&]+")
 
     
     private val MAIN_CLIENT: YouTubeClient = ANDROID_VR_1_43_32
@@ -108,6 +109,19 @@ object YTPlayerUtils {
         val streamUrl: String,
         val streamExpiresInSeconds: Int,
     )
+
+    internal enum class StreamUrlSource {
+        RawPlayer,
+        NewPipe,
+    }
+
+    private data class ResolvedStreamUrl(
+        val url: String,
+        val source: StreamUrlSource,
+    )
+
+    internal fun shouldApplyNTransform(source: StreamUrlSource, url: String): Boolean =
+        source == StreamUrlSource.RawPlayer && RAW_N_PARAMETER.containsMatchIn(url)
     
     suspend fun playerResponseForPlayback(
         videoId: String,
@@ -165,6 +179,8 @@ object YTPlayerUtils {
                 if (poToken != null) {
                     Timber.tag(logTag).d("PoToken generated successfully")
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Timber.tag(logTag).e(e, "PoToken generation failed: ${e.message}")
             }
@@ -188,6 +204,8 @@ object YTPlayerUtils {
                 if (METADATA_CLIENT.useWebPoTokens && metaSessionId != null) {
                     try {
                         metaPoToken = poTokenGenerator.getWebClientPoToken(videoId, metaSessionId)
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         Timber.tag(logTag).e(e, "Metadata PoToken generation failed")
                     }
@@ -308,6 +326,8 @@ object YTPlayerUtils {
                     Timber.tag(logTag).d("Lazily generating PoToken for fallback web client: ${client.clientName}")
                     try {
                         poToken = poTokenGenerator.getWebClientPoToken(videoId, sessionId)
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         Timber.tag(logTag).e(e, "Lazy PoToken generation failed")
                     }
@@ -355,11 +375,17 @@ object YTPlayerUtils {
 
                 Timber.tag(logTag).d("Format found: ${format.mimeType}, bitrate: ${format.bitrate}")
 
-                streamUrl = findUrlOrNull(format, videoId, responseToUse, skipNewPipe = wasOriginallyAgeRestricted)
-                if (streamUrl == null) {
+                val resolvedStream = findResolvedStreamUrlOrNull(
+                    format,
+                    videoId,
+                    responseToUse,
+                    skipNewPipe = wasOriginallyAgeRestricted,
+                )
+                if (resolvedStream == null) {
                     Timber.tag(logTag).d("Stream URL not found for format")
                     continue
                 }
+                streamUrl = resolvedStream.url
 
                 
                 val currentClient = if (clientIndex == -1) {
@@ -367,8 +393,7 @@ object YTPlayerUtils {
                 } else {
                     STREAM_FALLBACK_CLIENTS[clientIndex]
                 }
-                val needsNTransform = currentClient.useWebPoTokens ||
-                    currentClient.clientName in setOf("WEB", "WEB_REMIX", "WEB_CREATOR", "TVHTML5")
+                val needsNTransform = shouldApplyNTransform(resolvedStream.source, resolvedStream.url)
 
                 
                 val isPrivatelyOwnedTrack = streamPlayerResponse.videoDetails?.musicVideoType == "MUSIC_VIDEO_TYPE_PRIVATELY_OWNED_TRACK"
@@ -509,6 +534,7 @@ object YTPlayerUtils {
             streamExpiresInSeconds,
         )
     }.onFailure { e ->
+        if (e is kotlinx.coroutines.CancellationException) throw e
         Timber.tag(logTag).e(e, "Playback resolution failed")
         PlaybackLogManager.log(PlaybackLogLevel.ERROR, "Playback failed", "${e::class.simpleName}: ${e.message}")
     }
@@ -585,12 +611,15 @@ object YTPlayerUtils {
             Timber.tag(logTag).w(e, "Could not read signature timestamp from cipher player")
             null
         }
+        if (cipherTimestamp != null) {
+            Timber.tag(logTag).d("Signature timestamp from cipher player: $cipherTimestamp")
+            return SignatureTimestampResult(cipherTimestamp, isAgeRestricted = false)
+        }
         val result = NewPipeExtractor.getSignatureTimestamp(videoId)
         return result.fold(
             onSuccess = { timestamp ->
-                val selectedTimestamp = cipherTimestamp ?: timestamp
-                Timber.tag(logTag).d("Signature timestamp: cipher=$cipherTimestamp, fallback=$timestamp")
-                SignatureTimestampResult(selectedTimestamp, isAgeRestricted = false)
+                Timber.tag(logTag).d("Signature timestamp from NewPipe fallback: $timestamp")
+                SignatureTimestampResult(timestamp, isAgeRestricted = false)
             },
             onFailure = { error ->
                 val isAgeRestricted = error.message?.contains("age-restricted", ignoreCase = true) == true ||
@@ -598,11 +627,11 @@ object YTPlayerUtils {
                 if (isAgeRestricted) {
                     Timber.tag(logTag).d("Age-restricted content detected from NewPipe")
                     Log.i(TAG, "Age-restricted detected early via NewPipe: videoId=$videoId")
-                } else if (cipherTimestamp == null) {
+                } else {
                     Timber.tag(logTag).e(error, "Failed to get signature timestamp")
                     reportException(error)
                 }
-                SignatureTimestampResult(cipherTimestamp, isAgeRestricted)
+                SignatureTimestampResult(null, isAgeRestricted)
             }
         )
     }
@@ -611,14 +640,26 @@ object YTPlayerUtils {
         format: PlayerResponse.StreamingData.Format,
         videoId: String,
         playerResponse: PlayerResponse,
-        skipNewPipe: Boolean = false
-    ): String? {
+        skipNewPipe: Boolean = false,
+    ): String? = findResolvedStreamUrlOrNull(
+        format,
+        videoId,
+        playerResponse,
+        skipNewPipe,
+    )?.url
+
+    private suspend fun findResolvedStreamUrlOrNull(
+        format: PlayerResponse.StreamingData.Format,
+        videoId: String,
+        playerResponse: PlayerResponse,
+        skipNewPipe: Boolean = false,
+    ): ResolvedStreamUrl? {
         Timber.tag(logTag).d("Finding stream URL for format: ${format.mimeType}, videoId: $videoId, skipNewPipe: $skipNewPipe")
 
         
-        if (!format.url.isNullOrEmpty()) {
+        format.url?.takeIf { it.isNotEmpty() }?.let { directUrl ->
             Timber.tag(logTag).d("Using URL from format directly")
-            return format.url
+            return ResolvedStreamUrl(directUrl, StreamUrlSource.RawPlayer)
         }
 
         
@@ -628,7 +669,7 @@ object YTPlayerUtils {
             val customDeobfuscatedUrl = CipherDeobfuscator.deobfuscateStreamUrl(signatureCipher, videoId)
             if (customDeobfuscatedUrl != null) {
                 Timber.tag(logTag).d("Stream URL obtained via custom cipher deobfuscation")
-                return customDeobfuscatedUrl
+                return ResolvedStreamUrl(customDeobfuscatedUrl, StreamUrlSource.RawPlayer)
             }
             Timber.tag(logTag).d("Custom cipher deobfuscation failed")
         }
@@ -643,7 +684,7 @@ object YTPlayerUtils {
         val deobfuscatedUrl = NewPipeExtractor.getStreamUrl(format, videoId)
         if (deobfuscatedUrl != null) {
             Timber.tag(logTag).d("Stream URL obtained via NewPipe deobfuscation")
-            return deobfuscatedUrl
+            return ResolvedStreamUrl(deobfuscatedUrl, StreamUrlSource.NewPipe)
         }
 
         
@@ -653,7 +694,7 @@ object YTPlayerUtils {
             val streamUrl = streamUrls.find { it.first == format.itag }?.second
             if (streamUrl != null) {
                 Timber.tag(logTag).d("Stream URL obtained from StreamInfo")
-                return streamUrl
+                return ResolvedStreamUrl(streamUrl, StreamUrlSource.NewPipe)
             }
 
             
@@ -665,7 +706,7 @@ object YTPlayerUtils {
 
             if (audioStream != null) {
                 Timber.tag(logTag).d("Audio stream URL obtained from StreamInfo (different itag)")
-                return audioStream
+                return ResolvedStreamUrl(audioStream, StreamUrlSource.NewPipe)
             }
         }
 

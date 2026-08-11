@@ -7,7 +7,7 @@ object FunctionNameExtractor {
     private const val TAG = "echomusic_CipherFnExtract"
 
     private val ANCHORED_STS_PATTERN = Regex("""signatureTimestamp['\":\s]+(\d+)""")
-    private val LOOSE_STS_PATTERN = Regex("""sts['\":\s]+(\d+)""")
+    private val LOOSE_STS_PATTERN = Regex("""\bsts['\":\s]+(\d+)""")
     
     
     
