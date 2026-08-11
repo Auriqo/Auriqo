@@ -387,7 +387,8 @@ object YTPlayerUtils {
                     Timber.tag(logTag).d("Stream URL not found for format")
                     continue
                 }
-                streamUrl = resolvedStream.url
+                val rawStreamUrl = resolvedStream.url
+                streamUrl = rawStreamUrl
 
                 
                 val currentClient = if (clientIndex == -1) {
@@ -404,8 +405,8 @@ object YTPlayerUtils {
                 if (needsNTransform) {
                     try {
                         Timber.tag(logTag).d("Applying n-transform to stream URL for ${currentClient.clientName}")
-                        val transformed = EjsNTransformSolver.transformNParamInUrl(streamUrl!!)
-                        if (transformed != streamUrl) {
+                        val transformed = EjsNTransformSolver.transformNParamInUrl(rawStreamUrl)
+                        if (transformed != rawStreamUrl) {
                             streamUrl = transformed
                             Timber.tag(logTag).d("N-transform applied successfully")
                         }
@@ -418,10 +419,11 @@ object YTPlayerUtils {
 
                 
                 
-                if (currentClient.useWebPoTokens && poToken?.streamingDataPoToken != null) {
+                val streamingPoToken = poToken?.streamingDataPoToken
+                    ?.takeIf { currentClient.useWebPoTokens }
+                if (streamingPoToken != null) {
                     Timber.tag(logTag).d("Appending pot= parameter to stream URL")
-                    val separator = if ("?" in streamUrl!!) "&" else "?"
-                    streamUrl = "${streamUrl}${separator}pot=${Uri.encode(poToken.streamingDataPoToken)}"
+                    streamUrl = appendStreamingPoToken(streamUrl!!, streamingPoToken)
                 }
 
                 streamExpiresInSeconds = streamPlayerResponse.streamingData?.expiresInSeconds
@@ -466,12 +468,14 @@ object YTPlayerUtils {
 
                         
                         try {
-                            val nTransformed = CipherDeobfuscator.transformNParamInUrl(streamUrl!!)
-                            if (nTransformed != streamUrl) {
+                            val nTransformed = CipherDeobfuscator.transformNParamInUrl(rawStreamUrl)
+                            if (nTransformed != rawStreamUrl) {
+                                val fallbackStreamUrl =
+                                    appendStreamingPoToken(nTransformed, streamingPoToken)
                                 Timber.tag(logTag).d("CipherDeobfuscator n-transform applied, re-validating...")
-                                if (validateStatus(nTransformed)) {
+                                if (validateStatus(fallbackStreamUrl)) {
                                     Timber.tag(logTag).d("N-transformed URL VALIDATED OK!")
-                                    streamUrl = nTransformed
+                                    streamUrl = fallbackStreamUrl
                                     nTransformWorked = true
                                     Log.i(TAG, "Playback: client=${currentClient.clientName}, videoId=$videoId (cipher n-transform)")
                                 }
@@ -598,6 +602,13 @@ object YTPlayerUtils {
         }
         return false
     }
+
+    private fun appendStreamingPoToken(url: String, streamingPoToken: String?): String {
+        if (streamingPoToken == null) return url
+        val separator = if ("?" in url) "&" else "?"
+        return "${url}${separator}pot=${Uri.encode(streamingPoToken)}"
+    }
+
     data class SignatureTimestampResult(
         val timestamp: Int?,
         val isAgeRestricted: Boolean
@@ -624,6 +635,9 @@ object YTPlayerUtils {
                 SignatureTimestampResult(timestamp, isAgeRestricted = false)
             },
             onFailure = { error ->
+                if (error is kotlinx.coroutines.CancellationException) {
+                    throw error
+                }
                 val isAgeRestricted = error.message?.contains("age-restricted", ignoreCase = true) == true ||
                     error.cause?.message?.contains("age-restricted", ignoreCase = true) == true
                 if (isAgeRestricted) {
