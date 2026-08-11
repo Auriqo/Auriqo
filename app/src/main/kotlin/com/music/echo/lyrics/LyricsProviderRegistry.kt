@@ -16,6 +16,7 @@ object LyricsProviderRegistry {
         "Kugou"           to KuGouLyricsProvider,
         "YouTubeSubtitle" to YouTubeSubtitleLyricsProvider,
         "YouTubeMusic"    to YouTubeLyricsProvider,
+        "LetrasCom"       to LetrasComLyricsProvider,
     )
 
     val providerNames = providerMap.keys.toList()
@@ -38,6 +39,7 @@ object LyricsProviderRegistry {
         "SimpMusic",
         "LrcLib",
         "Kugou",
+        "LetrasCom",
         "YouTubeSubtitle",
         "YouTubeMusic",
     )
@@ -54,6 +56,7 @@ object LyricsProviderRegistry {
         PreferredLyricsProvider.YOULYPLUS     -> "YouLyPlus"
         PreferredLyricsProvider.PAXSENIX      -> "Paxsenix"
         PreferredLyricsProvider.UNISON        -> "Unison"
+        PreferredLyricsProvider.LETRAS_COM     -> "LetrasCom"
     }
 
     
@@ -67,6 +70,7 @@ object LyricsProviderRegistry {
         "Kugou"           -> "KuGou"
         "YouTubeSubtitle" -> "YouTube Subtitle"
         "YouTubeMusic"    -> "YouTube Music"
+        "LetrasCom"       -> "Letras.com"
         else              -> name
     }
 }

@@ -83,6 +83,7 @@ val EnableBetterLyricsKey = booleanPreferencesKey("enableBetterLyrics")
 val EnableSimpMusicKey = booleanPreferencesKey("enableSimpMusic")
 val EnableYouLyPlusKey = booleanPreferencesKey("enableYouLyPlus")
 val EnablePaxsenixKey = booleanPreferencesKey("enablePaxsenix")
+val EnableLetrasComKey = booleanPreferencesKey("enableLetrasCom")
 val HideExplicitKey = booleanPreferencesKey("hideExplicit")
 val SponsorBlockEnabledKey = booleanPreferencesKey("sponsor_block_enabled")
 val HideVideoSongsKey = booleanPreferencesKey("hideVideoSongs")
@@ -419,7 +420,8 @@ enum class PreferredLyricsProvider {
     SIMPMUSIC,
     YOULYPLUS,
     PAXSENIX,
-    UNISON
+    UNISON,
+    LETRAS_COM
 }
 
 enum class PlayerButtonsStyle {
