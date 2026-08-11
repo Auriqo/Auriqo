@@ -215,6 +215,8 @@ object YTPlayerUtils {
                     signatureTimestamp.timestamp, metaPoToken?.playerRequestPoToken
                 ).getOrNull()
                 Timber.tag(logTag).d("Metadata response obtained: ${metadataResponse?.playabilityStatus?.status}")
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Timber.tag(logTag).e(e, "Failed to fetch metadata from METADATA_CLIENT")
             }

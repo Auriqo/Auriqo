@@ -4,6 +4,7 @@ import android.webkit.CookieManager
 import iad1tya.echo.music.utils.cipher.CipherDeobfuscator
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -83,7 +84,7 @@ class PoTokenGenerator {
                 val newStreamingPot = try {
                     newGenerator.generatePoToken(sessionId)
                 } catch (e: Exception) {
-                    withContext(Dispatchers.Main) { newGenerator.close() }
+                    withContext(NonCancellable + Dispatchers.Main) { newGenerator.close() }
                     throw e
                 }
                 webPoTokenSessionId = sessionId
