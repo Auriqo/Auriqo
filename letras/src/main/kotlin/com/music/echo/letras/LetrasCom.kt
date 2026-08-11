@@ -188,18 +188,18 @@ object LetrasCom {
     private fun isPathSegment(value: String): Boolean =
         value.isNotBlank() && value.none { it == '/' || it == '?' || it == '#' }
 
-    private val BR_TAG = Regex("""<br\\s*/?>""", RegexOption.IGNORE_CASE)
+    private val BR_TAG = Regex("""<br\s*/?>""", RegexOption.IGNORE_CASE)
     private val COMBINING_MARKS = Regex("\\p{M}+")
     private val PUNCTUATION = Regex("[^\\p{L}\\p{N}]+")
     private val WHITESPACE = Regex("\\s+")
     private val DECORATION_SUFFIX = Regex(
-        """\\s+(?:official(?: music)? video|official audio|audio|lyrics?|lyric video|visuali[sz]er|hd|hq|4k)$""",
+        """\s+(?:official(?: music)? video|official audio|audio|lyrics?|lyric video|visuali[sz]er|hd|hq|4k)$""",
     )
     private val FEATURING_SUFFIX = Regex(
-        """\\s+(?:feat(?:uring)?|ft)\\s+.+$""",
+        """\s+(?:feat(?:uring)?|ft)\s+.+$""",
     )
     private val RAW_ARTIST_SEPARATOR = Regex(
-        """\\s*(?:,|&|\\band\\b|\\bx\\b|\\bfeat(?:\\.|uring)?\\b|\\bft\\.?)\\s*""",
+        """\s*(?:,|&|\band\b|\bx\b|\bfeat(?:\.|uring)?\b|\bft\.?)\s*""",
         RegexOption.IGNORE_CASE,
     )
 }
