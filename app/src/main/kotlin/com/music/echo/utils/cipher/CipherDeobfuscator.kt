@@ -5,6 +5,8 @@ import android.net.Uri
 import android.os.SystemClock
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -21,11 +23,19 @@ object CipherDeobfuscator {
     }
 
     private val rendererRecoveryPolicy = RendererRecoveryPolicy()
+    // CipherWebView owns single-shot JavaScript continuations. All public access must be
+    // serialized or a preload can overwrite a playback request's continuation.
+    private val cipherWebViewMutex = Mutex()
     private var cipherWebView: CipherWebView? = null
     private var currentPlayerHash: String? = null
     private var builtConfigEpoch = -1
 
-    suspend fun prewarm() {
+    suspend fun signatureTimestamp(): Int? = cipherWebViewMutex.withLock {
+        val (playerJs, hash) = PlayerJsFetcher.getPlayerJs(forceRefresh = false) ?: return@withLock null
+        FunctionNameExtractor.extractSignatureTimestamp(playerJs, hash)
+    }
+
+    suspend fun prewarm() = cipherWebViewMutex.withLock {
         try {
             getOrCreateWebView(forceRefresh = false)
         } catch (e: CancellationException) {
@@ -37,8 +47,8 @@ object CipherDeobfuscator {
         }
     }
 
-    suspend fun deobfuscateStreamUrl(signatureCipher: String, videoId: String): String? {
-        return try {
+    suspend fun deobfuscateStreamUrl(signatureCipher: String, videoId: String): String? = cipherWebViewMutex.withLock {
+        try {
             deobfuscateInternal(signatureCipher, videoId, isRetry = false)
                 ?.also { rendererRecoveryPolicy.onSuccess() }
         } catch (e: CancellationException) {
@@ -65,7 +75,15 @@ object CipherDeobfuscator {
         }
     }
 
-    suspend fun onStreamRejected(): Boolean = PlayerConfigStore.refreshAfterStreamRejection()
+    /**
+     * A CDN rejection is evidence that the stream was signed with stale extractor state. Drop
+     * only that state so the next resolution uses a fresh player JS/config/WebView.
+     */
+    suspend fun onStreamRejected(): Boolean = cipherWebViewMutex.withLock {
+        PlayerJsFetcher.invalidateCache()
+        closeWebView()
+        PlayerConfigStore.refreshAfterStreamRejection()
+    }
 
     private suspend fun deobfuscateInternal(signatureCipher: String, videoId: String, isRetry: Boolean): String? {
         
@@ -96,8 +114,8 @@ object CipherDeobfuscator {
     }
 
     
-    suspend fun transformNParamInUrl(url: String): String {
-        return try {
+    suspend fun transformNParamInUrl(url: String): String = cipherWebViewMutex.withLock {
+        try {
             transformNInternal(url)
         } catch (e: CancellationException) {
             throw e

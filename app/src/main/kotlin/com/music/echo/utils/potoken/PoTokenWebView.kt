@@ -380,7 +380,10 @@ class PoTokenWebView private constructor(
             return withContext(Dispatchers.Main) {
                 suspendCancellableCoroutine { cont ->
                     val potWv = PoTokenWebView(context, cont)
-                    potWv.loadHtmlAndObtainBotguard()
+                    cont.invokeOnCancellation { potWv.close() }
+                    if (cont.isActive) {
+                        potWv.loadHtmlAndObtainBotguard()
+                    }
                 }
             }
         }

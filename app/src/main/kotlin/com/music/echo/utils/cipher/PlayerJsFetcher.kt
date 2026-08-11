@@ -1,7 +1,9 @@
 package iad1tya.echo.music.utils.cipher
 
 import com.music.innertube.YouTube
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -21,6 +23,7 @@ object PlayerJsFetcher {
 
     
     private val PLAYER_HASH_REGEX = Regex("""\\?/s\\?/player\\?/([a-zA-Z0-9_-]+)\\?/""")
+    private val cacheMutex = Mutex()
 
     private fun getCacheDir(): File = File(CipherDeobfuscator.appContext.filesDir, "cipher_cache")
 
@@ -28,58 +31,66 @@ object PlayerJsFetcher {
 
     private fun getHashFile(): File = File(getCacheDir(), "current_hash.txt")
 
-    suspend fun getPlayerJs(forceRefresh: Boolean = false): Pair<String, String>? = withContext(Dispatchers.IO) {
-        try {
-            val cacheDir = getCacheDir()
-            if (!cacheDir.exists()) cacheDir.mkdirs()
+    suspend fun getPlayerJs(forceRefresh: Boolean = false): Pair<String, String>? = cacheMutex.withLock {
+        withContext(Dispatchers.IO) {
+            try {
+                val cacheDir = getCacheDir()
+                if (!cacheDir.exists()) cacheDir.mkdirs()
 
-            
-            if (!forceRefresh) {
-                val cached = readFromCache()
-                if (cached != null) {
-                    Timber.tag(TAG).d("Using cached player JS (hash=${cached.second})")
-                    return@withContext cached
+
+                if (!forceRefresh) {
+                    val cached = readFromCache()
+                    if (cached != null) {
+                        Timber.tag(TAG).d("Using cached player JS (hash=${cached.second})")
+                        return@withContext cached
+                    }
                 }
+
+
+                val hash = fetchPlayerHash()
+                if (hash == null) {
+                    Timber.tag(TAG).e("Failed to extract player hash from iframe_api")
+                    return@withContext null
+                }
+                Timber.tag(TAG).d("Extracted player hash: $hash")
+
+
+                val playerJs = downloadPlayerJs(hash)
+                if (playerJs == null) {
+                    Timber.tag(TAG).e("Failed to download player JS for hash=$hash")
+                    return@withContext null
+                }
+                Timber.tag(TAG).d("Downloaded player JS: ${playerJs.length} chars")
+
+
+                writeToCache(hash, playerJs)
+
+                Pair(playerJs, hash)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.tag(TAG).e(e, "getPlayerJs exception: ${e.message}")
+                null
             }
-
-            
-            val hash = fetchPlayerHash()
-            if (hash == null) {
-                Timber.tag(TAG).e("Failed to extract player hash from iframe_api")
-                return@withContext null
-            }
-            Timber.tag(TAG).d("Extracted player hash: $hash")
-
-            
-            val playerJs = downloadPlayerJs(hash)
-            if (playerJs == null) {
-                Timber.tag(TAG).e("Failed to download player JS for hash=$hash")
-                return@withContext null
-            }
-            Timber.tag(TAG).d("Downloaded player JS: ${playerJs.length} chars")
-
-            
-            writeToCache(hash, playerJs)
-
-            Pair(playerJs, hash)
-        } catch (e: Exception) {
-            Timber.tag(TAG).e(e, "getPlayerJs exception: ${e.message}")
-            null
         }
     }
 
-    fun invalidateCache() {
-        try {
-            val cacheDir = getCacheDir()
-            if (cacheDir.exists()) {
-                val files = cacheDir.listFiles()?.filter {
-                    it.name.startsWith("player_") || it.name == "current_hash.txt"
+    suspend fun invalidateCache() = cacheMutex.withLock {
+        withContext(Dispatchers.IO) {
+            try {
+                val cacheDir = getCacheDir()
+                if (cacheDir.exists()) {
+                    val files = cacheDir.listFiles()?.filter {
+                        it.name.startsWith("player_") || it.name == "current_hash.txt"
+                    }
+                    files?.forEach { it.delete() }
                 }
-                files?.forEach { it.delete() }
+                Timber.tag(TAG).d("Cache invalidated")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.tag(TAG).e(e, "Failed to invalidate cache: ${e.message}")
             }
-            Timber.tag(TAG).d("Cache invalidated")
-        } catch (e: Exception) {
-            Timber.tag(TAG).e(e, "Failed to invalidate cache: ${e.message}")
         }
     }
 
@@ -113,9 +124,7 @@ object PlayerJsFetcher {
         }
     }
 
-    private val cacheMutex = kotlinx.coroutines.sync.Mutex()
-
-    private suspend fun writeToCache(hash: String, playerJs: String) = cacheMutex.withLock {
+    private fun writeToCache(hash: String, playerJs: String) {
         try {
             val cacheDir = getCacheDir()
             

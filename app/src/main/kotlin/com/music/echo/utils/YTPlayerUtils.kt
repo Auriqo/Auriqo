@@ -3,6 +3,7 @@
 package iad1tya.echo.music.utils
 
 import android.net.ConnectivityManager
+import android.net.Uri
 import android.util.Log
 import androidx.media3.common.PlaybackException
 import com.music.innertube.NewPipeExtractor
@@ -79,6 +80,7 @@ object YTPlayerUtils {
         .build()
 
     private val poTokenGenerator = PoTokenGenerator()
+    private val RAW_N_PARAMETER = Regex("[?&]n=[^&]+")
 
     
     private val MAIN_CLIENT: YouTubeClient = ANDROID_VR_1_43_32
@@ -107,6 +109,19 @@ object YTPlayerUtils {
         val streamUrl: String,
         val streamExpiresInSeconds: Int,
     )
+
+    internal enum class StreamUrlSource {
+        RawPlayer,
+        NewPipe,
+    }
+
+    private data class ResolvedStreamUrl(
+        val url: String,
+        val source: StreamUrlSource,
+    )
+
+    internal fun shouldApplyNTransform(source: StreamUrlSource, url: String): Boolean =
+        source == StreamUrlSource.RawPlayer && RAW_N_PARAMETER.containsMatchIn(url)
     
     suspend fun playerResponseForPlayback(
         videoId: String,
@@ -164,6 +179,8 @@ object YTPlayerUtils {
                 if (poToken != null) {
                     Timber.tag(logTag).d("PoToken generated successfully")
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Timber.tag(logTag).e(e, "PoToken generation failed: ${e.message}")
             }
@@ -187,6 +204,8 @@ object YTPlayerUtils {
                 if (METADATA_CLIENT.useWebPoTokens && metaSessionId != null) {
                     try {
                         metaPoToken = poTokenGenerator.getWebClientPoToken(videoId, metaSessionId)
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         Timber.tag(logTag).e(e, "Metadata PoToken generation failed")
                     }
@@ -196,6 +215,8 @@ object YTPlayerUtils {
                     signatureTimestamp.timestamp, metaPoToken?.playerRequestPoToken
                 ).getOrNull()
                 Timber.tag(logTag).d("Metadata response obtained: ${metadataResponse?.playabilityStatus?.status}")
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Timber.tag(logTag).e(e, "Failed to fetch metadata from METADATA_CLIENT")
             }
@@ -307,6 +328,8 @@ object YTPlayerUtils {
                     Timber.tag(logTag).d("Lazily generating PoToken for fallback web client: ${client.clientName}")
                     try {
                         poToken = poTokenGenerator.getWebClientPoToken(videoId, sessionId)
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         Timber.tag(logTag).e(e, "Lazy PoToken generation failed")
                     }
@@ -354,11 +377,18 @@ object YTPlayerUtils {
 
                 Timber.tag(logTag).d("Format found: ${format.mimeType}, bitrate: ${format.bitrate}")
 
-                streamUrl = findUrlOrNull(format, videoId, responseToUse, skipNewPipe = wasOriginallyAgeRestricted)
-                if (streamUrl == null) {
+                val resolvedStream = findResolvedStreamUrlOrNull(
+                    format,
+                    videoId,
+                    responseToUse,
+                    skipNewPipe = wasOriginallyAgeRestricted,
+                )
+                if (resolvedStream == null) {
                     Timber.tag(logTag).d("Stream URL not found for format")
                     continue
                 }
+                val rawStreamUrl = resolvedStream.url
+                streamUrl = rawStreamUrl
 
                 
                 val currentClient = if (clientIndex == -1) {
@@ -366,19 +396,22 @@ object YTPlayerUtils {
                 } else {
                     STREAM_FALLBACK_CLIENTS[clientIndex]
                 }
+                val needsNTransform = shouldApplyNTransform(resolvedStream.source, resolvedStream.url)
 
                 
                 val isPrivatelyOwnedTrack = streamPlayerResponse.videoDetails?.musicVideoType == "MUSIC_VIDEO_TYPE_PRIVATELY_OWNED_TRACK"
 
                 
-                if (currentClient.useWebPoTokens) {
+                if (needsNTransform) {
                     try {
                         Timber.tag(logTag).d("Applying n-transform to stream URL for ${currentClient.clientName}")
-                        val transformed = EjsNTransformSolver.transformNParamInUrl(streamUrl!!)
-                        if (transformed != streamUrl) {
+                        val transformed = EjsNTransformSolver.transformNParamInUrl(rawStreamUrl)
+                        if (transformed != rawStreamUrl) {
                             streamUrl = transformed
                             Timber.tag(logTag).d("N-transform applied successfully")
                         }
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         Timber.tag(logTag).e(e, "N-transform failed: ${e.message}")
                     }
@@ -386,10 +419,11 @@ object YTPlayerUtils {
 
                 
                 
-                if (currentClient.useWebPoTokens && poToken?.streamingDataPoToken != null) {
+                val streamingPoToken = poToken?.streamingDataPoToken
+                    ?.takeIf { currentClient.useWebPoTokens }
+                if (streamingPoToken != null) {
                     Timber.tag(logTag).d("Appending pot= parameter to stream URL")
-                    val separator = if ("?" in streamUrl!!) "&" else "?"
-                    streamUrl = "${streamUrl}${separator}pot=${poToken.streamingDataPoToken}"
+                    streamUrl = appendStreamingPoToken(streamUrl!!, streamingPoToken)
                 }
 
                 streamExpiresInSeconds = streamPlayerResponse.streamingData?.expiresInSeconds
@@ -429,21 +463,25 @@ object YTPlayerUtils {
                     Timber.tag(logTag).d("Stream validation failed for client: ${currentClient.clientName}")
 
                     
-                    if (currentClient.useWebPoTokens) {
+                    if (needsNTransform) {
                         var nTransformWorked = false
 
                         
                         try {
-                            val nTransformed = CipherDeobfuscator.transformNParamInUrl(streamUrl!!)
-                            if (nTransformed != streamUrl) {
+                            val nTransformed = CipherDeobfuscator.transformNParamInUrl(rawStreamUrl)
+                            if (nTransformed != rawStreamUrl) {
+                                val fallbackStreamUrl =
+                                    appendStreamingPoToken(nTransformed, streamingPoToken)
                                 Timber.tag(logTag).d("CipherDeobfuscator n-transform applied, re-validating...")
-                                if (validateStatus(nTransformed)) {
+                                if (validateStatus(fallbackStreamUrl)) {
                                     Timber.tag(logTag).d("N-transformed URL VALIDATED OK!")
-                                    streamUrl = nTransformed
+                                    streamUrl = fallbackStreamUrl
                                     nTransformWorked = true
                                     Log.i(TAG, "Playback: client=${currentClient.clientName}, videoId=$videoId (cipher n-transform)")
                                 }
                             }
+                        } catch (e: kotlinx.coroutines.CancellationException) {
+                            throw e
                         } catch (e: Exception) {
                             Timber.tag(logTag).e(e, "CipherDeobfuscator n-transform error")
                         }
@@ -502,6 +540,7 @@ object YTPlayerUtils {
             streamExpiresInSeconds,
         )
     }.onFailure { e ->
+        if (e is kotlinx.coroutines.CancellationException) throw e
         Timber.tag(logTag).e(e, "Playback resolution failed")
         PlaybackLogManager.log(PlaybackLogLevel.ERROR, "Playback failed", "${e::class.simpleName}: ${e.message}")
     }
@@ -563,20 +602,42 @@ object YTPlayerUtils {
         }
         return false
     }
+
+    private fun appendStreamingPoToken(url: String, streamingPoToken: String?): String {
+        if (streamingPoToken == null) return url
+        val separator = if ("?" in url) "&" else "?"
+        return "${url}${separator}pot=${Uri.encode(streamingPoToken)}"
+    }
+
     data class SignatureTimestampResult(
         val timestamp: Int?,
         val isAgeRestricted: Boolean
     )
 
-    private fun getSignatureTimestampOrNull(videoId: String): SignatureTimestampResult {
+    private suspend fun getSignatureTimestampOrNull(videoId: String): SignatureTimestampResult {
         Timber.tag(logTag).d("Getting signature timestamp for videoId: $videoId")
+        val cipherTimestamp = try {
+            CipherDeobfuscator.signatureTimestamp()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Timber.tag(logTag).w(e, "Could not read signature timestamp from cipher player")
+            null
+        }
+        if (cipherTimestamp != null) {
+            Timber.tag(logTag).d("Signature timestamp from cipher player: $cipherTimestamp")
+            return SignatureTimestampResult(cipherTimestamp, isAgeRestricted = false)
+        }
         val result = NewPipeExtractor.getSignatureTimestamp(videoId)
         return result.fold(
             onSuccess = { timestamp ->
-                Timber.tag(logTag).d("Signature timestamp obtained: $timestamp")
+                Timber.tag(logTag).d("Signature timestamp from NewPipe fallback: $timestamp")
                 SignatureTimestampResult(timestamp, isAgeRestricted = false)
             },
             onFailure = { error ->
+                if (error is kotlinx.coroutines.CancellationException) {
+                    throw error
+                }
                 val isAgeRestricted = error.message?.contains("age-restricted", ignoreCase = true) == true ||
                     error.cause?.message?.contains("age-restricted", ignoreCase = true) == true
                 if (isAgeRestricted) {
@@ -595,14 +656,26 @@ object YTPlayerUtils {
         format: PlayerResponse.StreamingData.Format,
         videoId: String,
         playerResponse: PlayerResponse,
-        skipNewPipe: Boolean = false
-    ): String? {
+        skipNewPipe: Boolean = false,
+    ): String? = findResolvedStreamUrlOrNull(
+        format,
+        videoId,
+        playerResponse,
+        skipNewPipe,
+    )?.url
+
+    private suspend fun findResolvedStreamUrlOrNull(
+        format: PlayerResponse.StreamingData.Format,
+        videoId: String,
+        playerResponse: PlayerResponse,
+        skipNewPipe: Boolean = false,
+    ): ResolvedStreamUrl? {
         Timber.tag(logTag).d("Finding stream URL for format: ${format.mimeType}, videoId: $videoId, skipNewPipe: $skipNewPipe")
 
         
-        if (!format.url.isNullOrEmpty()) {
+        format.url?.takeIf { it.isNotEmpty() }?.let { directUrl ->
             Timber.tag(logTag).d("Using URL from format directly")
-            return format.url
+            return ResolvedStreamUrl(directUrl, StreamUrlSource.RawPlayer)
         }
 
         
@@ -612,7 +685,7 @@ object YTPlayerUtils {
             val customDeobfuscatedUrl = CipherDeobfuscator.deobfuscateStreamUrl(signatureCipher, videoId)
             if (customDeobfuscatedUrl != null) {
                 Timber.tag(logTag).d("Stream URL obtained via custom cipher deobfuscation")
-                return customDeobfuscatedUrl
+                return ResolvedStreamUrl(customDeobfuscatedUrl, StreamUrlSource.RawPlayer)
             }
             Timber.tag(logTag).d("Custom cipher deobfuscation failed")
         }
@@ -627,7 +700,7 @@ object YTPlayerUtils {
         val deobfuscatedUrl = NewPipeExtractor.getStreamUrl(format, videoId)
         if (deobfuscatedUrl != null) {
             Timber.tag(logTag).d("Stream URL obtained via NewPipe deobfuscation")
-            return deobfuscatedUrl
+            return ResolvedStreamUrl(deobfuscatedUrl, StreamUrlSource.NewPipe)
         }
 
         
@@ -637,7 +710,7 @@ object YTPlayerUtils {
             val streamUrl = streamUrls.find { it.first == format.itag }?.second
             if (streamUrl != null) {
                 Timber.tag(logTag).d("Stream URL obtained from StreamInfo")
-                return streamUrl
+                return ResolvedStreamUrl(streamUrl, StreamUrlSource.NewPipe)
             }
 
             
@@ -649,7 +722,7 @@ object YTPlayerUtils {
 
             if (audioStream != null) {
                 Timber.tag(logTag).d("Audio stream URL obtained from StreamInfo (different itag)")
-                return audioStream
+                return ResolvedStreamUrl(audioStream, StreamUrlSource.NewPipe)
             }
         }
 
@@ -657,8 +730,15 @@ object YTPlayerUtils {
         return null
     }
 
-    fun forceRefreshForVideo(videoId: String) {
-        Timber.tag(logTag).d("Force refreshing for videoId: $videoId")
+    /**
+     * Clears the state that can make an otherwise syntactically valid stream URL fail at the CDN.
+     * The caller already owns a one-shot recovery gate, so this never retries on its own.
+     */
+    suspend fun refreshAfterStreamRejection(videoId: String) {
+        Timber.tag(logTag).d("Refreshing stream resolver state for videoId: $videoId")
+        poTokenGenerator.invalidate()
+        EjsNTransformSolver.close()
+        CipherDeobfuscator.onStreamRejected()
     }
 }
 
