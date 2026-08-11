@@ -15,6 +15,7 @@ import iad1tya.echo.music.utils.dataStore
 import iad1tya.echo.music.utils.reportException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
@@ -98,6 +99,8 @@ constructor(
                             reportException(it)
                             channel.send(null)
                         }
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         reportException(e)
                         channel.send(null)
@@ -106,7 +109,7 @@ constructor(
             }
 
             var responses = 0
-            val receivedUnsynced = mutableListOf<LyricsWithProvider>()
+            val receivedUnsynced = mutableMapOf<String, LyricsWithProvider>()
 
             while (responses < providers.size) {
                 val result = channel.receive()
@@ -117,11 +120,13 @@ constructor(
                         coroutineContext.cancelChildren()
                         return@coroutineScope result
                     } else {
-                        receivedUnsynced.add(result)
+                        receivedUnsynced[result.provider] = result
                     }
                 }
             }
-            return@coroutineScope receivedUnsynced.firstOrNull() ?: LyricsWithProvider(LYRICS_NOT_FOUND, "Unknown")
+            return@coroutineScope providers
+                .firstNotNullOfOrNull { receivedUnsynced[it.name] }
+                ?: LyricsWithProvider(LYRICS_NOT_FOUND, "Unknown")
         }
     }
 
@@ -165,6 +170,8 @@ constructor(
                                 allResult += result
                                 callback(result)
                             }
+                        } catch (e: CancellationException) {
+                            throw e
                         } catch (e: Exception) {
                             reportException(e)
                         }
