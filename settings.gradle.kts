@@ -31,7 +31,8 @@ include(
     ":canvas",
     ":echomusiccanvas",
     ":applecanvas",
-    ":unison"
+    ":unison",
+    ":letras"
 )
 
 
