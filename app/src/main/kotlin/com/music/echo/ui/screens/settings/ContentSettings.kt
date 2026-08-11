@@ -72,6 +72,7 @@ import iad1tya.echo.music.constants.EnableLrcLibKey
 import iad1tya.echo.music.constants.EnableSimpMusicKey
 import iad1tya.echo.music.constants.EnableYouLyPlusKey
 import iad1tya.echo.music.constants.EnablePaxsenixKey
+import iad1tya.echo.music.constants.EnableLetrasComKey
 import iad1tya.echo.music.constants.HideExplicitKey
 import iad1tya.echo.music.constants.HideVideoSongsKey
 import iad1tya.echo.music.constants.HideYoutubeShortsKey
@@ -154,6 +155,7 @@ highlightKey: String? = null) {
     val (enableSimpMusic, onEnableSimpMusicChange) = rememberPreference(key = EnableSimpMusicKey, defaultValue = true)
     val (enableYouLyPlus, onEnableYouLyPlusChange) = rememberPreference(key = EnableYouLyPlusKey, defaultValue = true)
     val (enablePaxsenix, onEnablePaxsenixChange) = rememberPreference(key = EnablePaxsenixKey, defaultValue = true)
+    val (enableLetrasCom, onEnableLetrasComChange) = rememberPreference(key = EnableLetrasComKey, defaultValue = true)
     val (lyricsProviderOrder, onLyricsProviderOrderChange) = rememberPreference(
         key = LyricsProviderOrderKey,
         defaultValue = "",
@@ -364,7 +366,7 @@ highlightKey: String? = null) {
     if (showProviderPriorityDialog) {
         val defaultOrder = LyricsProviderRegistry.getDefaultProviderOrder()
         
-        val userToggleable = setOf("YouLyPlus", "Paxsenix", "BetterLyrics", "SimpMusic", "LrcLib", "Kugou")
+        val userToggleable = setOf("YouLyPlus", "Paxsenix", "BetterLyrics", "SimpMusic", "LrcLib", "Kugou", "LetrasCom")
         val enabledProviders = setOfNotNull(
             "LrcLib".takeIf { enableLrclib },
             "Kugou".takeIf { enableKugou },
@@ -372,6 +374,7 @@ highlightKey: String? = null) {
             "SimpMusic".takeIf { enableSimpMusic },
             "YouLyPlus".takeIf { enableYouLyPlus },
             "Paxsenix".takeIf { enablePaxsenix },
+            "LetrasCom".takeIf { enableLetrasCom },
         )
 
         
@@ -1113,6 +1116,28 @@ highlightKey: String? = null) {
                         )
                     },
                     onClick = { onEnablePaxsenixChange(!enablePaxsenix) }
+                ),
+                Material3SettingsItem(
+                    isHighlighted = (highlightKey == "LetrasCom"),
+                    icon = painterResource(R.drawable.lyrics),
+                    title = { Text("Letras.com") },
+                    description = { Text("Plain lyrics from Letras.com (Spanish / Brazilian Portuguese)") },
+                    trailingContent = {
+                        Switch(
+                            checked = enableLetrasCom,
+                            onCheckedChange = onEnableLetrasComChange,
+                            thumbContent = {
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (enableLetrasCom) R.drawable.check else R.drawable.close
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                )
+                            }
+                        )
+                    },
+                    onClick = { onEnableLetrasComChange(!enableLetrasCom) }
                 ),
                 Material3SettingsItem(
     isHighlighted = (highlightKey == stringResource(R.string.lyrics_provider_priority)),
