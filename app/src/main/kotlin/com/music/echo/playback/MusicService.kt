@@ -1466,6 +1466,7 @@ class MusicService :
         // A user-selected queue is a new playback generation, even if it starts with the same id.
         streamRecoveryJob?.cancel()
         retryJob?.cancel()
+        waitingForNetworkConnection.value = false
         streamRecovery.beginPlayback(null, force = true)
         currentQueue = queue
         queueTitle = null
@@ -2039,6 +2040,7 @@ class MusicService :
         if (startsNewPlaybackGeneration) {
             streamRecoveryJob?.cancel()
             retryJob?.cancel()
+            waitingForNetworkConnection.value = false
         }
         streamRecovery.beginPlayback(
             mediaItem?.mediaId,
@@ -2411,11 +2413,12 @@ class MusicService :
         return null
     }
 
-    private fun isRejectedStreamResponse(error: PlaybackException): Boolean =
-        when (getHttpResponseCode(error)) {
-            403, 410, 416 -> true
-            else -> false
-        }
+    private fun isRejectedStreamFailure(error: PlaybackException): Boolean =
+        error.errorCode == PlaybackException.ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE ||
+            when (getHttpResponseCode(error)) {
+                403, 410, 416 -> true
+                else -> false
+            }
 
     private fun isPageReloadError(error: PlaybackException): Boolean {
         val errorMessage = error.message?.lowercase() ?: ""
@@ -2441,7 +2444,6 @@ class MusicService :
     private fun hasNetworkTransportFailure(error: PlaybackException): Boolean {
         if (error.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED ||
             error.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT ||
-            error.errorCode == PlaybackException.ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE ||
             (error.cause as? PlaybackException)?.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED
         ) {
             return true
@@ -2481,7 +2483,7 @@ class MusicService :
 
     private fun streamFailureKind(error: PlaybackException): StreamRecoveryCoordinator.FailureKind {
         return when {
-            isRejectedStreamResponse(error) ->
+            isRejectedStreamFailure(error) ->
                 StreamRecoveryCoordinator.FailureKind.RejectedStream
             isPageReloadError(error) -> StreamRecoveryCoordinator.FailureKind.ReloadRequired
             hasNetworkTransportFailure(error) -> StreamRecoveryCoordinator.FailureKind.Permanent
@@ -2517,7 +2519,7 @@ class MusicService :
             }
             !isNetworkConnected.value &&
                 (mediaId == null || !mediaId.isLocalMediaId()) &&
-                !isRejectedStreamResponse(error) -> {
+                !isRejectedStreamFailure(error) -> {
                 Timber.tag(TAG).d("Network disconnected, waiting for connection")
                 waitOnNetworkError()
                 return
@@ -2543,10 +2545,12 @@ class MusicService :
     }
 
     /** Clears only the volatile cache keyed by the failed stream's media id. */
-    private fun invalidateVolatileStreamCache(mediaId: String) {
+    private suspend fun invalidateVolatileStreamCache(mediaId: String) = withContext(Dispatchers.IO) {
         try {
             playerCache.removeResource(mediaId)
             Timber.tag(TAG).d("Cleared volatile player cache for $mediaId")
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
             Timber.tag(TAG).e(e, "Failed to clear volatile player cache for $mediaId")
         }
@@ -2617,8 +2621,8 @@ class MusicService :
             is StreamRecoveryCoordinator.RecoveryDecision.Recover -> {
                 retryJob?.cancel()
                 waitingForNetworkConnection.value = false
-                invalidateVolatileStreamCache(mediaId)
                 streamRecoveryJob = launchOneShotPlaybackRecovery(decision) {
+                    invalidateVolatileStreamCache(mediaId)
                     if (decision.failure.refreshExtractorState) {
                         try {
                             withContext(Dispatchers.IO) {
@@ -2643,7 +2647,7 @@ class MusicService :
             }
 
             StreamRecoveryCoordinator.RecoveryDecision.Exhausted -> {
-                invalidateVolatileStreamCache(mediaId)
+                scope.launch { invalidateVolatileStreamCache(mediaId) }
                 Timber.tag(TAG).w("Fresh stream also failed for $mediaId; not retrying again")
                 handleFinalFailure()
                 true
@@ -2682,7 +2686,8 @@ class MusicService :
         ) {
             is StreamRecoveryCoordinator.RecoveryDecision.Recover -> {
                 retryJob?.cancel()
-                retryJob = launchOneShotPlaybackRecovery(decision)
+                streamRecoveryJob?.cancel()
+                streamRecoveryJob = launchOneShotPlaybackRecovery(decision)
                 true
             }
 

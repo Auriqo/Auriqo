@@ -102,10 +102,10 @@ internal class StreamRecoveryCoordinator(
         key: StreamKey,
         url: String,
         expiresAtMs: Long,
-        token: ResolutionToken? = null,
+        token: ResolutionToken,
     ): CacheWriteResult = synchronized(lock) {
-        if (token != null &&
-            (token.mediaId != key.mediaId || token.generation != resolutionGenerationLocked(key.mediaId))
+        if (token.mediaId != key.mediaId ||
+            token.generation != resolutionGenerationLocked(key.mediaId)
         ) {
             return@synchronized CacheWriteResult.Superseded
         }
