@@ -217,6 +217,32 @@ class StreamRecoveryCoordinatorTest {
     }
 
     @Test
+    fun retainOnlyInvalidatesAnUncachedDiscardedResolution() {
+        val retainedKey = StreamRecoveryCoordinator.StreamKey("retained-id", "OPUS")
+        val inFlightKey = StreamRecoveryCoordinator.StreamKey("in-flight-id", "OPUS")
+        val inFlightToken = coordinator.resolutionToken(inFlightKey.mediaId)
+
+        coordinator.cacheStream(
+            retainedKey,
+            "https://cdn.example/retained",
+            nowMs + 60_000L,
+            coordinator.resolutionToken(retainedKey.mediaId),
+        )
+
+        coordinator.retainOnly(retainedKey.mediaId)
+
+        assertEquals(
+            StreamRecoveryCoordinator.CacheWriteResult.Superseded,
+            coordinator.cacheStream(
+                inFlightKey,
+                "https://cdn.example/late-in-flight",
+                nowMs + 60_000L,
+                inFlightToken,
+            ),
+        )
+    }
+
+    @Test
     fun activeQualityPurgesExpiredEntriesAndIgnoresOtherMedia() {
         val expiredKey = StreamRecoveryCoordinator.StreamKey(key.mediaId, "M4A")
         val otherKey = StreamRecoveryCoordinator.StreamKey("other-id", "OPUS")

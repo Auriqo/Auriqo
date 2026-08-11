@@ -91,7 +91,7 @@ internal class StreamRecoveryCoordinator(
     }
 
     fun resolutionToken(mediaId: String): ResolutionToken = synchronized(lock) {
-        ResolutionToken(mediaId, resolutionGenerationLocked(mediaId))
+        ResolutionToken(mediaId, resolutionGenerations.getOrPut(mediaId) { 0L })
     }
 
     /**
@@ -132,7 +132,11 @@ internal class StreamRecoveryCoordinator(
     }
 
     fun retainOnly(mediaId: String?) = synchronized(lock) {
-        val invalidatedMediaIds = mutableSetOf<String>()
+        // Tokens may have been issued for a preload that has not reached the cache yet. Keep
+        // their generation tombstones too, otherwise that late completion could reinsert a
+        // stream for an item that was just discarded.
+        val invalidatedMediaIds = resolutionGenerations.keys
+            .filterTo(mutableSetOf()) { it != mediaId }
         val iterator = streams.entries.iterator()
         while (iterator.hasNext()) {
             val entry = iterator.next()
