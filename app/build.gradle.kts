@@ -146,9 +146,8 @@ android {
             buildConfigField("String", "ARCHITECTURE", "\"release\"")
         }
         debug {
-            applicationIdSuffix = ".debug"
             isDebuggable = true
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("persistentDebug")
             buildConfigField("String", "ARCHITECTURE", "\"debug\"")
         }
     }
