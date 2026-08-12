@@ -142,7 +142,7 @@ fun QueueMenu(
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showWhyDialog = false },
             title = { androidx.compose.material3.Text(text = "Auriqo Brain Recommendation") },
-            text = { androidx.compose.material3.Text(text = This song was dynamically added by Auriqo Brain based on your listening patterns, the current song's genre, and your library's vibes.") },
+            text = { androidx.compose.material3.Text(text = "This song was dynamically added by Auriqo Brain based on your listening patterns, the current song's genre, and your library's vibes.") },
             confirmButton = {
                 androidx.compose.material3.TextButton(onClick = { showWhyDialog = false }) {
                     androidx.compose.material3.Text("Got it")
