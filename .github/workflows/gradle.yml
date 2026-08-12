@@ -78,7 +78,7 @@ jobs:
           export STORE_PASSWORD="${STORE_PASSWORD:-auriqoci}"
           export KEY_ALIAS="${KEY_ALIAS:-auriqa}"
           export KEY_PASSWORD="${KEY_PASSWORD:-auriqoci}"
-          ./gradlew assembleUniversalGmsRelease
+          ./gradlew assembleUniversalGmsDebug
 
       - name: Rename and Organize APKs
         run: |
