@@ -9,7 +9,7 @@ import androidx.wear.protolayout.ModifiersBuilders
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.StateBuilders
 import androidx.wear.protolayout.TimelineBuilders
-import androidx.wear.protolayout.proto.ResourceProto
+import androidx.wear.protolayout.TypeBuilders
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
@@ -23,6 +23,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+import java.nio.ByteBuffer
 
 private const val ARTWORK_RESOURCE_ID = "artwork"
 private const val RESOURCES_VERSION = "1"
@@ -88,7 +89,8 @@ class AuriqoMediaTileService : TileService() {
                         fetchArtworkIfNeeded(state)
                     }
                     runCatching {
-                        TileService.getUpdater(applicationContext).requestUpdate(AuriqoMediaTileService::class.java)
+                        TileService.getUpdater(applicationContext)
+                            .requestUpdate(AuriqoMediaTileService::class.java)
                     }
                 }
         }
@@ -103,7 +105,8 @@ class AuriqoMediaTileService : TileService() {
         serviceScope.launch(Dispatchers.IO) {
             if (ArtworkFetcher.fetch(url) != null) {
                 runCatching {
-                    TileService.getUpdater(applicationContext).requestUpdate(AuriqoMediaTileService::class.java)
+                    TileService.getUpdater(applicationContext)
+                        .requestUpdate(AuriqoMediaTileService::class.java)
                 }
             }
         }
@@ -151,26 +154,17 @@ class AuriqoMediaTileService : TileService() {
                 .addContent(column.build())
                 .build()
 
-        val timelineEntry =
-            TimelineBuilders.TimelineEntry.Builder()
-                .setLayout(rootBox)
-                .build()
-
         return TileBuilders.Tile.Builder()
             .setResourcesVersion(RESOURCES_VERSION)
-            .setTimeline(
-                TimelineBuilders.Timeline.Builder()
-                    .addTimelineEntry(timelineEntry)
-                    .build(),
-            )
+            .setTileTimeline(TimelineBuilders.Timeline.fromLayoutElement(rootBox))
             .build()
     }
 
     private fun header(): LayoutElementBuilders.LayoutElement =
         LayoutElementBuilders.Text.Builder()
-            .setText("☀ AURIQO")
+            .setText(textProp("☀ AURIQO"))
             .setFontStyle(fontStyle(sizeSp = 11f, color = COLOR_ACCENT))
-            .setMaxLines(1)
+            .setMaxLines(int32Prop(1))
             .build()
 
     private fun nowPlayingSection(state: NowPlaying): LayoutElementBuilders.LayoutElement {
@@ -180,7 +174,7 @@ class AuriqoMediaTileService : TileService() {
         if (artworkUrl != null && ArtworkFetcher.getCached(artworkUrl) != null) {
             row.addContent(
                 LayoutElementBuilders.Image.Builder()
-                    .setResourceId(ARTWORK_RESOURCE_ID)
+                    .setResourceId(textProp(ARTWORK_RESOURCE_ID))
                     .setWidth(DimensionBuilders.dp(44f))
                     .setHeight(DimensionBuilders.dp(44f))
                     .build(),
@@ -191,16 +185,16 @@ class AuriqoMediaTileService : TileService() {
         val textColumn = LayoutElementBuilders.Column.Builder()
         textColumn.addContent(
             LayoutElementBuilders.Text.Builder()
-                .setText(state.title ?: "")
+                .setText(textProp(state.title ?: ""))
                 .setFontStyle(fontStyle(sizeSp = 13f, color = COLOR_TEXT))
-                .setMaxLines(2)
+                .setMaxLines(int32Prop(2))
                 .build(),
         )
         textColumn.addContent(
             LayoutElementBuilders.Text.Builder()
-                .setText(state.artist ?: "")
+                .setText(textProp(state.artist ?: ""))
                 .setFontStyle(fontStyle(sizeSp = 11f, color = COLOR_TEXT_MUTED))
-                .setMaxLines(1)
+                .setMaxLines(int32Prop(1))
                 .build(),
         )
 
@@ -233,10 +227,16 @@ class AuriqoMediaTileService : TileService() {
 
     private fun disconnectedSection(): LayoutElementBuilders.LayoutElement =
         LayoutElementBuilders.Text.Builder()
-            .setText("Auriqo no conectado")
+            .setText(textProp("Auriqo no conectado"))
             .setFontStyle(fontStyle(sizeSp = 13f, color = COLOR_TEXT_MUTED))
-            .setMaxLines(2)
+            .setMaxLines(int32Prop(2))
             .build()
+
+    private fun textProp(value: String): TypeBuilders.StringProp =
+        TypeBuilders.StringProp.Builder(value).build()
+
+    private fun int32Prop(value: Int): TypeBuilders.Int32Prop =
+        TypeBuilders.Int32Prop.Builder().setValue(value).build()
 
     private fun fontStyle(
         sizeSp: Float,
@@ -258,9 +258,9 @@ class AuriqoMediaTileService : TileService() {
 
         val text =
             LayoutElementBuilders.Text.Builder()
-                .setText(glyph)
+                .setText(textProp(glyph))
                 .setFontStyle(fontStyle(sizeSp = 13f, color = glyphColor))
-                .setMaxLines(1)
+                .setMaxLines(int32Prop(1))
                 .build()
 
         return LayoutElementBuilders.Box.Builder()
@@ -287,14 +287,14 @@ class AuriqoMediaTileService : TileService() {
 
     private fun Bitmap.toImageResource(): ResourceBuilders.ImageResource {
         val bytes = ByteArray(byteCount)
-        copyPixelsToBuffer(java.nio.ByteBuffer.wrap(bytes))
+        copyPixelsToBuffer(ByteBuffer.wrap(bytes))
 
         val inline =
             ResourceBuilders.InlineImageResource.Builder()
                 .setData(bytes)
                 .setWidthPx(width)
                 .setHeightPx(height)
-                .setFormat(ResourceProto.ImageFormat.IMAGE_FORMAT_ARGB_8888)
+                .setFormat(ResourceBuilders.IMAGE_FORMAT_ARGB_8888)
                 .build()
 
         return ResourceBuilders.ImageResource.Builder()
