@@ -24,17 +24,17 @@ if (hasGoogleServicesConfig) {
 }
 
 android {
-    namespace = "iad1tya.echo.music"
+    namespace = "com.auriqo.music"
     compileSdk = 36
     ndkVersion = "27.0.12077973"
 
 
     defaultConfig {
-        applicationId = "iad1tya.echo.music"
+        applicationId = "com.auriqo.music"
         minSdk = 26
         targetSdk = 36
-        versionCode = 529
-        versionName = "5.2.89"
+        versionCode = 1
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -323,7 +323,7 @@ dependencies {
     implementation(project(":shazamkit"))
     implementation(project(":artistvideo"))
     implementation(project(":applecanvas"))
-    implementation(project(":echomusiccanvas"))
+    implementation(project(":auriqocanvas"))
     implementation(project(":paxsenixlyrics"))
     implementation(project(":unison"))
     implementation(project(":letras"))

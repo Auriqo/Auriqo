@@ -60,7 +60,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="false"
         android:largeHeap="true"
-        android:theme="@style/Theme.echomusic"
+        android:theme="@style/Theme.auriqa"
         tools:targetApi="tiramisu">
         <uses-library
             android:name="org.apache.http.legacy"
@@ -69,7 +69,7 @@
         <activity
             android:name=".ui.screens.CrashActivity"
             android:exported="false"
-            android:theme="@style/Theme.echomusic"
+            android:theme="@style/Theme.auriqa"
             android:excludeFromRecents="true"
             android:process=":crash" />
 
@@ -77,7 +77,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.echomusic"
+            android:theme="@style/Theme.auriqa"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -121,7 +121,7 @@
                 <data android:host="listen" />
             </intent-filter>
 
-            <!-- Echo Music Share Links -->
+            <!-- Auriqo Share Links -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -322,9 +322,9 @@
             android:label="@string/widget_music_player">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="iad1tya.echo.music.widget.PLAY_PAUSE" />
-                <action android:name="iad1tya.echo.music.widget.LIKE" />
-                <action android:name="iad1tya.echo.music.widget.UPDATE_WIDGET" />
+                <action android:name="com.auriqo.music.widget.PLAY_PAUSE" />
+                <action android:name="com.auriqo.music.widget.LIKE" />
+                <action android:name="com.auriqo.music.widget.UPDATE_WIDGET" />
             </intent-filter>
 
             <meta-data
@@ -339,9 +339,9 @@
             android:label="@string/widget_turntable">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="iad1tya.echo.music.widget.TURNTABLE_PLAY_PAUSE" />
-                <action android:name="iad1tya.echo.music.widget.TURNTABLE_LIKE" />
-                <action android:name="iad1tya.echo.music.widget.UPDATE_TURNTABLE_WIDGET" />
+                <action android:name="com.auriqo.music.widget.TURNTABLE_PLAY_PAUSE" />
+                <action android:name="com.auriqo.music.widget.TURNTABLE_LIKE" />
+                <action android:name="com.auriqo.music.widget.UPDATE_TURNTABLE_WIDGET" />
             </intent-filter>
 
             <meta-data
@@ -352,7 +352,7 @@
         <!-- Google Cast Options Provider -->
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="iad1tya.echo.music.cast.CastOptionsProvider" />
+            android:value="com.auriqo.music.cast.CastOptionsProvider" />
         <!-- Google Cast Reconnection Service (required by setEnableReconnectionService(true)) -->
         <service
             android:name="com.google.android.gms.cast.framework.ReconnectionService"
@@ -365,9 +365,9 @@
             android:label="@string/widget_music_player">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="iad1tya.echo.music.widget.PLAY_PAUSE" />
-                <action android:name="iad1tya.echo.music.widget.LIKE" />
-                <action android:name="iad1tya.echo.music.widget.UPDATE_WIDGET" />
+                <action android:name="com.auriqo.music.widget.PLAY_PAUSE" />
+                <action android:name="com.auriqo.music.widget.LIKE" />
+                <action android:name="com.auriqo.music.widget.UPDATE_WIDGET" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -394,9 +394,9 @@
             android:label="@string/widget_turntable">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="iad1tya.echo.music.widget.TURNTABLE_PLAY_PAUSE" />
-                <action android:name="iad1tya.echo.music.widget.TURNTABLE_LIKE" />
-                <action android:name="iad1tya.echo.music.widget.UPDATE_TURNTABLE_WIDGET" />
+                <action android:name="com.auriqo.music.widget.TURNTABLE_PLAY_PAUSE" />
+                <action android:name="com.auriqo.music.widget.TURNTABLE_LIKE" />
+                <action android:name="com.auriqo.music.widget.UPDATE_TURNTABLE_WIDGET" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -431,9 +431,9 @@
             android:label="@string/widget_recognizer_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="iad1tya.echo.music.widget.recognizer.TAP_MIC" />
-                <action android:name="iad1tya.echo.music.widget.recognizer.UPDATE" />
-                <action android:name="iad1tya.echo.music.widget.recognizer.RESET" />
+                <action android:name="com.auriqo.music.widget.recognizer.TAP_MIC" />
+                <action android:name="com.auriqo.music.widget.recognizer.UPDATE" />
+                <action android:name="com.auriqo.music.widget.recognizer.RESET" />
             </intent-filter>
 
             <meta-data

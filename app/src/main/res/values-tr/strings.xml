@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Upstream InnerTune strings --><!-- Do not add new features here --><!-- Try to re-use strings here, but be careful on its usage e.g. verb vs noun --><!-- "InnerTune" is replaced with "echomusic" --><!-- Translators: Do not modify this file for translations, use InnerTune's Weblate instead. --><resources>
+<!-- Upstream InnerTune strings --><!-- Do not add new features here --><!-- Try to re-use strings here, but be careful on its usage e.g. verb vs noun --><!-- "InnerTune" is replaced with "auriqa" --><!-- Translators: Do not modify this file for translations, use InnerTune's Weblate instead. --><resources>
     <!-- Bottom navigation -->
     <string name="home">Ana Sayfa</string>
     <string name="songs">Şarkılar</string>
@@ -362,7 +362,7 @@
     <string name="listen_together_smart_resync">Akıllı Ağ Yeniden Senkronizasyonu</string>
     <string name="listen_together_smart_resync_desc">Bağlantı kesildikten sonra sunucuyu otomatik olarak yakala</string>
     <string name="spotify_import_title">Spotify\'dan İçe Aktar</string>
-    <string name="spotify_import_desc">Spotify\'ı bağlayın, çalma listeleri seçin ve bunları yerel Echo Music çalma listelerine yansıtın.</string>
+    <string name="spotify_import_desc">Spotify\'ı bağlayın, çalma listeleri seçin ve bunları yerel Auriqo çalma listelerine yansıtın.</string>
     <string name="spotify_connect">Spotify\'ı Bağla</string>
     <string name="spotify_refresh">Spotify kütüphanesini yenile</string>
     <string name="spotify_select_sources">Spotify çalma listelerini seç</string>
@@ -421,7 +421,7 @@
     <string name="recognition_notification_processing">Tanımlanıyor…</string>
     <string name="recognition_notification_no_match">Eşleşme bulunamadı</string>
     <string name="recognition_notification_failed">Tanıma başarısız oldu</string>
-    <string name="listen_on_echo_music">Echo Music\'te dinle</string>
+    <string name="listen_on_auriqa">Auriqo\'te dinle</string>
     <string name="qs_tile_music_recognizer">Müziği tanı</string>
     <string name="echo_brain_beta">Echo Brain (Beta)</string>
     <string name="echo_brain_enable">Echo Brain\'i etkinleştir</string>

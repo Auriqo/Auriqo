@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea for Echo Music
+about: Suggest an idea for Auriqo
 title: '[FEATURE] '
 labels: enhancement
 assignees: ''

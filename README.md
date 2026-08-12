@@ -1,22 +1,22 @@
 <div align="center">
-  <img src="assets/Echo-new.png" alt="Echo Music Logo" width="120"/>
+  <img src="assets/Echo-new.png" alt="Auriqo Logo" width="120"/>
 
-  <h1>Echo Music</h1>
+  <h1>Auriqo</h1>
 
   <p><b>A modern Android music app with ad-free streaming, synced lyrics, offline playback, and an intuitive user experience.</b></p>
   
   <p>
-    <a href="https://github.com/iad1tya/Echo-Music/releases" style="text-decoration:none;"><img src="https://img.shields.io/github/v/release/iad1tya/Echo-Music?style=flat-square&color=6f42c1" alt="GitHub Release"></a>
-    <a href="https://github.com/iad1tya/Echo-Music/stargazers" style="text-decoration:none;"><img src="https://img.shields.io/github/stars/iad1tya/Echo-Music?style=flat-square&color=e3b341" alt="GitHub Stars"></a>
-    <a href="LICENSE" style="text-decoration:none;"><img src="https://img.shields.io/github/license/iad1tya/Echo-Music?style=flat-square&color=28a745" alt="License"></a>
+    <a href="https://github.com/Auriqo/Auriqo/releases" style="text-decoration:none;"><img src="https://img.shields.io/github/v/release/Auriqo/Auriqo?style=flat-square&color=6f42c1" alt="GitHub Release"></a>
+    <a href="https://github.com/Auriqo/Auriqo/stargazers" style="text-decoration:none;"><img src="https://img.shields.io/github/stars/Auriqo/Auriqo?style=flat-square&color=e3b341" alt="GitHub Stars"></a>
+    <a href="LICENSE" style="text-decoration:none;"><img src="https://img.shields.io/github/license/Auriqo/Auriqo?style=flat-square&color=28a745" alt="License"></a>
   </p>
   <p>
-    <a href="https://t.me/EchoMusicApp" style="text-decoration:none;"><img src="https://img.shields.io/badge/Telegram-Join-2CA5E0?style=flat-square&logo=telegram&logoColor=white" alt="Telegram"></a>
+    <a href="https://t.me/AuriqoApp" style="text-decoration:none;"><img src="https://img.shields.io/badge/Telegram-Join-2CA5E0?style=flat-square&logo=telegram&logoColor=white" alt="Telegram"></a>
     <a href="https://discord.gg/EcfV3AxH5c" style="text-decoration:none;"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
     <a href="https://hosted.weblate.org/projects/echo-music/" style="text-decoration:none;"><img src="https://img.shields.io/weblate/progress/echo-music?server=https%3A%2F%2Fhosted.weblate.org&style=flat-square" alt="Weblate"></a>
   </p>
   <p>
-    <a href="https://trendshift.io/repositories/20485" target="_blank" style="text-decoration:none;"><img src="https://trendshift.io/api/badge/repositories/20485" alt="EchoMusicApp/Echo-Music | Trendshift" style="width: 200px; height: 44px;" width="200" height="44"/></a>
+    <a href="https://trendshift.io/repositories/20485" target="_blank" style="text-decoration:none;"><img src="https://trendshift.io/api/badge/repositories/20485" alt="Auriqo/Auriqo | Trendshift" style="width: 200px; height: 44px;" width="200" height="44"/></a>
   </p>
   <table style="margin: 0 auto; border-collapse: collapse; border: none;">
     <tr>
@@ -34,7 +34,7 @@
 
 ## Overview
 
-Echo Music delivers a seamless, premium listening experience by leveraging YouTube Music's vast library — without the ads. It adds powerful extras including offline downloads, real-time synchronized lyrics, and environment-aware music recognition.
+Auriqo delivers a seamless, premium listening experience by leveraging YouTube Music's vast library — without the ads. It adds powerful extras including offline downloads, real-time synchronized lyrics, and environment-aware music recognition.
 
 ---
 
@@ -93,7 +93,7 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 
 ### What's New
 
-> - **Lossless Music Hub** — Stream and contribute 16-bit/24-bit FLAC files directly to the Echo Music ecosystem.
+> - **Lossless Music Hub** — Stream and contribute 16-bit/24-bit FLAC files directly to the Auriqo ecosystem.
 > - **Data Saver Mode (Beta)** — Automatically reduces data usage during playback for limited connections.
 > - **Settings Search Index** — Quickly find and navigate to any settings option instantly.
 > - **Redesigned UI** — Cleaner, faster, and more intuitive interface from the ground up.
@@ -179,7 +179,7 @@ Echo Music delivers a seamless, premium listening experience by leveraging YouTu
 
 ### Android Installation
 
-Download the latest pre-compiled APK from the [Releases Page](https://github.com/iad1tya/Echo-Music/releases/latest).
+Download the latest pre-compiled APK from the [Releases Page](https://github.com/Auriqo/Auriqo/releases/latest).
 
 <details>
 <summary><b>Building from Source</b></summary>
@@ -187,8 +187,8 @@ Download the latest pre-compiled APK from the [Releases Page](https://github.com
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/iad1tya/Echo-Music.git
-   cd Echo-Music
+   git clone https://github.com/Auriqo/Auriqo.git
+   cd Auriqo
    ```
 
 2. **Configure Android SDK**
@@ -202,7 +202,7 @@ Download the latest pre-compiled APK from the [Releases Page](https://github.com
    Firebase is required for analytics and crash reporting. See the instructions in [SETUP.md](SETUP.md#3-configure-firebase-optional) for adding your `google-services.json`.
 
 4. **Build the Application**
-   Echo Music has two build variants: **FOSS** (without Google Play Services / Cast) and **GMS** (with Cast support).
+   Auriqo has two build variants: **FOSS** (without Google Play Services / Cast) and **GMS** (with Cast support).
    
    - To build the **FOSS** Universal Debug variant:
      ```bash
@@ -220,7 +220,7 @@ Download the latest pre-compiled APK from the [Releases Page](https://github.com
 
 ## Translations
 
-<h3>We use Weblate to translate Echo Music. <a href="https://hosted.weblate.org/projects/echo-music/">Help us bring Echo Music to more people!</a></h3>
+<h3>We use Weblate to translate Auriqo. <a href="https://hosted.weblate.org/projects/echo-music/">Help us bring Auriqo to more people!</a></h3>
 
 <div align="center">
   <a href="https://hosted.weblate.org/projects/echo-music/" style="text-decoration:none;"><img src="https://hosted.weblate.org/widgets/echo-music/-/horizontal-auto.svg" alt="Translation status" /></a>
@@ -239,7 +239,7 @@ Join the community for updates, discussions, and help.
         <a href="https://discord.gg/EcfV3AxH5c" style="text-decoration:none;"><img src="assets/discord.png" alt="Discord Logo" width="140" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/></a>
       </td>
       <td align="center" style="padding: 15px; border: none;">
-        <a href="https://t.me/EchoMusicApp" style="text-decoration:none;"><img src="assets/telegram.png" alt="Telegram Logo" width="130" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/></a>
+        <a href="https://t.me/AuriqoApp" style="text-decoration:none;"><img src="assets/telegram.png" alt="Telegram Logo" width="130" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/></a>
       </td>
     </tr>
   </table>
@@ -249,7 +249,7 @@ Join the community for updates, discussions, and help.
 
 ## Support the Project
 
-If Echo Music has been useful to you, consider supporting its development.
+If Auriqo has been useful to you, consider supporting its development.
 
 <div align="center">
   <table style="margin: 0 auto; border-collapse: collapse; border: none;">
@@ -285,11 +285,11 @@ If Echo Music has been useful to you, consider supporting its development.
 
 ## Contributors
 
-A huge thank you to everyone who has helped improve Echo Music! Whether you've fixed bugs, added new features, or updated translations, your contributions are greatly appreciated.
+A huge thank you to everyone who has helped improve Auriqo! Whether you've fixed bugs, added new features, or updated translations, your contributions are greatly appreciated.
 
 <div align="center">
-  <a href="https://github.com/iad1tya/Echo-Music/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=iad1tya/Echo-Music" alt="Contributors" />
+  <a href="https://github.com/Auriqo/Auriqo/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=Auriqo/Auriqo" alt="Contributors" />
   </a>
 </div>
 
@@ -297,7 +297,7 @@ A huge thank you to everyone who has helped improve Echo Music! Whether you've f
 
 ## Special Thanks
 
-Echo Music stands on the shoulders of several excellent open-source projects. Sincere thanks to:
+Auriqo stands on the shoulders of several excellent open-source projects. Sincere thanks to:
 
 | Project | Description |
 | :--- | :--- |

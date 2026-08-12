@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.music.echo.letras"
+    namespace = "com.auriqa.music.letras"
     compileSdk = 36
 
     defaultConfig {

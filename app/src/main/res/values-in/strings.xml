@@ -332,7 +332,7 @@
     <string name="listen_together_smart_resync">Sinkronisasi Ulang Jaringan Cerdas</string>
     <string name="listen_together_smart_resync_desc">Secara otomatis mengejar ketertinggalan dari host setelah putus sambungan</string>
     <string name="spotify_import_title">Impor dari Spotify</string>
-    <string name="spotify_import_desc">Hubungkan Spotify, pilih daftar putar, dan cerminkan ke dalam daftar putar Echo Music lokal.</string>
+    <string name="spotify_import_desc">Hubungkan Spotify, pilih daftar putar, dan cerminkan ke dalam daftar putar Auriqo lokal.</string>
     <string name="spotify_connect">Hubungkan Spotify</string>
     <string name="spotify_refresh">Segarkan pustaka Spotify</string>
     <string name="spotify_select_sources">Pilih daftar putar Spotify</string>
@@ -392,7 +392,7 @@
     <string name="recognition_notification_processing">Mengidentifikasi…</string>
     <string name="recognition_notification_no_match">Tidak ditemukan kecocokan</string>
     <string name="recognition_notification_failed">Pengenalan gagal</string>
-    <string name="listen_on_echo_music">Dengarkan di Echo Music</string>
+    <string name="listen_on_auriqa">Dengarkan di Auriqo</string>
     <string name="qs_tile_music_recognizer">Kenali musik</string>
     <string name="echo_brain_beta">Echo Brain (Beta)</string>
     <string name="echo_brain_enable">Aktifkan Echo Brain</string>
@@ -565,7 +565,7 @@
     <string name="display_density_desc">Kelola pengaturan Densitas tampilan</string>
     <string name="download_quality_title_desc">Kelola pengaturan Kualitas Unduhan</string>
     <string name="downloaded_songs_desc">Kelola pengaturan Lagu yang Diunduh</string>
-    <string name="echomusic_1_desc">Kelola pengaturan Vivi Music (Fluid)</string>
+    <string name="auriqa_1_desc">Kelola pengaturan Vivi Music (Fluid)</string>
     <string name="enable_desc">Aktifkan atau nonaktifkan</string>
     <string name="enable_authentication_desc">Aktifkan atau nonaktifkan autentikasi</string>
     <string name="enable_dynamic_theme_desc">Aktifkan atau nonaktifkan tema dinamis</string>

@@ -1,5 +1,5 @@
 {
-  "name": "Echo Music Server",
-  "region": "Global - Echo Music",
-  "serverUrl": "wss://iad1tya-echomusic.hf.space/ws"
+  "name": "Auriqo Server",
+  "region": "Global - Auriqo",
+  "serverUrl": "wss://auriqa-server.hf.space/ws"
 }
