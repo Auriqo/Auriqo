@@ -350,6 +350,7 @@ class MusicService :
     }
 
     private var scope = CoroutineScope(Dispatchers.Main) + Job()
+    private lateinit var wearSync: com.auriqo.music.wearsync.WearSyncManager
 
     private val binder = MusicBinder()
 
@@ -551,6 +552,8 @@ class MusicService :
     override fun onCreate() {
         super.onCreate()
         isRunning = true
+        wearSync = com.auriqo.music.wearsync.WearSyncProvider.create(this)
+        wearSync.start(scope)
 
         
         // Workaround for ForegroundServiceStartNotAllowedException
@@ -3334,6 +3337,7 @@ class MusicService :
 
     override fun onDestroy() {
         isRunning = false
+        wearSync.stop()
         streamRecoveryJob?.cancel()
         retryJob?.cancel()
         streamRecovery.beginPlayback(null, force = true)

@@ -13,7 +13,7 @@ import androidx.wear.protolayout.TypeBuilders
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
-import com.auriqo.music.wear.media.MediaBrowserManager
+import com.auriqo.music.wear.media.PhoneSyncManager
 import com.auriqo.music.wear.media.NowPlaying
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -47,20 +47,20 @@ class AuriqoMediaTileService : TileService() {
     private var artworkUri: String? = null
 
     override fun onTileRequest(requestParams: RequestBuilders.TileRequest): ListenableFuture<TileBuilders.Tile> {
-        MediaBrowserManager.ensureConnected(applicationContext)
+        PhoneSyncManager.ensureConnected(applicationContext)
         ArtworkFetcher.init(applicationContext)
 
         handleRequestedAction(requestParams.currentState)
         ensureUpdateLoop()
-        fetchArtworkIfNeeded(MediaBrowserManager.nowPlaying.value)
+        fetchArtworkIfNeeded(PhoneSyncManager.nowPlaying.value)
 
-        return Futures.immediateFuture(buildTile(MediaBrowserManager.nowPlaying.value))
+        return Futures.immediateFuture(buildTile(PhoneSyncManager.nowPlaying.value))
     }
 
     override fun onTileResourcesRequest(
         requestParams: RequestBuilders.ResourcesRequest,
     ): ListenableFuture<ResourceBuilders.Resources> {
-        val state = MediaBrowserManager.nowPlaying.value
+        val state = PhoneSyncManager.nowPlaying.value
         val artworkUrl = state.artworkUri
         if (artworkUrl.isNullOrBlank()) {
             return Futures.immediateFuture(ResourceBuilders.Resources.Builder().build())
@@ -81,7 +81,7 @@ class AuriqoMediaTileService : TileService() {
         updateLoopStarted = true
 
         serviceScope.launch {
-            MediaBrowserManager.nowPlaying
+            PhoneSyncManager.nowPlaying
                 .drop(1)
                 .collect { state ->
                     if (state.artworkUri != artworkUri) {
@@ -115,12 +115,12 @@ class AuriqoMediaTileService : TileService() {
     private fun handleRequestedAction(state: StateBuilders.State?) {
         val clickedId = state?.lastClickableId ?: return
         when (clickedId) {
-            ACTION_PLAY_PAUSE -> MediaBrowserManager.togglePlayPause()
-            ACTION_NEXT -> MediaBrowserManager.skipToNext()
-            ACTION_PREV -> MediaBrowserManager.skipToPrevious()
-            ACTION_LIKE -> MediaBrowserManager.toggleLike()
-            ACTION_SHUFFLE -> MediaBrowserManager.toggleShuffle()
-            ACTION_REPEAT -> MediaBrowserManager.toggleRepeatMode()
+            ACTION_PLAY_PAUSE -> PhoneSyncManager.togglePlayPause(applicationContext)
+            ACTION_NEXT -> PhoneSyncManager.skipToNext(applicationContext)
+            ACTION_PREV -> PhoneSyncManager.skipToPrevious(applicationContext)
+            ACTION_LIKE -> PhoneSyncManager.toggleLike(applicationContext)
+            ACTION_SHUFFLE -> PhoneSyncManager.toggleShuffle(applicationContext)
+            ACTION_REPEAT -> PhoneSyncManager.toggleRepeatMode(applicationContext)
         }
     }
 

@@ -53,6 +53,7 @@ wearCompose = "1.4.0"
 wearTiles = "1.5.0"
 wearToolingPreview = "1.0.0"
 androidxMedia = "1.7.0"
+playServicesWearable = "18.2.0"
 
 [libraries]
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
@@ -162,6 +163,7 @@ wear-tiles-material = { module = "androidx.wear.tiles:tiles-material", version.r
 wear-tiles-renderer = { module = "androidx.wear.tiles:tiles-renderer", version.ref = "wearTiles" }
 wear-tooling-preview = { module = "androidx.wear:wear-tooling-preview", version.ref = "wearToolingPreview" }
 androidx-media = { module = "androidx.media:media", version.ref = "androidxMedia" }
+play-services-wearable = { module = "com.google.android.gms:play-services-wearable", version.ref = "playServicesWearable" }
 
 [plugins]
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

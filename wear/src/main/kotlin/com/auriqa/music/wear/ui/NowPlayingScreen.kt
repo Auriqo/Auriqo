@@ -33,7 +33,7 @@ import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import coil3.compose.AsyncImage
-import com.auriqo.music.wear.media.MediaBrowserManager
+import com.auriqo.music.wear.media.PhoneSyncManager
 import com.auriqo.music.wear.media.NowPlaying
 
 private val AccentColor = Color(0xFFFFB20F)
@@ -42,7 +42,7 @@ private val MutedTextColor = Color(0xFFB0AFA8)
 
 @Composable
 fun NowPlayingScreen() {
-    val state by MediaBrowserManager.nowPlaying.collectAsState()
+    val state by PhoneSyncManager.nowPlaying.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
 
     Column(
@@ -92,7 +92,7 @@ fun NowPlayingScreen() {
 
             Spacer(Modifier.height(12.dp))
 
-            TransportControls(state = state)
+            TransportControls(state = state, context = context)
         } else {
             Text(
                 text = "Auriqo no conectado",
@@ -114,7 +114,7 @@ fun NowPlayingScreen() {
             }
             Spacer(Modifier.height(8.dp))
             CompactChip(
-                onClick = { MediaBrowserManager.ensureConnected(context) },
+                onClick = { PhoneSyncManager.ensureConnected(context) },
                 label = { Text("Reintentar") },
             )
         }
@@ -137,21 +137,21 @@ private fun Artwork(state: NowPlaying) {
 }
 
 @Composable
-private fun TransportControls(state: NowPlaying) {
+private fun TransportControls(state: NowPlaying, context: android.content.Context) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (state.canSkipPrevious) {
             CompactChip(
-                onClick = { MediaBrowserManager.skipToPrevious() },
+                onClick = { PhoneSyncManager.skipToPrevious(context) },
                 label = { Text("⏮") },
                 colors = chipColors(),
             )
         }
 
         Button(
-            onClick = { MediaBrowserManager.togglePlayPause() },
+            onClick = { PhoneSyncManager.togglePlayPause(context) },
             colors =
                 ButtonDefaults.buttonColors(
                     backgroundColor = AccentColor,
@@ -164,7 +164,7 @@ private fun TransportControls(state: NowPlaying) {
 
         if (state.canSkipNext) {
             CompactChip(
-                onClick = { MediaBrowserManager.skipToNext() },
+                onClick = { PhoneSyncManager.skipToNext(context) },
                 label = { Text("⏭") },
                 colors = chipColors(),
             )
@@ -179,20 +179,20 @@ private fun TransportControls(state: NowPlaying) {
     ) {
         if (state.likeAction != null) {
             CompactChip(
-                onClick = { MediaBrowserManager.toggleLike() },
+                onClick = { PhoneSyncManager.toggleLike(context) },
                 label = { Text("♡") },
                 colors = chipColors(),
             )
             Spacer(Modifier.width(4.dp))
         }
         CompactChip(
-            onClick = { MediaBrowserManager.toggleShuffle() },
+            onClick = { PhoneSyncManager.toggleShuffle(context) },
             label = { Text("⇄") },
             colors = chipColors(highlighted = state.shuffleEnabled),
         )
         Spacer(Modifier.width(4.dp))
         CompactChip(
-            onClick = { MediaBrowserManager.toggleRepeatMode() },
+            onClick = { PhoneSyncManager.toggleRepeatMode(context) },
             label = { Text("↻") },
             colors = chipColors(highlighted = state.repeatMode != 0),
         )

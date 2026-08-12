@@ -8,12 +8,12 @@ import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.rememberScalingLazyListState
-import com.auriqo.music.wear.media.MediaBrowserManager
+import com.auriqo.music.wear.media.PhoneSyncManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        MediaBrowserManager.ensureConnected(this)
+        PhoneSyncManager.ensureConnected(this)
 
         setContent {
             MaterialTheme(
