@@ -84,7 +84,7 @@ jobs:
           export STORE_PASSWORD="${STORE_PASSWORD:-auriqoci}"
           export KEY_ALIAS="${KEY_ALIAS:-auriqa}"
           export KEY_PASSWORD="${KEY_PASSWORD:-auriqoci}"
-          ./gradlew assembleUniversalGmsDebug
+          ./gradlew assembleUniversalGmsDebug :wear:assembleDebug
 
       - name: Rename and Organize APKs
         run: |
@@ -96,6 +96,10 @@ jobs:
               cp "$apk_path" "app/build/outputs/apk/release-artifacts/$target_name"
               echo "Copied $apk_path -> app/build/outputs/apk/release-artifacts/$target_name"
           done
+          if [ -f wear/build/outputs/apk/debug/wear-debug.apk ]; then
+              cp wear/build/outputs/apk/debug/wear-debug.apk app/build/outputs/apk/release-artifacts/Auriqo-Wear-${VERSION_NAME}.apk
+              echo "Copied wear APK -> app/build/outputs/apk/release-artifacts/Auriqo-Wear-${VERSION_NAME}.apk"
+          fi
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
