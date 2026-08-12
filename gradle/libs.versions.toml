@@ -49,6 +49,9 @@ playServicesAuth = "21.2.0"
 googleApiClient = "2.9.0"
 googleDriveApi = "v3-rev20260428-2.0.0"
 browser = "1.8.0"
+wearCompose = "1.4.0"
+wearTiles = "1.4.0"
+wearToolingPreview = "1.0.0"
 
 [libraries]
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
@@ -150,6 +153,13 @@ play-services-auth = { module = "com.google.android.gms:play-services-auth", ver
 google-api-client-android = { module = "com.google.api-client:google-api-client-android", version.ref = "googleApiClient" }
 google-api-services-drive = { module = "com.google.apis:google-api-services-drive", version.ref = "googleDriveApi" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
+wear-compose-material = { module = "androidx.wear.compose:compose-material", version.ref = "wearCompose" }
+wear-compose-foundation = { module = "androidx.wear.compose:compose-foundation", version.ref = "wearCompose" }
+wear-compose-navigation = { module = "androidx.wear.compose:compose-navigation", version.ref = "wearCompose" }
+wear-tiles = { module = "androidx.wear.tiles:tiles", version.ref = "wearTiles" }
+wear-tiles-material = { module = "androidx.wear.tiles:tiles-material", version.ref = "wearTiles" }
+wear-tiles-renderer = { module = "androidx.wear.tiles:tiles-renderer", version.ref = "wearTiles" }
+wear-tooling-preview = { module = "androidx.wear:wear-tooling-preview", version.ref = "wearToolingPreview" }
 
 [plugins]
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

@@ -32,7 +32,8 @@ include(
     ":auriqocanvas",
     ":applecanvas",
     ":unison",
-    ":letras"
+    ":letras",
+    ":wear"
 )
 
 
