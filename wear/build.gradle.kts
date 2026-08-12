@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.activity)
     implementation(libs.media3.session)
+    implementation(libs.androidx.media)
     implementation(libs.coil)
     implementation(libs.coil.network.okhttp)
 

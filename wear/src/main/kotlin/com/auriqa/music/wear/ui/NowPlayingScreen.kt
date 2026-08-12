@@ -33,7 +33,8 @@ import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import coil3.compose.AsyncImage
-import com.auriqa.music.wear.media.MediaBrowserManager
+import com.auriqo.music.wear.media.MediaBrowserManager
+import com.auriqo.music.wear.media.NowPlaying
 
 private val AccentColor = Color(0xFFFFB20F)
 private val SurfaceColor = Color(0xFF0F0F0F)
@@ -42,6 +43,7 @@ private val MutedTextColor = Color(0xFFB0AFA8)
 @Composable
 fun NowPlayingScreen() {
     val state by MediaBrowserManager.nowPlaying.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     Column(
         modifier =
@@ -100,7 +102,7 @@ fun NowPlayingScreen() {
             )
             Spacer(Modifier.height(8.dp))
             CompactChip(
-                onClick = { MediaBrowserManager.ensureConnected(androidx.compose.ui.platform.LocalContext.current) },
+                onClick = { MediaBrowserManager.ensureConnected(context) },
                 label = { Text("Reintentar") },
             )
         }
@@ -108,7 +110,7 @@ fun NowPlayingScreen() {
 }
 
 @Composable
-private fun Artwork(state: com.auriqa.music.wear.media.NowPlaying) {
+private fun Artwork(state: NowPlaying) {
     val shape = CircleShape
     AsyncImage(
         model = state.artworkUri,
@@ -123,7 +125,7 @@ private fun Artwork(state: com.auriqa.music.wear.media.NowPlaying) {
 }
 
 @Composable
-private fun TransportControls(state: com.auriqa.music.wear.media.NowPlaying) {
+private fun TransportControls(state: NowPlaying) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,

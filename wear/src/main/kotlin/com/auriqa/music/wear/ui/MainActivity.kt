@@ -8,7 +8,7 @@ import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.rememberScalingLazyListState
-import com.auriqa.music.wear.media.MediaBrowserManager
+import com.auriqo.music.wear.media.MediaBrowserManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

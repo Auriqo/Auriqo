@@ -1,19 +1,20 @@
 package com.auriqo.music.wear.tile
 
 import android.graphics.Bitmap
-import androidx.wear.tiles.ActionBuilders
-import androidx.wear.tiles.ColorBuilders
-import androidx.wear.tiles.DimensionBuilders
-import androidx.wear.tiles.LayoutElementBuilders
-import androidx.wear.tiles.ModifiersBuilders
+import androidx.wear.protolayout.ActionBuilders
+import androidx.wear.protolayout.ColorBuilders
+import androidx.wear.protolayout.DimensionBuilders
+import androidx.wear.protolayout.FontStylesBuilder
+import androidx.wear.protolayout.LayoutElementBuilders
+import androidx.wear.protolayout.ModifiersBuilders
+import androidx.wear.protolayout.StateBuilders
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourceBuilders
-import androidx.wear.tiles.StateBuilders
-import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.SuspendingTileService
+import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.update.TileUpdateRequester
-import com.auriqa.music.wear.media.MediaBrowserManager
-import com.auriqa.music.wear.media.NowPlaying
+import com.auriqo.music.wear.media.MediaBrowserManager
+import com.auriqo.music.wear.media.NowPlaying
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -21,6 +22,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
 
 private const val ACTION_KEY = "action"
@@ -34,11 +36,11 @@ private const val ACTION_LIKE = "like"
 private const val ACTION_SHUFFLE = "shuffle"
 private const val ACTION_REPEAT = "repeat"
 
-private val COLOR_BACKGROUND = ColorBuilders.argb(0xFF0F0F0F)
-private val COLOR_ACCENT = ColorBuilders.argb(0xFFFFB20F)
-private val COLOR_TEXT = ColorBuilders.argb(0xFFFFFFFF)
-private val COLOR_TEXT_MUTED = ColorBuilders.argb(0xFFB0AFA8)
-private val COLOR_BUTTON = ColorBuilders.argb(0xFF2A2A28)
+private val COLOR_BACKGROUND = ColorBuilders.argb(0xFF0F0F0F.toInt())
+private val COLOR_ACCENT = ColorBuilders.argb(0xFFFFB20F.toInt())
+private val COLOR_TEXT = ColorBuilders.argb(0xFFFFFFFF.toInt())
+private val COLOR_TEXT_MUTED = ColorBuilders.argb(0xFFB0AFA8.toInt())
+private val COLOR_BUTTON = ColorBuilders.argb(0xFF2A2A28.toInt())
 
 class AuriqoMediaTileService : SuspendingTileService() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -81,9 +83,8 @@ class AuriqoMediaTileService : SuspendingTileService() {
                 .distinctUntilChanged()
                 .drop(1)
                 .collect { state ->
-                    val newArtwork = state.artworkUri
-                    if (newArtwork != artworkUri) {
-                        artworkUri = newArtwork
+                    if (state.artworkUri != artworkUri) {
+                        artworkUri = state.artworkUri
                         launch(Dispatchers.IO) { maybeFetchArtwork(state) }
                     }
                     runCatching {
@@ -98,10 +99,9 @@ class AuriqoMediaTileService : SuspendingTileService() {
         if (artworkUri == url && ArtworkFetcher.getCached(url) != null) return
         artworkUri = url
 
-        val wasCached = ArtworkFetcher.getCached(url) != null
-        if (wasCached) return
+        if (ArtworkFetcher.getCached(url) != null) return
 
-        kotlinx.coroutines.withContext(Dispatchers.IO) {
+        withContext(Dispatchers.IO) {
             if (ArtworkFetcher.fetch(url) != null) {
                 runCatching {
                     tileUpdateRequester.requestUpdate(AuriqoMediaTileService::class.java)
@@ -126,11 +126,11 @@ class AuriqoMediaTileService : SuspendingTileService() {
         val column = LayoutElementBuilders.Column.Builder()
 
         column.addContent(header())
-        column.addContent(LayoutElementBuilders.Spacer.Builder().setHeight(DimensionBuilders.dp(4)).build())
+        column.addContent(LayoutElementBuilders.Spacer.Builder().setHeight(DimensionBuilders.dp(4f)).build())
 
         if (state.connected && !state.title.isNullOrBlank()) {
             column.addContent(nowPlayingSection(state))
-            column.addContent(LayoutElementBuilders.Spacer.Builder().setHeight(DimensionBuilders.dp(4)).build())
+            column.addContent(LayoutElementBuilders.Spacer.Builder().setHeight(DimensionBuilders.dp(4f)).build())
             column.addContent(controlsSection(state))
         } else {
             column.addContent(disconnectedSection())
@@ -155,8 +155,8 @@ class AuriqoMediaTileService : SuspendingTileService() {
         LayoutElementBuilders.Text.Builder()
             .setText("☀ AURIQO")
             .setFontStyle(
-                androidx.wear.tiles.FontStylesBuilder.Builder()
-                    .setSize(DimensionBuilders.sp(11))
+                FontStylesBuilder.Builder()
+                    .setSize(DimensionBuilders.sp(11f))
                     .setColor(COLOR_ACCENT)
                     .build(),
             )
@@ -166,15 +166,16 @@ class AuriqoMediaTileService : SuspendingTileService() {
     private fun nowPlayingSection(state: NowPlaying): LayoutElementBuilders.LayoutElement {
         val row = LayoutElementBuilders.Row.Builder()
 
-        if (state.artworkUri != null && ArtworkFetcher.getCached(state.artworkUri) != null) {
+        val artworkUrl = state.artworkUri
+        if (artworkUrl != null && ArtworkFetcher.getCached(artworkUrl) != null) {
             row.addContent(
                 LayoutElementBuilders.Image.Builder()
                     .setResourceId(ARTWORK_RESOURCE_ID)
-                    .setWidth(DimensionBuilders.dp(44))
-                    .setHeight(DimensionBuilders.dp(44))
+                    .setWidth(DimensionBuilders.dp(44f))
+                    .setHeight(DimensionBuilders.dp(44f))
                     .build(),
             )
-            row.addContent(LayoutElementBuilders.Spacer.Builder().setWidth(DimensionBuilders.dp(8)).build())
+            row.addContent(LayoutElementBuilders.Spacer.Builder().setWidth(DimensionBuilders.dp(8f)).build())
         }
 
         val textColumn = LayoutElementBuilders.Column.Builder()
@@ -182,8 +183,8 @@ class AuriqoMediaTileService : SuspendingTileService() {
             LayoutElementBuilders.Text.Builder()
                 .setText(state.title ?: "")
                 .setFontStyle(
-                    androidx.wear.tiles.FontStylesBuilder.Builder()
-                        .setSize(DimensionBuilders.sp(13))
+                    FontStylesBuilder.Builder()
+                        .setSize(DimensionBuilders.sp(13f))
                         .setColor(COLOR_TEXT)
                         .build(),
                 )
@@ -194,8 +195,8 @@ class AuriqoMediaTileService : SuspendingTileService() {
             LayoutElementBuilders.Text.Builder()
                 .setText(state.artist ?: "")
                 .setFontStyle(
-                    androidx.wear.tiles.FontStylesBuilder.Builder()
-                        .setSize(DimensionBuilders.sp(11))
+                    FontStylesBuilder.Builder()
+                        .setSize(DimensionBuilders.sp(11f))
                         .setColor(COLOR_TEXT_MUTED)
                         .build(),
                 )
@@ -219,11 +220,11 @@ class AuriqoMediaTileService : SuspendingTileService() {
         }
 
         if (state.likeAction != null) {
-            row.addContent(LayoutElementBuilders.Spacer.Builder().setWidth(DimensionBuilders.dp(12)).build())
+            row.addContent(LayoutElementBuilders.Spacer.Builder().setWidth(DimensionBuilders.dp(12f)).build())
             row.addContent(iconButton("♡", ACTION_LIKE))
         }
 
-        row.addContent(LayoutElementBuilders.Spacer.Builder().setWidth(DimensionBuilders.dp(12)).build())
+        row.addContent(LayoutElementBuilders.Spacer.Builder().setWidth(DimensionBuilders.dp(12f)).build())
         row.addContent(iconButton("⇄", ACTION_SHUFFLE, active = state.shuffleEnabled))
         row.addContent(iconButton("↻", ACTION_REPEAT, active = state.repeatMode != 0))
 
@@ -234,8 +235,8 @@ class AuriqoMediaTileService : SuspendingTileService() {
         LayoutElementBuilders.Text.Builder()
             .setText("Auriqo no conectado")
             .setFontStyle(
-                androidx.wear.tiles.FontStylesBuilder.Builder()
-                    .setSize(DimensionBuilders.sp(13))
+                FontStylesBuilder.Builder()
+                    .setSize(DimensionBuilders.sp(13f))
                     .setColor(COLOR_TEXT_MUTED)
                     .build(),
             )
@@ -264,8 +265,8 @@ class AuriqoMediaTileService : SuspendingTileService() {
             LayoutElementBuilders.Text.Builder()
                 .setText(glyph)
                 .setFontStyle(
-                    androidx.wear.tiles.FontStylesBuilder.Builder()
-                        .setSize(DimensionBuilders.sp(13))
+                    FontStylesBuilder.Builder()
+                        .setSize(DimensionBuilders.sp(13f))
                         .setColor(glyphColor)
                         .build(),
                 )
@@ -274,8 +275,8 @@ class AuriqoMediaTileService : SuspendingTileService() {
 
         return LayoutElementBuilders.Box.Builder()
             .setBackgroundColor(buttonColor)
-            .setWidth(DimensionBuilders.dp(if (primary) 40 else 28))
-            .setHeight(DimensionBuilders.dp(28))
+            .setWidth(DimensionBuilders.dp(if (primary) 40f else 28f))
+            .setHeight(DimensionBuilders.dp(28f))
             .setModifiers(
                 ModifiersBuilders.Modifiers.Builder()
                     .setClickable(
