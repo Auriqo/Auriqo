@@ -6,12 +6,20 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 data class NowPlaying(
     val connected: Boolean = false,
+    val error: String? = null,
     val title: String? = null,
     val artist: String? = null,
     val artworkUri: String? = null,
@@ -26,11 +34,14 @@ data class NowPlaying(
 )
 
 object MediaBrowserManager {
+    private const val TAG = "AuriqoWear"
     private const val PHONE_PACKAGE = "com.auriqo.music"
     private const val PHONE_SERVICE = "com.auriqo.music.playback.MusicService"
     const val ACTION_TOGGLE_LIKE = "TOGGLE_LIKE"
     const val ACTION_TOGGLE_SHUFFLE = "TOGGLE_SHUFFLE"
     const val ACTION_TOGGLE_REPEAT_MODE = "TOGGLE_REPEAT_MODE"
+
+    private val retryScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private val _nowPlaying = MutableStateFlow(NowPlaying())
     val nowPlaying: StateFlow<NowPlaying> = _nowPlaying.asStateFlow()
@@ -45,6 +56,7 @@ object MediaBrowserManager {
     fun ensureConnected(context: Context) {
         if (connected) return
         if (initialized) {
+            Log.i(TAG, "reconnecting to $PHONE_PACKAGE/$PHONE_SERVICE")
             mediaBrowser?.connect()
             return
         }
@@ -53,6 +65,7 @@ object MediaBrowserManager {
             initialized = true
         }
         val appContext = context.applicationContext
+        Log.i(TAG, "initializing MediaBrowser for $PHONE_PACKAGE/$PHONE_SERVICE")
         mediaBrowser =
             MediaBrowserCompat(
                 appContext,
@@ -60,11 +73,13 @@ object MediaBrowserManager {
                 object : MediaBrowserCompat.ConnectionCallback() {
                     override fun onConnected() {
                         connected = true
+                        Log.i(TAG, "connected to phone media session")
                         val token = mediaBrowser?.sessionToken
                         mediaController =
                             if (token != null) {
                                 MediaControllerCompat(appContext, token)
                             } else {
+                                Log.e(TAG, "connected but session token is null")
                                 null
                             }
                         mediaController?.registerCallback(
@@ -75,17 +90,49 @@ object MediaBrowserManager {
 
                     override fun onConnectionSuspended() {
                         connected = false
-                        _nowPlaying.value = _nowPlaying.value.copy(connected = false)
+                        Log.w(TAG, "connection suspended")
+                        _nowPlaying.value =
+                            _nowPlaying.value.copy(
+                                connected = false,
+                                error = "Conexión suspendida — reintentando…",
+                            )
+                        scheduleRetry(appContext)
                     }
 
                     override fun onConnectionFailed() {
                         connected = false
-                        _nowPlaying.value = _nowPlaying.value.copy(connected = false)
+                        Log.e(TAG, "connection FAILED to $PHONE_PACKAGE/$PHONE_SERVICE")
+                        _nowPlaying.value =
+                            _nowPlaying.value.copy(
+                                connected = false,
+                                error = "No se pudo conectar con $PHONE_PACKAGE",
+                            )
+                        scheduleRetry(appContext)
                     }
                 },
                 null,
             )
         mediaBrowser?.connect()
+        startRetryLoop(appContext)
+    }
+
+    private fun scheduleRetry(context: Context) {
+        retryScope.launch {
+            delay(5_000)
+            ensureConnected(context)
+        }
+    }
+
+    private fun startRetryLoop(context: Context) {
+        retryScope.launch {
+            while (isActive) {
+                delay(30_000)
+                if (!connected) {
+                    Log.i(TAG, "periodic retry: not connected")
+                    ensureConnected(context)
+                }
+            }
+        }
     }
 
     private val controllerCallback =
@@ -120,6 +167,7 @@ object MediaBrowserManager {
         _nowPlaying.value =
             NowPlaying(
                 connected = connected && mediaController != null,
+                error = if (connected && mediaController == null) "Sesión sin controlador" else null,
                 title = metadata?.getString(MediaMetadataCompat.METADATA_KEY_TITLE),
                 artist = metadata?.getString(MediaMetadataCompat.METADATA_KEY_ARTIST),
                 artworkUri =

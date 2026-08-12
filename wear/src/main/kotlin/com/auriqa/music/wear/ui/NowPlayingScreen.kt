@@ -100,6 +100,18 @@ fun NowPlayingScreen() {
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
             )
+            state.error?.let { error ->
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = error,
+                    color = AccentColor,
+                    fontSize = 10.sp,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
             Spacer(Modifier.height(8.dp))
             CompactChip(
                 onClick = { MediaBrowserManager.ensureConnected(context) },
