@@ -60,7 +60,13 @@ object MediaBrowserManager {
                 object : MediaBrowserCompat.ConnectionCallback() {
                     override fun onConnected() {
                         connected = true
-                        mediaController = MediaControllerCompat.getMediaController(appContext)
+                        val token = mediaBrowser?.sessionToken
+                        mediaController =
+                            if (token != null) {
+                                MediaControllerCompat(appContext, token)
+                            } else {
+                                null
+                            }
                         mediaController?.registerCallback(
                             controllerCallback,
                         )
@@ -116,7 +122,9 @@ object MediaBrowserManager {
                 connected = connected && mediaController != null,
                 title = metadata?.getString(MediaMetadataCompat.METADATA_KEY_TITLE),
                 artist = metadata?.getString(MediaMetadataCompat.METADATA_KEY_ARTIST),
-                artworkUri = metadata?.getString(MediaMetadataCompat.METADATA_KEY_ARTWORK_URI),
+                artworkUri =
+                    metadata?.getString(MediaMetadataCompat.METADATA_KEY_ART_URI)
+                        ?: metadata?.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI),
                 isPlaying = state?.state == PlaybackStateCompat.STATE_PLAYING,
                 positionMs = state?.position ?: 0L,
                 durationMs =

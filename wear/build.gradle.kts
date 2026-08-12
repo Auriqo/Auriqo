@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.media)
     implementation(libs.coil)
     implementation(libs.coil.network.okhttp)
+    implementation(libs.guava)
 
     debugImplementation(libs.wear.tooling.preview)
     coreLibraryDesugaring(libs.desugaring)
