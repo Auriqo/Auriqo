@@ -67,14 +67,18 @@ jobs:
 
       - name: Build and Sign Release APK (Push to main / Dispatch / Tag)
         env:
-          STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD || 'auriqoci' }}
-          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS || 'auriqa' }}
-          KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD || 'auriqoci' }}
+          STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
           GH_CLIENT_ID: ${{ secrets.GH_CLIENT_ID }}
           GH_CLIENT_SECRET: ${{ secrets.GH_CLIENT_SECRET }}
-        run: ./gradlew assembleUniversalGmsRelease
+        run: |
+          export STORE_PASSWORD="${STORE_PASSWORD:-auriqoci}"
+          export KEY_ALIAS="${KEY_ALIAS:-auriqa}"
+          export KEY_PASSWORD="${KEY_PASSWORD:-auriqoci}"
+          ./gradlew assembleUniversalGmsRelease
 
       - name: Rename and Organize APKs
         run: |
