@@ -49,12 +49,16 @@ object MediaBrowserManager {
     private var mediaBrowser: MediaBrowserCompat? = null
     private var mediaController: MediaControllerCompat? = null
     private var connected = false
+    private var lastConnectAttempt = 0L
 
     @Volatile
     private var initialized = false
 
     fun ensureConnected(context: Context) {
         if (connected) return
+        val now = System.currentTimeMillis()
+        if (now - lastConnectAttempt < 5_000) return
+        lastConnectAttempt = now
         if (initialized) {
             Log.i(TAG, "reconnecting to $PHONE_PACKAGE/$PHONE_SERVICE")
             mediaBrowser?.connect()
@@ -96,7 +100,7 @@ object MediaBrowserManager {
                                 connected = false,
                                 error = "Conexión suspendida — reintentando…",
                             )
-                        scheduleRetry(appContext)
+                        // retry handled by periodic loop
                     }
 
                     override fun onConnectionFailed() {
@@ -107,20 +111,13 @@ object MediaBrowserManager {
                                 connected = false,
                                 error = "No se pudo conectar con $PHONE_PACKAGE",
                             )
-                        scheduleRetry(appContext)
+                        // retry handled by periodic loop
                     }
                 },
                 null,
             )
         mediaBrowser?.connect()
         startRetryLoop(appContext)
-    }
-
-    private fun scheduleRetry(context: Context) {
-        retryScope.launch {
-            delay(5_000)
-            ensureConnected(context)
-        }
     }
 
     private fun startRetryLoop(context: Context) {
