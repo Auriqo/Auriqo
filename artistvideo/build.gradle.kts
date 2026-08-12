@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.auriqo.music"
+    namespace = "com.auriqo.music.artistvideo"
     compileSdk = 36
 
     defaultConfig {
