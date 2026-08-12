@@ -49,19 +49,27 @@ jobs:
           printf "%s" "$GOOGLE_SERVICES_CONTENT" > app/google-services.json
 
       - name: Set up Signing Keystore
-        if: env.HAS_KEYSTORE == 'true'
         env:
           HAS_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE_BASE64 != '' }}
           RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
         run: |
           mkdir -p app/keystore
-          echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > app/keystore/release.keystore
+          if [ -n "$RELEASE_KEYSTORE_BASE64" ]; then
+            echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > app/keystore/release.keystore
+          else
+            keytool -genkey -v -keystore app/keystore/release.keystore \
+              -alias auriqa -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass auriqoci -keypass auriqoci \
+              -dname "CN=Auriqo CI, OU=Dev, O=Auriqo, L=Unknown, ST=Unknown, C=XX" \
+              -noprompt 2>/dev/null
+            echo "Generated temporary CI keystore"
+          fi
 
       - name: Build and Sign Release APK (Push to main / Dispatch / Tag)
         env:
-          STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD || 'auriqoci' }}
+          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS || 'auriqa' }}
+          KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD || 'auriqoci' }}
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
           GH_CLIENT_ID: ${{ secrets.GH_CLIENT_ID }}
