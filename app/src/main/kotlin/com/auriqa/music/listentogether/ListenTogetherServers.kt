@@ -27,7 +27,7 @@ object ListenTogetherServers {
         listOf(
             ListenTogetherServer(
                 name = "Auriqo Server",
-                url = "wss://iad1tya-echomusic.hf.space/ws",
+                url = "wss://berruetaa-echomusic.hf.space/ws",
                 location = "Global",
                 operator = "ECHO"
             )

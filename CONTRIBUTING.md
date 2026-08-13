@@ -341,7 +341,7 @@ app/src/main/java/com/maxrave/echo/
 ./gradlew test
 
 # Run specific test class
-./gradlew test --tests "iad1tya.echo.MusicPlayerTest"
+./gradlew test
 
 # Run tests with coverage
 ./gradlew testDebugUnitTestCoverage

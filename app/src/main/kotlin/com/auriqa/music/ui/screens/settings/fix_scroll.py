@@ -1,7 +1,7 @@
 import os
 import re
 
-SETTINGS_DIR = "/Users/aditya/Development/Auriqo/app/src/main/kotlin/com/music/echo/ui/screens/settings"
+SETTINGS_DIR = "/home/sebas/proyectos/Auriqo/app/src/main/kotlin/com/auriqa/music/ui/screens/settings"
 
 def process_file(filepath):
     with open(filepath, "r") as f:
