@@ -17,6 +17,9 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
+import org.jsoup.nodes.Node
+import org.jsoup.nodes.TextNode
 import java.text.Normalizer
 import java.util.Locale
 
@@ -147,15 +150,32 @@ object LetrasCom {
         return paragraphs.joinToString("\n\n").trim().takeIf { it.isNotBlank() }
     }
 
-    private fun paragraphText(paragraph: org.jsoup.nodes.Element): String {
-        val htmlWithLineBreaks = paragraph.html().replace(BR_TAG, "\n")
-        return Jsoup.parseBodyFragment(htmlWithLineBreaks)
-            .body()
-            .wholeText()
-            .replace("\r\n", "\n")
+    private fun paragraphText(paragraph: Element): String {
+        val text = buildString {
+            paragraph.childNodes().forEach { appendLyricNode(it, this) }
+        }
+
+        return text
+            .replace(HORIZONTAL_WHITESPACE, " ")
+            .replace(WHITESPACE_AROUND_LINE_BREAK, "\n")
             .lines()
             .joinToString("\n") { it.trim() }
             .trim()
+    }
+
+    /**
+     * Reads lyric text from the DOM instead of reparsing [Element.html].
+     *
+     * The HTML served by Letras.com is frequently pretty-printed. Treating
+     * those source newlines as text creates phantom lyric lines; only an
+     * actual `<br>` is a line break in a verse.
+     */
+    private fun appendLyricNode(node: Node, output: StringBuilder) {
+        when {
+            node is Element && node.tagName().equals("br", ignoreCase = true) -> output.append('\n')
+            node is TextNode -> output.append(node.wholeText.replace(ALL_WHITESPACE, " "))
+            else -> node.childNodes().forEach { appendLyricNode(it, output) }
+        }
     }
 
     private fun artistMatchScore(requestedArtists: Set<String>, resultArtist: String): Int = when {
@@ -189,7 +209,9 @@ object LetrasCom {
     private fun isPathSegment(value: String): Boolean =
         value.isNotBlank() && value.none { it == '/' || it == '?' || it == '#' }
 
-    private val BR_TAG = Regex("""<br\s*/?>""", RegexOption.IGNORE_CASE)
+    private val ALL_WHITESPACE = Regex("\\s+")
+    private val HORIZONTAL_WHITESPACE = Regex("[ \\t]+")
+    private val WHITESPACE_AROUND_LINE_BREAK = Regex("[ \\t]*\\n[ \\t]*")
     private val COMBINING_MARKS = Regex("\\p{M}+")
     private val PUNCTUATION = Regex("[^\\p{L}\\p{N}]+")
     private val WHITESPACE = Regex("\\s+")
