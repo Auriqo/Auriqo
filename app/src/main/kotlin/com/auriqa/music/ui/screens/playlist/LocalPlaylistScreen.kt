@@ -675,6 +675,8 @@ fun LocalPlaylistScreen(
                             isActive = song.song.id == mediaMetadata?.id,
                             isPlaying = isPlaying,
                             showInLibraryIcon = true,
+                            additionalSubtitle = song.map.addedBy?.let { "Agregada por $it" }
+                                ?: if (playlist?.playlist?.browseId != null) "Origen: YouTube" else "Agregada por desconocido",
                             shape = listItemShape(
                                 index = index,
                                 count = if (isSearching) filteredSongs.size else mutableSongs.size
