@@ -120,6 +120,8 @@ import com.auriqo.music.ui.component.LocalMenuState
 import com.auriqo.music.ui.component.NavigationTitle
 import com.auriqo.music.ui.component.YouTubeGridItem
 import com.auriqo.music.ui.component.YouTubeListItem
+import com.auriqo.music.ui.component.PlaylistProvenanceLine
+import com.auriqo.music.ui.component.PlaylistStatsStrip
 import com.auriqo.music.ui.menu.YouTubeAlbumMenu
 import com.auriqo.music.ui.menu.YouTubeArtistMenu
 import com.auriqo.music.ui.menu.YouTubePlaylistMenu
@@ -280,7 +282,8 @@ fun OnlinePlaylistScreen(
                                 downloadState = downloadState,
                                 navController = navController,
                                 coroutineScope = coroutineScope,
-                                continuation = viewModel.continuation
+                                continuation = viewModel.continuation,
+                                attributions = attributions,
                             )
                         }
                     }
@@ -296,8 +299,15 @@ fun OnlinePlaylistScreen(
 
                         YouTubeListItem(
                             item = songItem,
-                            additionalSubtitle = attributions[songItem.id]?.let { attribution ->
-                                "Agregada por ${attribution.channelTitle}"
+                            itemHeight = 86.dp,
+                            detailContent = {
+                                val attribution = attributions[songItem.id]
+                                PlaylistProvenanceLine(
+                                    addedBy = attribution?.channelTitle,
+                                    addedAt = attribution?.addedAt,
+                                    avatarUrl = attribution?.avatarUrl,
+                                    source = if (attribution != null) "YouTube" else "YouTube · sin atribución",
+                                )
                             },
                             isActive = mediaMetadata?.id == songItem.id,
                             isPlaying = isPlaying,
@@ -573,6 +583,7 @@ private fun OnlinePlaylistHeader(
     navController: NavController,
     coroutineScope: CoroutineScope,
     continuation: String?,
+    attributions: Map<String, com.auriqo.music.api.PlaylistAttribution>,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -718,6 +729,19 @@ private fun OnlinePlaylistHeader(
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                 )
             }
+
+            val durationLabel = buildString {
+                val hours = totalDuration / 3600
+                val minutes = (totalDuration % 3600) / 60
+                if (hours > 0) append("${hours}h ${minutes}m") else append("${minutes}m")
+            }
+            PlaylistStatsStrip(
+                songCount = songs.size,
+                durationLabel = durationLabel,
+                contributorCount = attributions.values.map { it.channelId }.distinct().size,
+                latestAddedAt = attributions.values.mapNotNull { it.addedAt }.maxOrNull(),
+                modifier = Modifier.padding(top = 12.dp),
+            )
 
             Spacer(Modifier.height(24.dp))
 

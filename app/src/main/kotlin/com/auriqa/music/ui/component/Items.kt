@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -149,6 +150,8 @@ inline fun ListItem(
     drawHighlight: Boolean = true,
     horizontalPadding: Dp = 16.dp,
     color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    itemHeight: Dp = ListItemHeight,
+    noinline detailContent: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -164,7 +167,7 @@ inline fun ListItem(
                 }
             )
             .then(modifier)
-            .height(ListItemHeight)
+            .height(itemHeight)
     ) {
         Box(
             modifier = Modifier.padding(start = 12.dp, top = 6.dp, end = 6.dp, bottom = 6.dp),
@@ -211,6 +214,7 @@ inline fun ListItem(
                     subtitle()
                 }
             }
+            detailContent?.invoke(this)
         }
 
         trailingContent()
@@ -231,6 +235,8 @@ fun ListItem(
     drawHighlight: Boolean = true,
     horizontalPadding: Dp = 16.dp,
     color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    itemHeight: Dp = ListItemHeight,
+    detailContent: (@Composable ColumnScope.() -> Unit)? = null,
 ) = ListItem(
     title = title,
     subtitle = {
@@ -254,6 +260,8 @@ fun ListItem(
     drawHighlight = drawHighlight,
     horizontalPadding = horizontalPadding,
     color = color,
+    itemHeight = itemHeight,
+    detailContent = detailContent,
 )
 
 
@@ -271,6 +279,8 @@ fun ListItem(
     drawHighlight: Boolean = true,
     horizontalPadding: Dp = 16.dp,
     color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    itemHeight: Dp = ListItemHeight,
+    detailContent: (@Composable ColumnScope.() -> Unit)? = null,
 ) = ListItem(
     title = title,
     subtitle = {
@@ -295,6 +305,8 @@ fun ListItem(
     drawHighlight = drawHighlight,
     horizontalPadding = horizontalPadding,
     color = color,
+    itemHeight = itemHeight,
+    detailContent = detailContent,
 )
 
 @Composable
@@ -389,6 +401,8 @@ fun SongListItem(
     showDownloadIcon: Boolean = true,
     showSize: Boolean = false,
     additionalSubtitle: String? = null,
+    itemHeight: Dp = ListItemHeight,
+    detailContent: (@Composable ColumnScope.() -> Unit)? = null,
     badges: @Composable RowScope.() -> Unit = {        if (showLikedIcon && song.song.liked) {
             Icon.Favorite()
         }
@@ -446,6 +460,8 @@ fun SongListItem(
             isActive = isActive,
             shape = shape,
             color = color,
+            itemHeight = itemHeight,
+            detailContent = detailContent,
             drawHighlight = drawHighlight,
             horizontalPadding = horizontalPadding
         )
@@ -1055,6 +1071,8 @@ fun MediaMetadataListItem(
 fun YouTubeListItem(
     item: YTItem,
     additionalSubtitle: String? = null,
+    itemHeight: Dp = ListItemHeight,
+    detailContent: (@Composable ColumnScope.() -> Unit)? = null,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.surfaceContainer,
     albumIndex: Int? = null,
@@ -1116,6 +1134,8 @@ fun YouTubeListItem(
             isActive = isActive,
             shape = shape,
             drawHighlight = drawHighlight
+            , itemHeight = itemHeight,
+            detailContent = detailContent
         )
     }
 
@@ -1832,4 +1852,3 @@ object Icon {
     }
 
 }
-
