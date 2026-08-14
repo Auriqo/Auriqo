@@ -819,86 +819,92 @@ fun HomeScreen(
         explorePage?.moodAndGenres,
         aiRecommendedPlaylist
     ) {
-        val list = mutableListOf<HomeSection>()
-
-        if (showSpeedDial && speedDialItems.isNotEmpty()) list.add(HomeSection.SpeedDial)
-        if (aiRecommendedPlaylist != null && aiRecommendedPlaylist!!.second.isNotEmpty()) list.add(HomeSection.AiRecommendations)
-        if (quickPicks?.isNotEmpty() == true) list.add(HomeSection.QuickPicks)
-        if (communityPlaylists?.isNotEmpty() == true) list.add(HomeSection.FromTheCommunity)
-        if (dailyDiscover?.isNotEmpty() == true) list.add(HomeSection.DailyDiscover)
-        if (keepListening?.isNotEmpty() == true) list.add(HomeSection.KeepListening)
-        if (accountPlaylists?.isNotEmpty() == true) list.add(HomeSection.AccountPlaylists)
-        if (forgottenFavorites?.isNotEmpty() == true) list.add(HomeSection.ForgottenFavorites)
-
-        similarRecommendations?.indices?.forEach { i ->
-            list.add(HomeSection.SimilarRecommendation(i))
-        }
-
-        homePage?.sections?.indices?.forEach { i ->
-            list.add(HomeSection.HomePageSection(i))
-        }
-
-        if (explorePage?.moodAndGenres != null) list.add(HomeSection.MoodAndGenres)
-
-        if (randomizeHomeOrder) {
-            list.sortedByDescending { section ->
-                
-                
-                
-                val sectionRandom = Random(randomSeed + section.id.hashCode())
-
-                
-                
-                val base = when (section) {
-                    HomeSection.QuickPicks -> 10000
-                    HomeSection.SpeedDial,
-                    HomeSection.DailyDiscover -> 500 
-
-                    HomeSection.KeepListening,
-                    HomeSection.AccountPlaylists,
-                    HomeSection.ForgottenFavorites,
-                    HomeSection.FromTheCommunity -> 300 
-
-                    else -> 100 
-                }
-
-                val modifier = when (section) {
-                    
-                    
-                    HomeSection.QuickPicks -> 0
-                    HomeSection.SpeedDial,
-                    HomeSection.DailyDiscover -> sectionRandom.nextInt(-200, 400)
-
-                    
-                    
-                    
-                    HomeSection.KeepListening,
-                    HomeSection.AccountPlaylists,
-                    HomeSection.ForgottenFavorites,
-                    HomeSection.FromTheCommunity -> sectionRandom.nextInt(-100, 400)
-
-                    
-                    else -> sectionRandom.nextInt(-50, 50)
-                }
-                base + modifier
-            }
+        val serverSections = homePage?.sections.orEmpty()
+        if (serverSections.isNotEmpty()) {
+            // Mirror YouTube Music's home: only server sections, in server order.
+            serverSections.indices.map { HomeSection.HomePageSection(it) }
         } else {
-            val defaultOrder = mapOf(
-                HomeSection.QuickPicks to 1000,
-                HomeSection.SpeedDial to 100,
-                HomeSection.FromTheCommunity to 80,
-                HomeSection.DailyDiscover to 70,
-                HomeSection.KeepListening to 60,
-                HomeSection.AccountPlaylists to 50,
-                HomeSection.ForgottenFavorites to 40,
-                HomeSection.MoodAndGenres to 10
-            )
+            val list = mutableListOf<HomeSection>()
 
-            list.sortedByDescending { section ->
-                when(section) {
-                    is HomeSection.SimilarRecommendation -> 30 - section.index
-                    is HomeSection.HomePageSection -> 20 - section.index
-                    else -> defaultOrder[section] ?: 0
+            if (showSpeedDial && speedDialItems.isNotEmpty()) list.add(HomeSection.SpeedDial)
+            if (aiRecommendedPlaylist != null && aiRecommendedPlaylist!!.second.isNotEmpty()) list.add(HomeSection.AiRecommendations)
+            if (quickPicks?.isNotEmpty() == true) list.add(HomeSection.QuickPicks)
+            if (communityPlaylists?.isNotEmpty() == true) list.add(HomeSection.FromTheCommunity)
+            if (dailyDiscover?.isNotEmpty() == true) list.add(HomeSection.DailyDiscover)
+            if (keepListening?.isNotEmpty() == true) list.add(HomeSection.KeepListening)
+            if (accountPlaylists?.isNotEmpty() == true) list.add(HomeSection.AccountPlaylists)
+            if (forgottenFavorites?.isNotEmpty() == true) list.add(HomeSection.ForgottenFavorites)
+
+            similarRecommendations?.indices?.forEach { i ->
+                list.add(HomeSection.SimilarRecommendation(i))
+            }
+
+            homePage?.sections?.indices?.forEach { i ->
+                list.add(HomeSection.HomePageSection(i))
+            }
+
+            if (explorePage?.moodAndGenres != null) list.add(HomeSection.MoodAndGenres)
+
+            if (randomizeHomeOrder) {
+                list.sortedByDescending { section ->
+
+
+
+                    val sectionRandom = Random(randomSeed + section.id.hashCode())
+
+
+
+                    val base = when (section) {
+                        HomeSection.QuickPicks -> 10000
+                        HomeSection.SpeedDial,
+                        HomeSection.DailyDiscover -> 500 
+
+                        HomeSection.KeepListening,
+                        HomeSection.AccountPlaylists,
+                        HomeSection.ForgottenFavorites,
+                        HomeSection.FromTheCommunity -> 300 
+
+                        else -> 100 
+                    }
+
+                    val modifier = when (section) {
+
+
+                        HomeSection.QuickPicks -> 0
+                        HomeSection.SpeedDial,
+                        HomeSection.DailyDiscover -> sectionRandom.nextInt(-200, 400)
+
+
+
+
+                        HomeSection.KeepListening,
+                        HomeSection.AccountPlaylists,
+                        HomeSection.ForgottenFavorites,
+                        HomeSection.FromTheCommunity -> sectionRandom.nextInt(-100, 400)
+
+
+                        else -> sectionRandom.nextInt(-50, 50)
+                    }
+                    base + modifier
+                }
+            } else {
+                val defaultOrder = mapOf(
+                    HomeSection.QuickPicks to 1000,
+                    HomeSection.SpeedDial to 100,
+                    HomeSection.FromTheCommunity to 80,
+                    HomeSection.DailyDiscover to 70,
+                    HomeSection.KeepListening to 60,
+                    HomeSection.AccountPlaylists to 50,
+                    HomeSection.ForgottenFavorites to 40,
+                    HomeSection.MoodAndGenres to 10
+                )
+
+                list.sortedByDescending { section ->
+                    when(section) {
+                        is HomeSection.SimilarRecommendation -> 30 - section.index
+                        is HomeSection.HomePageSection -> 20 - section.index
+                        else -> defaultOrder[section] ?: 0
+                    }
                 }
             }
         }

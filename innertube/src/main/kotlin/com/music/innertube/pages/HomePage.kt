@@ -5,15 +5,20 @@ import com.music.innertube.models.AlbumItem
 import com.music.innertube.models.Artist
 import com.music.innertube.models.ArtistItem
 import com.music.innertube.models.BrowseEndpoint
+import com.music.innertube.models.MusicCardShelfRenderer
 import com.music.innertube.models.MusicCarouselShelfRenderer
+import com.music.innertube.models.MusicResponsiveListItemRenderer
+import com.music.innertube.models.MusicShelfRenderer
 import com.music.innertube.models.MusicTwoRowItemRenderer
 import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.SectionListRenderer
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.YTItem
+import com.music.innertube.models.getItems
 import com.music.innertube.models.oddElements
 import com.music.innertube.models.filterExplicit
 import com.music.innertube.models.filterVideoSongs
+import com.music.innertube.utils.parseTime
 
 data class HomePage(
     val chips: List<Chip>?,
@@ -44,6 +49,13 @@ data class HomePage(
         val items: List<YTItem>,
     ) {
         companion object {
+            fun fromContent(content: SectionListRenderer.Content): Section? {
+                content.musicCarouselShelfRenderer?.let { return fromMusicCarouselShelfRenderer(it) }
+                content.musicShelfRenderer?.let { return fromMusicShelfRenderer(it) }
+                content.musicCardShelfRenderer?.let { return fromMusicCardShelfRenderer(it) }
+                return null
+            }
+
             fun fromMusicCarouselShelfRenderer(renderer: MusicCarouselShelfRenderer): Section? {
                 return Section(
                     title = renderer.header?.musicCarouselShelfBasicHeaderRenderer?.title?.runs?.firstOrNull()?.text ?: return null,
@@ -51,12 +63,42 @@ data class HomePage(
                     thumbnail = renderer.header.musicCarouselShelfBasicHeaderRenderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl(),
                     endpoint = renderer.header.musicCarouselShelfBasicHeaderRenderer.moreContentButton?.buttonRenderer?.navigationEndpoint?.browseEndpoint,
                     items = renderer.contents.mapNotNull {
-                        it.musicTwoRowItemRenderer
-                    }.mapNotNull {
-                        fromMusicTwoRowItemRenderer(it)
+                        it.musicTwoRowItemRenderer?.let(::fromMusicTwoRowItemRenderer)
+                            ?: it.musicResponsiveListItemRenderer?.let(::fromMusicResponsiveListItemRenderer)
                     }.ifEmpty {
                         return null
                     }
+                )
+            }
+
+            fun fromMusicShelfRenderer(renderer: MusicShelfRenderer): Section? {
+                return Section(
+                    title = renderer.title?.runs?.firstOrNull()?.text ?: return null,
+                    label = null,
+                    thumbnail = null,
+                    endpoint = renderer.moreContentButton?.buttonRenderer?.navigationEndpoint?.browseEndpoint
+                        ?: renderer.bottomEndpoint?.browseEndpoint,
+                    items = renderer.contents?.getItems()
+                        ?.mapNotNull(::fromMusicResponsiveListItemRenderer)
+                        .orEmpty().ifEmpty {
+                            return null
+                        }
+                )
+            }
+
+            fun fromMusicCardShelfRenderer(renderer: MusicCardShelfRenderer): Section? {
+                return Section(
+                    title = renderer.header?.musicCardShelfHeaderBasicRenderer?.title?.runs?.firstOrNull()?.text
+                        ?: renderer.title.runs?.firstOrNull()?.text ?: return null,
+                    label = renderer.subtitle.runs?.firstOrNull()?.text,
+                    thumbnail = renderer.thumbnail.musicThumbnailRenderer?.getThumbnailUrl(),
+                    endpoint = renderer.onTap.browseEndpoint,
+                    items = renderer.contents
+                        ?.mapNotNull { it.musicResponsiveListItemRenderer }
+                        ?.mapNotNull(::fromMusicResponsiveListItemRenderer)
+                        .orEmpty().ifEmpty {
+                            return null
+                        }
                 )
             }
 
@@ -157,6 +199,60 @@ data class HomePage(
 
                     else -> null
                 }
+            }
+
+            private fun fromMusicResponsiveListItemRenderer(renderer: MusicResponsiveListItemRenderer): YTItem? {
+                val videoId = renderer.playlistItemData?.videoId
+                    ?: renderer.navigationEndpoint?.watchEndpoint?.videoId
+                    ?: renderer.overlay?.musicItemThumbnailOverlayRenderer
+                        ?.content?.musicPlayButtonRenderer
+                        ?.playNavigationEndpoint?.watchEndpoint?.videoId
+                    ?: renderer.flexColumns.firstOrNull()
+                        ?.musicResponsiveListItemFlexColumnRenderer
+                        ?.text?.runs?.firstOrNull()
+                        ?.navigationEndpoint?.watchEndpoint?.videoId
+                    ?: return null
+
+                val title = PageHelper.extractRuns(renderer.flexColumns, "MUSIC_VIDEO").firstOrNull()?.text
+                    ?: renderer.flexColumns.firstOrNull()
+                        ?.musicResponsiveListItemFlexColumnRenderer
+                        ?.text?.runs?.firstOrNull()?.text
+                    ?: return null
+
+                val artists = PageHelper.extractRuns(renderer.flexColumns, "MUSIC_PAGE_TYPE_ARTIST").map {
+                    Artist(
+                        name = it.text,
+                        id = it.navigationEndpoint?.browseEndpoint?.browseId
+                    )
+                }
+
+                val album = renderer.flexColumns.getOrNull(2)
+                    ?.musicResponsiveListItemFlexColumnRenderer
+                    ?.text?.runs?.firstOrNull()?.let {
+                        Album(
+                            name = it.text,
+                            id = it.navigationEndpoint?.browseEndpoint?.browseId ?: return@let null
+                        )
+                    }
+
+                return SongItem(
+                    id = videoId,
+                    title = title,
+                    artists = artists,
+                    album = album,
+                    duration = renderer.fixedColumns?.firstOrNull()
+                        ?.musicResponsiveListItemFlexColumnRenderer
+                        ?.text?.runs?.firstOrNull()
+                        ?.text?.parseTime(),
+                    musicVideoType = renderer.musicVideoType,
+                    thumbnail = renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl()
+                        ?: return null,
+                    explicit = renderer.badges?.any {
+                        it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
+                    } == true,
+                    libraryAddToken = PageHelper.extractLibraryTokensFromMenuItems(renderer.menu?.menuRenderer?.items).addToken,
+                    libraryRemoveToken = PageHelper.extractLibraryTokensFromMenuItems(renderer.menu?.menuRenderer?.items).removeToken
+                )
             }
         }
     }

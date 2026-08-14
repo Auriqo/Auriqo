@@ -680,12 +680,11 @@ object YouTube {
             ?.tabRenderer?.content?.sectionListRenderer?.continuations?.getContinuation()
         val sectionListRender = response.contents?.singleColumnBrowseResultsRenderer?.tabs?.firstOrNull()
             ?.tabRenderer?.content?.sectionListRenderer
-        val sections = sectionListRender?.contents!!
-            .mapNotNull { it.musicCarouselShelfRenderer }
+        val sections = sectionListRender?.contents.orEmpty()
             .mapNotNull {
-                HomePage.Section.fromMusicCarouselShelfRenderer(it)
+                HomePage.Section.fromContent(it)
             }.toMutableList()
-        val chips = sectionListRender.header?.chipCloudRenderer?.chips?.mapNotNull { HomePage.Chip.fromChipCloudChipRenderer(it) }
+        val chips = sectionListRender?.header?.chipCloudRenderer?.chips?.mapNotNull { HomePage.Chip.fromChipCloudChipRenderer(it) }
         HomePage(chips, sections, continuation)
     }
 
@@ -696,11 +695,10 @@ object YouTube {
             response.continuationContents?.sectionListContinuation?.continuations?.getContinuation()
         HomePage(
             null,
-            response.continuationContents?.sectionListContinuation?.contents
-            ?.mapNotNull { it.musicCarouselShelfRenderer }
-            ?.mapNotNull {
-                HomePage.Section.fromMusicCarouselShelfRenderer(it)
-            }.orEmpty(), continuation
+            response.continuationContents?.sectionListContinuation?.contents.orEmpty()
+            .mapNotNull {
+                HomePage.Section.fromContent(it)
+            }, continuation
         )
     }
 
