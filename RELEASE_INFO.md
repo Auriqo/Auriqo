@@ -4,7 +4,7 @@ Prerelease pública de Auriqo, apuntada a `main`.
 
 ## Cambios destacados
 
-- Rebranding completo de la aplicación con el ícono Q-orbit, el monograma A y el wordmark fijo en Cabinet Grotesk.
+- Rebranding completo de la aplicación con un monograma de `a` minúscula y Q cuyos contornos salen directamente de Cabinet Grotesk Bold, más un wordmark fijo en la misma familia.
 - Pantalla de inicio espejada con las secciones de YouTube Music.
 - Sincronización de eliminación y reordenamiento de canciones en playlists.
 - Reproductor de video con pantalla completa, Picture-in-Picture y selector de calidad.
