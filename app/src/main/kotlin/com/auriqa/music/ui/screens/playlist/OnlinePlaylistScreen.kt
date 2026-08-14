@@ -165,6 +165,7 @@ fun OnlinePlaylistScreen(
 
     val playlist by viewModel.playlist.collectAsState()
     val songs by viewModel.playlistSongs.collectAsState()
+    val attributions by viewModel.attributions.collectAsState()
     val dbPlaylist by viewModel.dbPlaylist.collectAsState()
     val relatedItems by viewModel.relatedItems.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -295,6 +296,9 @@ fun OnlinePlaylistScreen(
 
                         YouTubeListItem(
                             item = songItem,
+                            additionalSubtitle = attributions[songItem.id]?.let { attribution ->
+                                "Agregada por ${attribution.channelTitle}"
+                            },
                             isActive = mediaMetadata?.id == songItem.id,
                             isPlaying = isPlaying,
                             isSelected = inSelectMode && songItem.id in selection,

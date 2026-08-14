@@ -107,6 +107,7 @@ import androidx.compose.ui.text.font.FontWeight
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 import com.music.innertube.models.IpVersion
 import com.auriqo.music.constants.IpVersionKey
+import com.auriqo.music.constants.YouTubeDataApiKey
 
 import com.auriqo.music.lyrics.LyricsProviderRegistry
 import com.auriqo.music.ui.component.DraggableLyricsProviderItem
@@ -172,6 +173,7 @@ highlightKey: String? = null) {
         defaultValue = IpVersion.AUTO
     )
     val (albumCanvasEnabled, onAlbumCanvasEnabledChange) = rememberPreference(key = AlbumCanvasEnabledKey, defaultValue = false)
+    val (youtubeDataApiKey, onYoutubeDataApiKeyChange) = rememberPreference(key = YouTubeDataApiKey, defaultValue = "")
 
     var showPlaybackLogsDialog by rememberSaveable { mutableStateOf(false) }
     var showSuggestionSheet by rememberSaveable { mutableStateOf(false) }
@@ -179,6 +181,39 @@ highlightKey: String? = null) {
 
     var showProxyConfigurationDialog by rememberSaveable {
         mutableStateOf(false)
+    }
+    var showYoutubeDataApiKeyDialog by rememberSaveable { mutableStateOf(false) }
+    var youtubeDataApiKeyDraft by rememberSaveable { mutableStateOf("") }
+
+    if (showYoutubeDataApiKeyDialog) {
+        AlertDialog(
+            onDismissRequest = { showYoutubeDataApiKeyDialog = false },
+            title = { Text("YouTube Data API") },
+            text = {
+                Column {
+                    Text("Permite mostrar quién agregó cada canción en playlists colaborativas.")
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = youtubeDataApiKeyDraft,
+                        onValueChange = { youtubeDataApiKeyDraft = it },
+                        label = { Text("API key") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text("Creala en Google Cloud con YouTube Data API v3 habilitada.", style = MaterialTheme.typography.bodySmall)
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    onYoutubeDataApiKeyChange(youtubeDataApiKeyDraft.trim())
+                    showYoutubeDataApiKeyDialog = false
+                }) { Text(stringResource(android.R.string.ok)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showYoutubeDataApiKeyDialog = false }) { Text(stringResource(android.R.string.cancel)) }
+            },
+        )
     }
 
     if (showProxyConfigurationDialog) {
@@ -648,6 +683,17 @@ highlightKey: String? = null) {
                         )
                     },
                     onClick = { showSuggestionSheet = true }
+                ),
+                Material3SettingsItem(
+                    icon = painterResource(R.drawable.key),
+                    title = { Text("Atribución de playlists") },
+                    description = {
+                        Text(if (youtubeDataApiKey.isBlank()) "Configurar YouTube Data API" else "YouTube Data API configurada")
+                    },
+                    onClick = {
+                        youtubeDataApiKeyDraft = youtubeDataApiKey
+                        showYoutubeDataApiKeyDialog = true
+                    },
                 ),
                 Material3SettingsItem(
     isHighlighted = (highlightKey == stringResource(R.string.hide_explicit)),

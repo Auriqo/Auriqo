@@ -12,6 +12,9 @@ import com.music.innertube.models.SongItem
 import com.music.innertube.models.YTItem
 import com.music.innertube.models.filterVideoSongs
 import com.auriqo.music.constants.HideVideoSongsKey
+import com.auriqo.music.constants.YouTubeDataApiKey
+import com.auriqo.music.api.PlaylistAttribution
+import com.auriqo.music.api.YouTubeDataApi
 import com.auriqo.music.db.MusicDatabase
 import com.auriqo.music.utils.dataStore
 import com.auriqo.music.utils.get
@@ -39,6 +42,7 @@ class OnlinePlaylistViewModel @Inject constructor(
     val playlist = MutableStateFlow<PlaylistItem?>(null)
     val playlistSongs = MutableStateFlow<List<SongItem>>(emptyList())
     val relatedItems = MutableStateFlow<List<YTItem>>(emptyList())
+    val attributions = MutableStateFlow<Map<String, PlaylistAttribution>>(emptyMap())
 
     private val _isLoading = MutableStateFlow(true)
     val isLoading = _isLoading.asStateFlow()
@@ -73,6 +77,12 @@ class OnlinePlaylistViewModel @Inject constructor(
                     playlist.value = playlistPage.playlist
                     playlistSongs.value = applySongFilters(playlistPage.songs)
                     relatedItems.value = playlistPage.related ?: emptyList()
+                    val apiKey = context.dataStore.get(YouTubeDataApiKey, "")
+                    if (apiKey.isNotBlank()) {
+                        YouTubeDataApi.playlistAttributions(apiKey, playlistId)
+                            .onSuccess { attributions.value = it }
+                            .onFailure { reportException(it) }
+                    }
                     continuation = playlistPage.songsContinuation
                     _isLoading.value = false
                     if (continuation != null) {
