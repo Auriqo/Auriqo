@@ -59,6 +59,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import java.text.Collator
 import java.time.LocalDateTime
+import java.time.Instant
 import java.time.ZoneOffset
 import java.util.Locale
 
@@ -1017,6 +1018,7 @@ interface DatabaseDao {
     @Transaction
     fun addSongToPlaylist(playlist: Playlist, songIds: List<String>) {
         var position = playlist.songCount
+        val addedAt = Instant.now().toString()
         songIds.forEach { id ->
             insert(
                 PlaylistSongMap(
@@ -1024,6 +1026,7 @@ interface DatabaseDao {
                     playlistId = playlist.id,
                     position = position++,
                     addedBy = "Tú",
+                    addedAt = addedAt,
                 )
             )
         }

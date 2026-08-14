@@ -145,6 +145,8 @@ import com.auriqo.music.ui.component.LocalMenuState
 import com.auriqo.music.ui.component.OverlayEditButton
 import com.auriqo.music.ui.component.SongListItem
 import com.auriqo.music.ui.component.YouTubeListItem
+import com.auriqo.music.ui.component.PlaylistProvenanceLine
+import com.auriqo.music.ui.component.PlaylistStatsStrip
 import com.auriqo.music.ui.component.SortHeader
 import com.auriqo.music.ui.component.TextFieldDialog
 import com.auriqo.music.ui.menu.CustomThumbnailMenu
@@ -675,8 +677,14 @@ fun LocalPlaylistScreen(
                             isActive = song.song.id == mediaMetadata?.id,
                             isPlaying = isPlaying,
                             showInLibraryIcon = true,
-                            additionalSubtitle = song.map.addedBy?.let { "Agregada por $it" }
-                                ?: if (playlist?.playlist?.browseId != null) "Origen: YouTube" else "Agregada por desconocido",
+                            itemHeight = 86.dp,
+                            detailContent = {
+                                PlaylistProvenanceLine(
+                                    addedBy = song.map.addedBy,
+                                    addedAt = song.map.addedAt,
+                                    source = if (playlist?.playlist?.browseId != null) "YouTube" else "Auriqo",
+                                )
+                            },
                             shape = listItemShape(
                                 index = index,
                                 count = if (isSearching) filteredSongs.size else mutableSongs.size
@@ -1283,6 +1291,14 @@ fun LocalPlaylistHeader(
             },
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+        )
+
+        PlaylistStatsStrip(
+            songCount = songCount,
+            durationLabel = if (playlistLength > 0) makeTimeString(playlistLength * 1000L) else "—",
+            contributorCount = songs.mapNotNull { it.map.addedBy }.distinct().size,
+            latestAddedAt = songs.mapNotNull { it.map.addedAt }.maxOrNull(),
+            modifier = Modifier.padding(top = 12.dp),
         )
 
         Spacer(modifier = Modifier.height(24.dp))

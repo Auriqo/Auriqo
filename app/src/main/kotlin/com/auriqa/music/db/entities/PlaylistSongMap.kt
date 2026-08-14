@@ -32,4 +32,5 @@ data class PlaylistSongMap(
     val setVideoId: String? = null,
     /** Local provenance. Remote YouTube playlists do not expose contributor data. */
     val addedBy: String? = null,
+    val addedAt: String? = null,
 )

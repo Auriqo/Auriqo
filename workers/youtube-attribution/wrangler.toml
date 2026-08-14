@@ -1,0 +1,10 @@
+name = "auriqo-youtube-attribution"
+main = "src/index.ts"
+compatibility_date = "2026-08-14"
+
+[vars]
+ALLOWED_ORIGINS = "*"
+
+# Set these with `wrangler secret put`, never commit them:
+# - YOUTUBE_DATA_API_KEY for public playlists
+# - PROXY_SHARED_SECRET to restrict calls from Auriqo while OAuth is being added
