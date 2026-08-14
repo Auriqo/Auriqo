@@ -1,19 +1,35 @@
-# Auriqo v1.0.0
+# Auriqo v1.0.2-alpha
 
-Primer release de Auriqo, el reproductor de música basado en el trabajo upstream del reproductor original.
+Prerelease pública de Auriqo, apuntada a `main`.
 
-### Qué trae
-- **Rebranding completo**: nueva identidad Auriqo (package `com.auriqo.music`) con todas sus funciones.
-- **Wear OS companion**: tile con branding Auriqo que muestra la canción actual (artwork, título, artista) con controles de play/pause, anterior/siguiente, like, shuffle y repeat desde el reloj. Incluye app base en el watch para la futura app completa.
-- **Fix de playback**: recuperación robusta de streams de YouTube (n-transform fallback, cancelación de PoToken, invalidación de resoluciones inválidas).
-- **Nuevo provider de letras**: Letras.com con búsqueda verificada y toggle en settings.
-- **Fix de crashes**: guard del blur de lyrics tras API 31, doble unbind del MusicService, colisiones de keys en LazyColumn.
+## Cambios destacados
 
-### Instalación
-1. Instalar `Auriqo-1.0.0-Universal.apk` en el teléfono.
-2. Instalar `Auriqo-Wear-1.0.0.apk` en el reloj (Wear OS 3+, vía adb o sideload).
-3. Para el tile: long-press en la watch face → Add tile → Auriqo.
+- Rebranding completo de la aplicación con el ícono Q-orbit, el monograma A y el wordmark fijo en Cabinet Grotesk.
+- Pantalla de inicio espejada con las secciones de YouTube Music.
+- Sincronización de eliminación y reordenamiento de canciones en playlists.
+- Reproductor de video con pantalla completa, Picture-in-Picture y selector de calidad.
+- Integración de letras con BetterLyrics, Letras.com y otros proveedores configurables.
+- Atribución de colaboradores y fecha de alta para canciones de playlists cuando la cuenta o el proxy disponen de esos datos.
+- Mejoras de navegación, reproducción y compatibilidad con Android.
 
-### Notas
-- El wear app requiere que el teléfono y el reloj estén conectados por Bluetooth y Auriqo abierto (o en reproducción).
-- Firma: esta build usa la firma debug persistente. La firma de release definitiva se configurará próximamente.
+## Variantes
+
+- `UniversalFossDebug`: variante FOSS universal utilizada para las pruebas públicas.
+- `UniversalGmsDebug`: variante con Google Mobile Services y Cast cuando se configura Firebase.
+- El nombre de paquete de la aplicación es `com.auriqa.music`.
+
+## Instalación
+
+Descargá el APK desde la [release `v1.0.2-alpha`](https://github.com/Auriqo/Auriqo/releases/tag/v1.0.2-alpha).
+
+Las builds debug usan el keystore persistente de desarrollo documentado en
+`SECURITY.md`; no representan una firma de distribución definitiva.
+
+## Compilación
+
+```
+./gradlew :app:assembleUniversalFossDebug --no-daemon
+```
+
+El artefacto se genera en
+`app/build/outputs/apk/universalFoss/debug/app-universal-foss-debug.apk`.

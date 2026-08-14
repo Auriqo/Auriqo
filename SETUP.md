@@ -45,7 +45,7 @@ Firebase is used for analytics and crash reporting. If you want to use these fea
 1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
 2. Add an Android app to your Firebase project
 3. Download the `google-services.json` file
-4. Place it in the `app/` directory
+4. Place it in the `app/` directory; do not commit it
 
 **Note:** If you skip Firebase setup, the app will still build and run, but analytics and crash reporting will be disabled.
 
@@ -130,7 +130,7 @@ These files are already listed in `.gitignore` and should never be committed to 
 ### Template Files (Safe to commit)
 
 - `local.properties.template` - Template for local properties
-- `app/google-services.json` - Optional Firebase configuration
+- No Firebase credentials template is committed; create `app/google-services.json` only when needed
 
 ## Troubleshooting
 

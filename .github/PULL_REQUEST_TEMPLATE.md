@@ -17,7 +17,7 @@ Closes #(issue number)
 ## 📱 Testing
 - [ ] I have tested these changes locally
 - [ ] I have tested on different devices/Android versions
-- [ ] I have tested both FOSS and Full build variants
+- [ ] I have tested both FOSS and GMS build variants
 - [ ] I have verified the app builds successfully
 
 ## 📸 Screenshots
