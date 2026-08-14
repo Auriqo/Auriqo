@@ -76,6 +76,9 @@ import com.auriqo.music.constants.LibraryFilter
 import com.auriqo.music.constants.ListenTogetherInTopBarKey
 import com.auriqo.music.constants.LyricsAnimationStyle
 import com.auriqo.music.constants.LyricsAnimationStyleKey
+import com.auriqo.music.constants.LyricsMeshBackgroundKey
+import com.auriqo.music.constants.LyricsSkin
+import com.auriqo.music.constants.LyricsSkinKey
 import com.auriqo.music.constants.LyricsStandardBlurKey
 import com.auriqo.music.constants.LyricsTextPositionKey
 import com.auriqo.music.constants.LyricsTextSizeKey
@@ -235,6 +238,14 @@ highlightKey: String? = null) {
         LyricsAnimationStyleKey,
         defaultValue = LyricsAnimationStyle.auriqa_1
     )
+    val (lyricsSkin, onLyricsSkinChange) = rememberEnumPreference(
+        LyricsSkinKey,
+        defaultValue = LyricsSkin.DEFAULT
+    )
+    val (lyricsMeshBackground, onLyricsMeshBackgroundChange) = rememberPreference(
+        LyricsMeshBackgroundKey,
+        defaultValue = false
+    )
     val (lyricsTextSize, onLyricsTextSizeChange) = rememberPreference(LyricsTextSizeKey, defaultValue = 24f)
     val (lyricsLineSpacing, onLyricsLineSpacingChange) = rememberPreference(LyricsLineSpacingKey, defaultValue = 1.3f)
     val (lyricsGlowEffect, onLyricsGlowEffectChange) = rememberPreference(LyricsGlowEffectKey, defaultValue = false)
@@ -381,6 +392,10 @@ highlightKey: String? = null) {
         mutableStateOf(false)
     }
 
+    var showLyricsSkinDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     if (showLyricsPositionDialog) {
         EnumDialog(
             onDismiss = { showLyricsPositionDialog = false },
@@ -423,6 +438,28 @@ highlightKey: String? = null) {
                     LyricsAnimationStyle.auriqa_1 -> stringResource(R.string.auriqa_1)
                     LyricsAnimationStyle.LYRICS_V2 -> stringResource(R.string.lyrics_v2_fluid)
                     LyricsAnimationStyle.METRO_LYRICS -> stringResource(R.string.lyrics_animation_metro)
+                }
+            }
+        )
+    }
+
+    if (showLyricsSkinDialog) {
+        EnumDialog(
+            onDismiss = { showLyricsSkinDialog = false },
+            onSelect = {
+                onLyricsSkinChange(it)
+                showLyricsSkinDialog = false
+            },
+            title = stringResource(R.string.lyrics_skin),
+            current = lyricsSkin,
+            values = LyricsSkin.values().toList(),
+            valueText = {
+                when (it) {
+                    LyricsSkin.DEFAULT -> stringResource(R.string.lyrics_skin_default)
+                    LyricsSkin.HARMONY_GLOW -> stringResource(R.string.lyrics_skin_harmony_glow)
+                    LyricsSkin.LUXURIOUS_GLASS -> stringResource(R.string.lyrics_skin_luxurious_glass)
+                    LyricsSkin.PASTEL -> stringResource(R.string.lyrics_skin_pastel)
+                    LyricsSkin.TV_BLURRY -> stringResource(R.string.lyrics_skin_tv_blurry)
                 }
             }
         )
@@ -1554,6 +1591,45 @@ highlightKey: String? = null) {
                         )
                     },
                     onClick = { showLyricsAnimationStyleDialog = true }
+                ),
+                Material3SettingsItem(
+                    isHighlighted = (highlightKey == stringResource(R.string.lyrics_skin)),
+                    icon = painterResource(R.drawable.lyrics),
+                    title = { Text(stringResource(R.string.lyrics_skin)) },
+                    description = {
+                        Text(
+                            when (lyricsSkin) {
+                                LyricsSkin.DEFAULT -> stringResource(R.string.lyrics_skin_default)
+                                LyricsSkin.HARMONY_GLOW -> stringResource(R.string.lyrics_skin_harmony_glow)
+                                LyricsSkin.LUXURIOUS_GLASS -> stringResource(R.string.lyrics_skin_luxurious_glass)
+                                LyricsSkin.PASTEL -> stringResource(R.string.lyrics_skin_pastel)
+                                LyricsSkin.TV_BLURRY -> stringResource(R.string.lyrics_skin_tv_blurry)
+                            }
+                        )
+                    },
+                    onClick = { showLyricsSkinDialog = true }
+                ),
+                Material3SettingsItem(
+                    isHighlighted = (highlightKey == stringResource(R.string.lyrics_mesh_background)),
+                    icon = painterResource(R.drawable.lyrics),
+                    title = { Text(stringResource(R.string.lyrics_mesh_background)) },
+                    description = { Text(stringResource(R.string.lyrics_mesh_background_desc)) },
+                    trailingContent = {
+                        Switch(
+                            checked = lyricsMeshBackground,
+                            onCheckedChange = onLyricsMeshBackgroundChange,
+                            thumbContent = {
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (lyricsMeshBackground) R.drawable.check else R.drawable.close
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                )
+                            }
+                        )
+                    },
+                    onClick = { onLyricsMeshBackgroundChange(!lyricsMeshBackground) }
                 ),
                 Material3SettingsItem(
     isHighlighted = (highlightKey == stringResource(R.string.lyrics_glow_effect)),

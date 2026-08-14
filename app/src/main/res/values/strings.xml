@@ -668,6 +668,14 @@
     <string name="lyrics_desc">Adjust lyrics options</string>
     <string name="lyrics_animation_metro_desc">Adjust metrolyrics options</string>
     <string name="lyrics_animation_style_desc">Manage Word-by-word animation style settings</string>
+    <string name="lyrics_skin">Lyrics skin (BetterLyrics)</string>
+    <string name="lyrics_skin_default">Default</string>
+    <string name="lyrics_skin_harmony_glow">Harmony Glow</string>
+    <string name="lyrics_skin_luxurious_glass">Luxurious Glass</string>
+    <string name="lyrics_skin_pastel">Pastel</string>
+    <string name="lyrics_skin_tv_blurry">Big Blurry (TV)</string>
+    <string name="lyrics_mesh_background">Mesh gradient background</string>
+    <string name="lyrics_mesh_background_desc">Animated mesh gradient behind lyrics, in the style of the BetterLyrics Shaders extension</string>
     <string name="lyrics_auto_scroll_desc">Adjust auto scroll lyrics options</string>
     <string name="lyrics_click_change_desc">Adjust change lyrics on click options</string>
     <string name="lyrics_line_spacing_desc">Adjust lyrics line spacing options</string>

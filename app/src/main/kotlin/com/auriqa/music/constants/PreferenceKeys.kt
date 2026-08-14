@@ -499,6 +499,17 @@ enum class LyricsAnimationStyle {
 val LyricsTextSizeKey = floatPreferencesKey("lyricsTextSize")
 val LyricsLineSpacingKey = floatPreferencesKey("lyricsLineSpacing")
 
+val LyricsSkinKey = stringPreferencesKey("lyricsSkin")
+enum class LyricsSkin {
+    DEFAULT,
+    HARMONY_GLOW,
+    LUXURIOUS_GLASS,
+    PASTEL,
+    TV_BLURRY,
+}
+
+val LyricsMeshBackgroundKey = booleanPreferencesKey("lyricsMeshBackground")
+
 val PlayerVolumeKey = floatPreferencesKey("playerVolume")
 val RepeatModeKey = intPreferencesKey("repeatMode")
 

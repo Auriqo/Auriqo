@@ -2,7 +2,11 @@
 
 package com.auriqo.music.ui.component
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -68,6 +72,7 @@ fun echomusicLyricsLine(
     isSelectionModeActive: Boolean,
     isAutoScrollActive: Boolean,
     expressiveAccent: Color,
+    skin: LyricsSkinSpec,
     modifier: Modifier = Modifier
 ) {
     val (appleMusicLyricsBlur) = rememberPreference(AppleMusicLyricsBlurKey, true)
@@ -75,20 +80,15 @@ fun echomusicLyricsLine(
     val targetBlur = if (!appleMusicLyricsBlur || !isAutoScrollActive || isActive || !isSynced || isSelectionModeActive) {
         0f
     } else {
-        
-        when (distanceFromCurrent) {
-            1 -> 0f
-            2 -> 0f
-            3 -> 2f
-            4 -> 4f
-            else -> 6f
-        }
+        skin.distantLineBlur(distanceFromCurrent)
     }
 
     val animatedBlur by animateFloatAsState(
         targetValue = targetBlur,
         animationSpec = tween(durationMillis = 1000), label = "blur"
     )
+
+    val effectiveTextSize = textSize * skin.fontSizeMultiplier
 
     val duration = remember(entry.time, nextEntryTime) {
         if (nextEntryTime != null) nextEntryTime - entry.time else 4000L
@@ -146,10 +146,36 @@ fun echomusicLyricsLine(
     )
 
     val scale by animateFloatAsState(
-        targetValue = if (isActive) 1.05f else 1f,
+        targetValue = if (isActive && skin.activeAnimation == LyricsSkinSpec.ActiveAnimation.SCALE) 1.05f else 1f,
         animationSpec = tween(durationMillis = 400),
         label = "lineScale"
     )
+
+    val jumpTransition = rememberInfiniteTransition(label = "lineJump")
+    val jumpPosition by jumpTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2000, easing = androidx.compose.animation.core.LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "jumpPos",
+    )
+    val morphColor = if (skin.activeLineColors.size >= 2) {
+        val segment = jumpPosition * (skin.activeLineColors.size - 1)
+        val index = segment.toInt().coerceAtMost(skin.activeLineColors.size - 2)
+        val frac = segment - index
+        androidx.compose.ui.graphics.lerp(
+            skin.activeLineColors[index],
+            skin.activeLineColors[index + 1],
+            frac,
+        )
+    } else {
+        textColor
+    }
+    val jumpOffset = if (isActive && skin.activeAnimation == LyricsSkinSpec.ActiveAnimation.JUMP) {
+        (18f * kotlin.math.sin(jumpPosition * kotlin.math.PI.toFloat())).dp
+    } else 0.dp
 
     val itemModifier = modifier
         .fillMaxWidth()
@@ -157,6 +183,7 @@ fun echomusicLyricsLine(
             this.alpha = animatedAlpha
             this.scaleX = scale
             this.scaleY = scale
+            this.translationY = -jumpOffset.toPx()
         }
         .clip(RoundedCornerShape(16.dp))
         .combinedClickable(
@@ -229,42 +256,68 @@ fun echomusicLyricsLine(
 
                 val finalFontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.Bold
 
+                val isSkinColored = skin.activeLineColors.isNotEmpty()
+                val baseColor = if (isActive && isSkinColored && skin.activeAnimation == LyricsSkinSpec.ActiveAnimation.JUMP) {
+                    morphColor
+                } else {
+                    textColor
+                }
+                val dimColor = baseColor.copy(alpha = skin.inactiveDimAlpha)
+
+                val wordBrush = if (isSkinColored) {
+                    val sungStops = if (progress > 0.08f) {
+                        skin.activeLineColors.mapIndexed { i, color ->
+                            val stop = (progress * i.toFloat() / (skin.activeLineColors.size - 1).coerceAtLeast(1)).coerceIn(0f, progress)
+                            stop to color
+                        }
+                    } else {
+                        emptyList()
+                    }
+                    Brush.horizontalGradient(
+                        *(sungStops +
+                            ((progress + 0.05f).coerceAtMost(1f) to dimColor) +
+                            (1f to dimColor)).toTypedArray(),
+                    )
+                } else {
+                    Brush.horizontalGradient(
+                        0.0f to baseColor,
+                        (progress - 0.05f).coerceAtLeast(0f) to baseColor,
+                        (progress + 0.05f).coerceAtMost(1f) to dimColor,
+                        1.0f to dimColor
+                    )
+                }
+
                 
                 
                 Text(
                     text = wordText,
-                    fontSize = textSize.sp,
+                    fontSize = effectiveTextSize.sp,
                     style = TextStyle(
-                        brush = Brush.horizontalGradient(
-                            0.0f to textColor,
-                            (progress - 0.05f).coerceAtLeast(0f) to textColor,
-                            (progress + 0.05f).coerceAtMost(1f) to textColor.copy(alpha = 0.45f),
-                            1.0f to textColor.copy(alpha = 0.45f)
-                        ),
+                        brush = wordBrush,
                         fontWeight = finalFontWeight,
 
                         
-                        lineHeight = (textSize * lineSpacing.coerceAtMost(1.3f)).sp,
+                        lineHeight = (effectiveTextSize * lineSpacing.coerceAtMost(1.3f)).sp,
                         textAlign = agentTextAlign,
                         shadow = androidx.compose.ui.graphics.Shadow(
-                            color = textColor.copy(alpha = 0.6f * progress),
+                            color = skin.glowColor.copy(alpha = 0.6f * progress),
                             offset = Offset.Zero,
-                            blurRadius = (12f * progress).coerceAtLeast(0.1f)
+                            blurRadius = (12f * progress * skin.glowStrength).coerceAtLeast(0.1f)
                         )
                     )
                 )
                 if (index != wordData.lastIndex) {
                     Text(
                         text = " ",
-                        fontSize = textSize.sp,
-                        color = textColor.copy(alpha = if (lineRelTime >= endRelative) 1f else 0.45f), 
-                        lineHeight = (textSize * lineSpacing.coerceAtMost(1.3f)).sp,
+                        fontSize = effectiveTextSize.sp,
+                        color = baseColor.copy(alpha = if (lineRelTime >= endRelative) 1f else skin.inactiveDimAlpha), 
+                        lineHeight = (effectiveTextSize * lineSpacing.coerceAtMost(1.3f)).sp,
                         style = TextStyle(
                             shadow = if (lineRelTime >= endRelative) {
                                 androidx.compose.ui.graphics.Shadow(
-                                    color = textColor.copy(alpha = 0.3f),
+                                    color = skin.glowColor.copy(alpha = 0.3f),
                                     offset = Offset.Zero,
-                                    blurRadius = 6f
+                                    blurRadius = 6f * skin.glowStrength
                                 )
                             } else null
                         )
@@ -279,13 +332,13 @@ fun echomusicLyricsLine(
             romanizedText?.let { romanized ->
                 Text(
                     text = romanized,
-                    fontSize = (textSize * 0.65f).sp,
+                    fontSize = (effectiveTextSize * 0.65f).sp,
                     color = textColor.copy(alpha = 0.6f),
                     textAlign = agentTextAlign,
                     fontWeight = FontWeight.SemiBold,
 
                     modifier = Modifier.padding(top = 2.dp).fillMaxWidth(),
-                    lineHeight = (textSize * 0.65f * lineSpacing.coerceAtMost(1.3f)).sp
+                    lineHeight = (effectiveTextSize * 0.65f * lineSpacing.coerceAtMost(1.3f)).sp
                 )
             }
         }
@@ -296,12 +349,12 @@ fun echomusicLyricsLine(
             translatedText?.let { translated ->
                 Text(
                     text = translated,
-                    fontSize = (textSize * 0.7f).sp,
+                    fontSize = (effectiveTextSize * 0.7f).sp,
                     color = textColor.copy(alpha = 0.8f),
                     textAlign = agentTextAlign,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(top = 4.dp).fillMaxWidth(),
-                    lineHeight = (textSize * 0.7f * lineSpacing.coerceAtMost(1.3f)).sp
+                    lineHeight = (effectiveTextSize * 0.7f * lineSpacing.coerceAtMost(1.3f)).sp
                 )
             }
         }

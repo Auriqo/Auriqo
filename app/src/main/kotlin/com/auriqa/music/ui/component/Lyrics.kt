@@ -125,6 +125,9 @@ import com.auriqo.music.R
 import com.auriqo.music.constants.DarkModeKey
 import com.auriqo.music.constants.LyricsAnimationStyle
 import com.auriqo.music.constants.LyricsAnimationStyleKey
+import com.auriqo.music.constants.LyricsMeshBackgroundKey
+import com.auriqo.music.constants.LyricsSkin
+import com.auriqo.music.constants.LyricsSkinKey
 import com.auriqo.music.constants.LyricsClickKey
 import com.auriqo.music.constants.LyricsGlowEffectKey
 import com.auriqo.music.constants.LyricsLineSpacingKey
@@ -231,6 +234,8 @@ fun Lyrics(
     val romanizePunjabiLyrics by rememberPreference(LyricsRomanizePunjabiKey, true)
     val lyricsGlowEffect by rememberPreference(LyricsGlowEffectKey, false)
     val lyricsAnimationStyle by rememberEnumPreference(LyricsAnimationStyleKey, LyricsAnimationStyle.auriqa_1)
+    val lyricsSkin by rememberEnumPreference(LyricsSkinKey, LyricsSkin.DEFAULT)
+    val lyricsMeshBackground by rememberPreference(LyricsMeshBackgroundKey, false)
     val lyricsTextSize by rememberPreference(LyricsTextSizeKey, 24f)
     val lyricsLineSpacing by rememberPreference(LyricsLineSpacingKey, 1.3f)
     val lyricsStandardBlur by rememberPreference(LyricsStandardBlurKey, false)
@@ -732,6 +737,13 @@ fun Lyrics(
             .fillMaxSize()
             .padding(bottom = 12.dp)
     ) {
+        if (lyricsMeshBackground) {
+            val meshPalette = rememberArtPalette(mediaMetadata?.thumbnailUrl)
+            LyricsMeshBackground(
+                colors = meshPalette,
+                modifier = Modifier.matchParentSize(),
+            )
+        }
         
         Box(
             modifier = Modifier
@@ -965,6 +977,7 @@ fun Lyrics(
                             isSelectionModeActive = isSelectionModeActive,
                             isSelected = isSelected,
                             expressiveAccent = expressiveAccent,
+                            skin = lyricsSkin.spec(),
                             onClick = {
                                 if (isSelectionModeActive) {
                                     if (isSelected) {
