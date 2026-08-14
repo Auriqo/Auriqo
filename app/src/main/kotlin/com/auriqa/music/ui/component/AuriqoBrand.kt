@@ -19,6 +19,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -28,6 +31,7 @@ import com.auriqo.music.R
 import com.auriqo.music.ui.theme.AuriqoBrandFontFamily
 
 private val AuriqoLime = Color(0xFFD8F36A)
+private val AuriqoInk = Color(0xFF17302A)
 
 /**
  * Stable wordmark used wherever the app identifies itself in the interface.
@@ -79,12 +83,25 @@ fun AuriqoBrand(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                painter = painterResource(R.drawable.auriqo_logo_mark),
+                painter = painterResource(R.drawable.auriqo_logo_orbit),
                 contentDescription = if (showWordmark) null else appName,
                 tint = Color.Unspecified,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(iconSize * 0.16f),
+            )
+            Text(
+                text = "A",
+                color = AuriqoInk,
+                modifier = Modifier.clearAndSetSemantics {},
+                style = TextStyle(
+                    fontFamily = AuriqoBrandFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = (iconSize.value * 0.48f).sp,
+                    letterSpacing = (-0.06).sp,
+                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                ),
+                maxLines = 1,
             )
         }
 
