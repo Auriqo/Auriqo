@@ -608,7 +608,7 @@ class MusicService :
             val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getString(R.string.music_player))
                 .setContentText("")
-                .setSmallIcon(R.drawable.auriqo_logo_mark)
+                .setSmallIcon(R.drawable.auriqo_notification_mark)
                 .setContentIntent(pending)
                 .setOngoing(true)
                 .build()
@@ -626,7 +626,7 @@ class MusicService :
                 R.string.music_player
             )
                 .apply {
-                    setSmallIcon(R.drawable.auriqo_logo_mark)
+                    setSmallIcon(R.drawable.auriqo_notification_mark)
                 },
         )
         player = createExoPlayer()
