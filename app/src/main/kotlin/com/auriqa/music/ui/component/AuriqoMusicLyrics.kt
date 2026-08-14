@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.auriqo.music.constants.AppleMusicLyricsBlurKey
+import com.auriqo.music.fonts.LocalLyricsFontFamily
 import com.auriqo.music.lyrics.LyricsEntry
 import com.auriqo.music.ui.screens.settings.LyricsPosition
 import com.auriqo.music.utils.rememberPreference
@@ -297,6 +298,7 @@ fun betterLyricsLine(
                     text = wordText,
                     fontSize = effectiveTextSize.sp,
                     style = TextStyle(
+                        fontFamily = LocalLyricsFontFamily.current,
                         brush = wordBrush,
                         fontWeight = finalFontWeight,
 
@@ -317,6 +319,7 @@ fun betterLyricsLine(
                         color = baseColor.copy(alpha = if (lineRelTime >= endRelative) 1f else skin.inactiveDimAlpha), 
                         lineHeight = (effectiveTextSize * lineSpacing.coerceAtMost(1.3f)).sp,
                         style = TextStyle(
+                            fontFamily = LocalLyricsFontFamily.current,
                             shadow = if (lineRelTime >= endRelative) {
                                 androidx.compose.ui.graphics.Shadow(
                                     color = skin.glowColor.copy(alpha = 0.3f),

@@ -35,7 +35,7 @@ If you discover a security vulnerability in Auriqo, please report it responsibly
 
 ### For Developers
 
-- **Never commit sensitive files**: API keys, tokens, and credentials should never be committed to version control
+- **Never commit private credentials**: API secrets, tokens, and signing credentials should never be committed to version control. Client keys that an Android app must embed are public identifiers and must be restricted at their provider.
 - **Use environment variables**: Store sensitive configuration in environment variables or secure properties files
 - **Regular updates**: Keep dependencies updated to patch security vulnerabilities
 - **Code review**: All code changes should be reviewed before merging
@@ -52,7 +52,7 @@ The following files contain sensitive information and should never be committed:
 
 - `google-services.json` - Firebase configuration with API keys
 - `local.properties` - Local development configuration
-- `*.keystore` / `*.jks` - App signing keys
+- `*.keystore` / `*.jks` - Release signing keys. The tracked `app/persistent-debug.keystore` is a deterministic debug-only key used by debug builds and must never be used to sign a release.
 - `secrets.properties` - API keys and secrets
 - `**/assets/po_token.html` - YouTube authentication tokens
 

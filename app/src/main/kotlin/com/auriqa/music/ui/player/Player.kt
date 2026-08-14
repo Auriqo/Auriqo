@@ -157,6 +157,7 @@ import com.auriqo.music.LocalDatabase
 import com.auriqo.music.LocalDownloadUtil
 import com.auriqo.music.LocalListenTogetherManager
 import com.auriqo.music.LocalPlayerConnection
+import com.auriqo.music.fonts.LocalPlayerFontFamily
 import com.auriqo.music.R
 import com.auriqo.music.constants.AudioQuality
 import com.auriqo.music.constants.AudioQualityKey
@@ -1568,7 +1569,9 @@ fun BottomSheetPlayer(
                     ) { title ->
                         Text(
                             text = title,
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontFamily = LocalPlayerFontFamily.current
+                            ),
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -1650,7 +1653,10 @@ fun BottomSheetPlayer(
                                 var clickOffset by remember { mutableStateOf<Offset?>(null) }
                                 Text(
                                     text = annotatedString,
-                                    style = MaterialTheme.typography.titleMedium.copy(color = TextBackgroundColor),
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        color = TextBackgroundColor,
+                                        fontFamily = LocalPlayerFontFamily.current,
+                                    ),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     onTextLayout = { layoutResult = it },

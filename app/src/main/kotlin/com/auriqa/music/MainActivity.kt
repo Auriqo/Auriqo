@@ -153,6 +153,7 @@ import com.music.innertube.models.SongItem
 import com.music.innertube.models.WatchEndpoint
 import com.auriqo.music.constants.AppBarHeight
 import com.auriqo.music.constants.AiRecommendationsKey
+import com.auriqo.music.constants.AppFontKey
 import com.auriqo.music.constants.AppLanguageKey
 import com.auriqo.music.constants.DarkModeKey
 import com.auriqo.music.constants.DefaultOpenTabKey
@@ -173,6 +174,11 @@ import com.auriqo.music.echomusic.updater.isNewerVersion
 import com.auriqo.music.echomusic.updater.saveUpdateAvailableState
 import com.auriqo.music.echomusic.updater.getUpdateNotificationsSetting
 import com.auriqo.music.echomusic.UpdateNotificationHelper
+import com.auriqo.music.constants.LyricsFontKey
+import com.auriqo.music.constants.PlayerFontKey
+import com.auriqo.music.fonts.AppFont
+import com.auriqo.music.fonts.rememberFontFamily
+import com.auriqo.music.fonts.rememberInheritingFontFamily
 import android.util.Log
 import androidx.compose.ui.platform.LocalContext
 import com.auriqo.music.constants.PauseListenHistoryKey
@@ -567,10 +573,20 @@ class MainActivity : ComponentActivity() {
         val view = LocalView.current
         var lastScrollHapticTime by remember { mutableStateOf(0L) }
 
+        val (appFontId) = rememberPreference(AppFontKey, defaultValue = AppFont.SYSTEM_ID)
+        val (lyricsFontId) = rememberPreference(LyricsFontKey, defaultValue = AppFont.INHERIT_ID)
+        val (playerFontId) = rememberPreference(PlayerFontKey, defaultValue = AppFont.INHERIT_ID)
+        val appFontFamily = rememberFontFamily(appFontId)
+        val lyricsFontFamily = rememberInheritingFontFamily(lyricsFontId, appFontFamily)
+        val playerFontFamily = rememberInheritingFontFamily(playerFontId, appFontFamily)
+
         echomusicTheme(
             darkTheme = useDarkTheme,
             pureBlack = pureBlack,
             themeColor = themeColor,
+            fontFamily = appFontFamily,
+            lyricsFontFamily = lyricsFontFamily,
+            playerFontFamily = playerFontFamily,
         ) {
             BoxWithConstraints(
                 modifier = Modifier

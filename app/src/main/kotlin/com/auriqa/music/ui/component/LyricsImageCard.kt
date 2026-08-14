@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +50,7 @@ import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.auriqo.music.R
+import com.auriqo.music.fonts.LocalLyricsFontFamily
 import com.auriqo.music.models.MediaMetadata
 
 import androidx.compose.ui.draw.blur
@@ -164,6 +166,7 @@ fun LyricsImageCard(
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
+    val appFontFamily = MaterialTheme.typography.bodyLarge.fontFamily
 
     val cardCornerRadius = 20.dp
     val padding = 28.dp
@@ -325,6 +328,7 @@ fun LyricsImageCard(
                         Text(
                             text = mediaMetadata.title,
                             color = mainTextColor,
+                            fontFamily = appFontFamily,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
@@ -334,6 +338,7 @@ fun LyricsImageCard(
                         Text(
                             text = mediaMetadata.artists.joinToString { it.name },
                             color = secondaryColor,
+                            fontFamily = appFontFamily,
                             fontSize = 16.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -356,6 +361,7 @@ fun LyricsImageCard(
                     val availableHeight = maxHeight
                     val textStyle = TextStyle(
                         color = mainTextColor,
+                        fontFamily = LocalLyricsFontFamily.current,
                         fontWeight = FontWeight.Bold,
                         textAlign = textAlign,
                         letterSpacing = 0.005.em,
@@ -408,6 +414,7 @@ fun LyricsImageCard(
                     Text(
                         text = context.getString(R.string.app_name),
                         color = secondaryColor,
+                        fontFamily = appFontFamily,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -416,4 +423,3 @@ fun LyricsImageCard(
         }
     }
 }
-

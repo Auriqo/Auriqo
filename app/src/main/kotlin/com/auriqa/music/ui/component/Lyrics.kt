@@ -64,9 +64,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -123,6 +125,7 @@ import com.auriqo.music.LocalDatabase
 import com.auriqo.music.LocalListenTogetherManager
 import com.auriqo.music.LocalPlayerConnection
 import com.auriqo.music.R
+import com.auriqo.music.fonts.LocalLyricsFontFamily
 import com.auriqo.music.constants.DarkModeKey
 import com.auriqo.music.constants.LyricsAnimationStyle
 import com.auriqo.music.constants.LyricsAnimationStyleKey
@@ -203,6 +206,23 @@ import kotlin.time.Duration.Companion.seconds
 @SuppressLint("UnusedBoxWithConstraintsScope", "StringFormatInvalid")
 @Composable
 fun Lyrics(
+    sliderPositionProvider: () -> Long?,
+    modifier: Modifier = Modifier,
+    showLyrics: Boolean
+) {
+    CompositionLocalProvider(
+        LocalTextStyle provides LocalTextStyle.current.copy(
+            fontFamily = LocalLyricsFontFamily.current
+        )
+    ) {
+        LyricsContent(sliderPositionProvider, modifier, showLyrics)
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedBoxWithConstraintsScope", "StringFormatInvalid")
+@Composable
+private fun LyricsContent(
     sliderPositionProvider: () -> Long?,
     modifier: Modifier = Modifier,
     showLyrics: Boolean
@@ -2153,6 +2173,7 @@ fun Lyrics(
 
         val textStyleForMeasurement = TextStyle(
             color = previewTextColor,
+            fontFamily = LocalLyricsFontFamily.current,
             fontWeight = FontWeight.Bold,
             textAlign = lyricsTextAlign
         )

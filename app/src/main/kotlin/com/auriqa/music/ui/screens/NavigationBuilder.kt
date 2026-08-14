@@ -38,6 +38,10 @@ import com.auriqo.music.ui.screens.search.OnlineSearchResult
 import com.auriqo.music.ui.screens.search.SearchScreen
 import com.auriqo.music.ui.screens.settings.AboutScreen
 import com.auriqo.music.ui.screens.settings.AppearanceSettings
+import com.auriqo.music.ui.screens.settings.FONTS_BROWSE_ROUTE
+import com.auriqo.music.ui.screens.settings.FONTS_SETTINGS_ROUTE
+import com.auriqo.music.ui.screens.settings.FontsBrowseScreen
+import com.auriqo.music.ui.screens.settings.FontsSettings
 import com.auriqo.music.ui.screens.settings.GlassEffectSettings
 import com.auriqo.music.ui.screens.settings.BackupAndRestore
 import com.auriqo.music.ui.screens.settings.ContentSettings
@@ -366,6 +370,14 @@ fun NavGraphBuilder.navigationBuilder(
 
     composable("settings/appearance/liquidglass") {
         GlassEffectSettings(navController, scrollBehavior)
+    }
+
+    composable(FONTS_SETTINGS_ROUTE) {
+        FontsSettings(navController, scrollBehavior, snackbarHostState)
+    }
+
+    composable(FONTS_BROWSE_ROUTE) {
+        FontsBrowseScreen(navController, scrollBehavior, snackbarHostState)
     }
 
     composable(
