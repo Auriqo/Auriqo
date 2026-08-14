@@ -53,7 +53,7 @@ We are committed to providing a welcoming and inspiring community for all. We pl
 ### Prerequisites
 
 - Android Studio Hedgehog or later
-- JDK 17 or later
+- JDK 21 or later
 - Android SDK 26 or later
 - Git
 - Basic knowledge of Kotlin and Android development
@@ -97,9 +97,9 @@ If you want to test Firebase features:
 2. Add Android apps with package names:
    - `com.auriqa.music` (release)
    - `com.auriqa.music.debug` (debug)
-3. Copy the template and configure it with your Firebase credentials:
+3. Download the Firebase configuration and place it in `app/google-services.json`:
    ```bash
-   cp app/google-services.json.template app/google-services.json
+   # Download google-services.json from Firebase and place it in app/
    ```
 4. Edit `app/google-services.json` with your Firebase project details
 
@@ -117,7 +117,7 @@ When contributing to Auriqo, it's crucial to handle sensitive information proper
 
 2. **google-services.json**
    - Contains Firebase API keys and project credentials
-   - Use the provided template (`app/google-services.json.template`) instead
+   - Download it only when testing Firebase-enabled builds; do not commit it
 
 3. **Build outputs**
    - Never commit `.apk`, `.aab`, `.class`, or other build artifacts
@@ -138,7 +138,7 @@ When contributing to Auriqo, it's crucial to handle sensitive information proper
 ### 3. Build the Project
 
 ```bash
-./gradlew assembleDebug
+./gradlew assembleUniversalFossDebug
 ```
 
 ### 4. Security Considerations
@@ -293,22 +293,14 @@ We provide issue templates for:
 ### Code Organization
 
 ```
-app/src/main/java/com/maxrave/echo/
-├── ui/                    # UI components and screens
-│   ├── components/        # Reusable UI components
-│   ├── screens/          # Screen-specific UI
-│   └── theme/            # Theme and styling
-├── data/                 # Data layer
-│   ├── repository/       # Repository implementations
-│   ├── local/           # Local data sources
-│   └── remote/          # Remote data sources
-├── domain/              # Domain layer
-│   ├── model/           # Domain models
-│   ├── repository/      # Repository interfaces
-│   └── usecase/         # Use cases
-└── common/              # Common utilities
-    ├── utils/           # Utility functions
-    └── extensions/      # Extension functions
+app/src/main/kotlin/com/auriqa/music/
+├── ui/                  # Compose screens, components, player and settings
+├── data/                # Repositories and remote/local data access
+├── db/                  # Room database, entities and DAOs
+├── lyrics/              # Lyrics providers and provider registry
+├── playback/            # Media session and playback services
+├── fonts/               # Downloadable font catalog and storage
+└── auriqa/              # Auriqo-specific updater and utility components
 ```
 
 ### Naming Conventions
@@ -317,7 +309,7 @@ app/src/main/java/com/maxrave/echo/
 - **Functions**: camelCase (`playMusic()`)
 - **Variables**: camelCase (`currentSong`)
 - **Constants**: UPPER_SNAKE_CASE (`MAX_VOLUME`)
-- **Packages**: lowercase (`com.maxrave.echo.ui`)
+- **Packages**: lowercase (`com.auriqa.music.ui`)
 
 ## Testing
 

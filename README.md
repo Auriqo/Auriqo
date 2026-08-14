@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="branding/auriqo-logo.svg" alt="Auriqo Logo" width="360"/>
+  <img src="branding/auriqo-logo.svg" alt="Auriqo icon" width="160"/>
 
   <h1>Auriqo</h1>
 
@@ -37,10 +37,18 @@ Auriqo delivers a seamless, premium listening experience by leveraging YouTube M
 
 ---
 
+## Brand
+
+Auriqo's icon is an icon-only Q-orbit mark with an A monogram based on Cabinet Grotesk. The source SVG is available at [`branding/auriqo-logo.svg`](branding/auriqo-logo.svg).
+
+The app wordmark is rendered with the bundled Cabinet Grotesk face and remains fixed even when users choose a custom interface font. The icon and wordmark are separate by design: the SVG stays an icon, while the name remains readable wherever Auriqo identifies itself.
+
+---
+
 ## Table of Contents
 
 - [Overview](#overview)
-- [Screenshots](#screenshots)
+- [Brand](#brand)
 - [Features](#features)
 - [Installation & Setup](#installation--setup)
 - [Translations](#translations)
@@ -48,43 +56,6 @@ Auriqo delivers a seamless, premium listening experience by leveraging YouTube M
 - [Support the Project](#support-the-project)
 - [Contributors](#contributors)
 - [Special Thanks](#special-thanks)
-
----
-
-## Screenshots
-
-<div align="center">
-  <table style="margin: 0 auto; border-collapse: collapse;">
-    <tr>
-      <td align="center" style="padding: 15px; border: none;">
-        <b>Home Screen</b><br><br>
-        <img src="Screenshots/sc_1.png" alt="Home Screen" width="220" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/>
-      </td>
-      <td align="center" style="padding: 15px; border: none;">
-        <b>Music Player</b><br><br>
-        <img src="Screenshots/sc_2.png" alt="Music Player" width="220" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/>
-      </td>
-      <td align="center" style="padding: 15px; border: none;">
-        <b>Synchronized Lyrics</b><br><br>
-        <img src="Screenshots/sc_3.png" alt="Synchronized Lyrics" width="220" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/>
-      </td>
-    </tr>
-    <tr>
-      <td align="center" style="padding: 15px; border: none;">
-        <b>Search & Explore</b><br><br>
-        <img src="Screenshots/sc_4.png" alt="Search & Explore" width="220" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/>
-      </td>
-      <td align="center" style="padding: 15px; border: none;">
-        <b>Music Library</b><br><br>
-        <img src="Screenshots/sc_5.png" alt="Music Library" width="220" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/>
-      </td>
-      <td align="center" style="padding: 15px; border: none;">
-        <b>Auriqo Find (Recognition)</b><br><br>
-        <img src="Screenshots/sc_6.png" alt="Auriqo Find" width="220" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/>
-      </td>
-    </tr>
-  </table>
-</div>
 
 ---
 
