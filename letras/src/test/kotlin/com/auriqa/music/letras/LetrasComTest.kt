@@ -28,6 +28,23 @@ class LetrasComTest {
     }
 
     @Test
+    fun `does not turn html formatting whitespace into lyric lines`() {
+        val lyrics = LetrasCom.parseLyricsFromHtml(
+            """
+                <div class="lyric-content">
+                  <p>
+                    Primera <span>línea</span>
+                    <br>
+                    Segunda <span>línea</span>
+                  </p>
+                </div>
+            """.trimIndent(),
+        )
+
+        assertEquals("Primera línea\nSegunda línea", lyrics)
+    }
+
+    @Test
     fun `returns null when the page has no lyric container`() {
         assertNull(LetrasCom.parseLyricsFromHtml("<article><p>Recommendation</p></article>"))
     }

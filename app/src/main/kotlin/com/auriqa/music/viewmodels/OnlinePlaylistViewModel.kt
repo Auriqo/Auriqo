@@ -62,6 +62,9 @@ class OnlinePlaylistViewModel @Inject constructor(
         private set
 
     private var proactiveLoadJob: Job? = null
+    private var playlistIsCollaborative = false
+    private var localAttributions = emptyMap<String, PlaylistAttribution>()
+    private var remoteAttributions = emptyMap<String, PlaylistAttribution>()
 
     init {
         fetchInitialPlaylistData()
@@ -73,36 +76,40 @@ class OnlinePlaylistViewModel @Inject constructor(
             _error.value = null
             continuation = null
             proactiveLoadJob?.cancel() 
+            localAttributions = emptyMap()
+            remoteAttributions = emptyMap()
+            attributions.value = emptyMap()
 
             YouTube.playlist(playlistId)
                 .onSuccess { playlistPage ->
                     playlist.value = playlistPage.playlist
                     playlistSongs.value = applySongFilters(playlistPage.songs)
                     relatedItems.value = playlistPage.related ?: emptyList()
+                    playlistIsCollaborative = playlistPage.isCollaborative
+                    addLocalAttributions(playlistPage.songs)
                     val workerUrl = context.dataStore.get(
                         YouTubeAttributionWorkerUrlKey,
                         "https://auriqo-youtube-attribution.berruetx.workers.dev",
                     )
                     val accessToken = context.dataStore.get(YouTubeAttributionAccessTokenKey, "")
-                    if (workerUrl.isNotBlank()) {
+                    val apiKey = context.dataStore.get(YouTubeDataApiKey, "")
+                    val shouldLoadRemoteAttributions = localAttributions.isEmpty() ||
+                        accessToken.isNotBlank() || apiKey.isNotBlank()
+                    if (shouldLoadRemoteAttributions && workerUrl.isNotBlank()) {
                         YouTubeDataApi.workerPlaylistAttributions(workerUrl, playlistId, accessToken)
-                            .onSuccess { attributions.value = it }
+                            .onSuccess { setRemoteAttributions(it) }
                             .onFailure {
-                                val apiKey = context.dataStore.get(YouTubeDataApiKey, "")
                                 if (apiKey.isNotBlank()) {
                                     YouTubeDataApi.playlistAttributions(apiKey, playlistId)
-                                        .onSuccess { attributions.value = it }
+                                        .onSuccess { setRemoteAttributions(it) }
                                 } else {
                                     reportException(it)
                                 }
                             }
-                    } else {
-                        val apiKey = context.dataStore.get(YouTubeDataApiKey, "")
-                        if (apiKey.isNotBlank()) {
-                            YouTubeDataApi.playlistAttributions(apiKey, playlistId)
-                                .onSuccess { attributions.value = it }
-                                .onFailure { reportException(it) }
-                        }
+                    } else if (shouldLoadRemoteAttributions && apiKey.isNotBlank()) {
+                        YouTubeDataApi.playlistAttributions(apiKey, playlistId)
+                            .onSuccess { setRemoteAttributions(it) }
+                            .onFailure { reportException(it) }
                     }
                     continuation = playlistPage.songsContinuation
                     _isLoading.value = false
@@ -131,11 +138,12 @@ class OnlinePlaylistViewModel @Inject constructor(
                     break 
                 }
 
-                YouTube.playlistContinuation(currentProactiveToken)
+                YouTube.playlistContinuation(currentProactiveToken, playlistIsCollaborative)
                     .onSuccess { playlistContinuationPage ->
                         val currentSongs = playlistSongs.value.toMutableList()
                         currentSongs.addAll(playlistContinuationPage.songs)
                         playlistSongs.value = applySongFilters(currentSongs)
+                        addLocalAttributions(playlistContinuationPage.songs)
                         currentProactiveToken = playlistContinuationPage.continuation
                         
                         this@OnlinePlaylistViewModel.continuation = currentProactiveToken 
@@ -157,11 +165,12 @@ class OnlinePlaylistViewModel @Inject constructor(
         _isLoadingMore.value = true
 
         viewModelScope.launch(Dispatchers.IO) {
-            YouTube.playlistContinuation(tokenForManualLoad)
+            YouTube.playlistContinuation(tokenForManualLoad, playlistIsCollaborative)
                 .onSuccess { playlistContinuationPage ->
                     val currentSongs = playlistSongs.value.toMutableList()
                     currentSongs.addAll(playlistContinuationPage.songs)
                     playlistSongs.value = applySongFilters(currentSongs)
+                    addLocalAttributions(playlistContinuationPage.songs)
                     continuation = playlistContinuationPage.continuation
                 }.onFailure { throwable ->
                     reportException(throwable)
@@ -188,6 +197,44 @@ class OnlinePlaylistViewModel @Inject constructor(
         val filtered = uniqueSongs.filterVideoSongs(true)
         // If filtering hides everything, keep original list to avoid false "empty playlist" UX.
         return if (filtered.isEmpty() && uniqueSongs.isNotEmpty()) uniqueSongs else filtered
+    }
+
+    private fun addLocalAttributions(songs: List<SongItem>) {
+        val discovered = songs.mapNotNull { song ->
+            song.playlistContributor?.let { contributor ->
+                val contributorId = contributor.id?.takeIf { it.isNotBlank() } ?: contributor.name
+                song.id to PlaylistAttribution(
+                    channelId = contributorId,
+                    channelTitle = contributor.name,
+                    addedAt = null,
+                    avatarUrl = null,
+                )
+            }
+        }.toMap()
+        if (discovered.isEmpty()) return
+        localAttributions = localAttributions + discovered
+        refreshAttributions()
+    }
+
+    private fun setRemoteAttributions(attributions: Map<String, PlaylistAttribution>) {
+        remoteAttributions = attributions
+        refreshAttributions()
+    }
+
+    private fun refreshAttributions() {
+        val merged = remoteAttributions.toMutableMap()
+        localAttributions.forEach { (songId, local) ->
+            val remote = merged[songId]
+            merged[songId] = if (remote == null) {
+                local
+            } else {
+                local.copy(
+                    addedAt = remote.addedAt ?: local.addedAt,
+                    avatarUrl = local.avatarUrl ?: remote.avatarUrl,
+                )
+            }
+        }
+        attributions.value = merged
     }
 
     override fun onCleared() {

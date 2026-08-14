@@ -1,6 +1,7 @@
 package com.music.innertube.models
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class MusicResponsiveHeaderRenderer(
@@ -11,6 +12,7 @@ data class MusicResponsiveHeaderRenderer(
     val secondSubtitle: Runs?,
     val straplineTextOne: Runs?,
     val description: Runs? = null,
+    val facepile: JsonElement? = null,
 ) {
     @Serializable
     data class Button(

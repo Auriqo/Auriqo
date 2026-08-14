@@ -553,6 +553,7 @@ object YouTube {
         ).body<BrowseResponse>()
         val base = response.contents?.twoColumnBrowseResultsRenderer?.tabs?.firstOrNull()?.tabRenderer?.content?.sectionListRenderer?.contents?.firstOrNull()
         val header = base?.musicResponsiveHeaderRenderer ?: base?.musicEditablePlaylistDetailHeaderRenderer?.header?.musicResponsiveHeaderRenderer
+        val isCollaborative = header?.facepile?.toString()?.contains("PAplaylist_collaborate") == true
 
         val editable = base?.musicEditablePlaylistDetailHeaderRenderer != null
         val secondarySectionList = response.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer
@@ -599,7 +600,7 @@ object YouTube {
                 ?.contents?.firstOrNull()?.let { content ->
                     content.musicPlaylistShelfRenderer?.contents?.getItems() ?: content.musicShelfRenderer?.contents?.getItems()
                 }?.mapNotNull {
-                    PlaylistPage.fromMusicResponsiveListItemRenderer(it)
+                    PlaylistPage.fromMusicResponsiveListItemRenderer(it, isCollaborative)
                 } ?: emptyList(),
             songsContinuation = response.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer
                 ?.contents?.firstOrNull()?.let { content ->
@@ -610,7 +611,8 @@ object YouTube {
                 },
             continuation = response.contents?.twoColumnBrowseResultsRenderer?.secondaryContents?.sectionListRenderer
                 ?.continuations?.getContinuation(),
-            related = related?.ifEmpty { null }
+            related = related?.ifEmpty { null },
+            isCollaborative = isCollaborative,
         )
     }
 
@@ -624,7 +626,10 @@ object YouTube {
         }.flatten()
     }
 
-    suspend fun playlistContinuation(continuation: String): Result<PlaylistContinuationPage> = runCatching {
+    suspend fun playlistContinuation(
+        continuation: String,
+        isCollaborative: Boolean = false,
+    ): Result<PlaylistContinuationPage> = runCatching {
         val response = innerTube.browse(
             client = WEB_REMIX,
             continuation = continuation,
@@ -646,7 +651,7 @@ object YouTube {
 
         val songs = allContents
             .mapNotNull { content: MusicShelfRenderer.Content -> content.musicResponsiveListItemRenderer }
-            .mapNotNull { renderer -> PlaylistPage.fromMusicResponsiveListItemRenderer(renderer) }
+            .mapNotNull { renderer -> PlaylistPage.fromMusicResponsiveListItemRenderer(renderer, isCollaborative) }
 
         val nextContinuation = if (songs.isEmpty()) null else {
             response.continuationContents
