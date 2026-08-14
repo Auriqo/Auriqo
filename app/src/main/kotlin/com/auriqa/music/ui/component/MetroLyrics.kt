@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import com.auriqo.music.LocalPlayerConnection
 import com.auriqo.music.constants.AppleMusicLyricsBlurKey
 import com.auriqo.music.constants.LyricsRomanizeAsMainKey
+import com.auriqo.music.fonts.LocalLyricsFontFamily
 import com.auriqo.music.lyrics.LyricsEntry
 import com.auriqo.music.ui.screens.settings.LyricsPosition
 import com.auriqo.music.utils.rememberPreference
@@ -225,6 +226,7 @@ fun MetroLyricsLine(
     }
 
     val lyricStyle = TextStyle(
+        fontFamily = LocalLyricsFontFamily.current,
         fontSize = lyricsTextSize.sp,
         fontWeight = FontWeight.Bold,
         fontStyle = if (entry.isBackground) FontStyle.Italic else FontStyle.Normal,
