@@ -1022,7 +1022,8 @@ interface DatabaseDao {
                 PlaylistSongMap(
                     songId = id,
                     playlistId = playlist.id,
-                    position = position++
+                    position = position++,
+                    addedBy = "Tú",
                 )
             )
         }

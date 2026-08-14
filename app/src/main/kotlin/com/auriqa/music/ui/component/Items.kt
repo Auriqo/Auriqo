@@ -388,6 +388,7 @@ fun SongListItem(
     showInLibraryIcon: Boolean = false,
     showDownloadIcon: Boolean = true,
     showSize: Boolean = false,
+    additionalSubtitle: String? = null,
     badges: @Composable RowScope.() -> Unit = {        if (showLikedIcon && song.song.liked) {
             Icon.Favorite()
         }
@@ -422,6 +423,7 @@ fun SongListItem(
             subtitle = joinByBullet(
                 song.artists.joinToString { it.name },
                 makeTimeString(song.song.duration * 1000L),
+                additionalSubtitle,
                 if (showSize && song.format?.contentLength != null) {
                     android.text.format.Formatter.formatFileSize(LocalContext.current, song.format.contentLength)
                 } else null
@@ -1829,6 +1831,5 @@ object Icon {
     }
 
 }
-
 
 

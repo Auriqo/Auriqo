@@ -63,6 +63,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -232,12 +233,12 @@ fun Lyrics(
     val romanizeChineseLyrics by rememberPreference(LyricsRomanizeChineseKey, true)
     val romanizeHindiLyrics by rememberPreference(LyricsRomanizeHindiKey, true)
     val romanizePunjabiLyrics by rememberPreference(LyricsRomanizePunjabiKey, true)
-    val lyricsGlowEffect by rememberPreference(LyricsGlowEffectKey, false)
-    val lyricsAnimationStyle by rememberEnumPreference(LyricsAnimationStyleKey, LyricsAnimationStyle.auriqa_1)
-    val lyricsSkin by rememberEnumPreference(LyricsSkinKey, LyricsSkin.DEFAULT)
+    val (lyricsGlowEffect, onLyricsGlowEffectChange) = rememberPreference(LyricsGlowEffectKey, false)
+    val (lyricsAnimationStyle, onLyricsAnimationStyleChange) = rememberEnumPreference(LyricsAnimationStyleKey, LyricsAnimationStyle.auriqa_1)
+    val (lyricsSkin, onLyricsSkinChange) = rememberEnumPreference(LyricsSkinKey, LyricsSkin.DEFAULT)
     // Better Lyrics keeps the artwork present as a quiet, moving atmosphere
     // behind the words instead of treating the lyrics page as a plain sheet.
-    val lyricsMeshBackground by rememberPreference(LyricsMeshBackgroundKey, true)
+    val (lyricsMeshBackground, onLyricsMeshBackgroundChange) = rememberPreference(LyricsMeshBackgroundKey, true)
     val lyricsTextSize by rememberPreference(LyricsTextSizeKey, 24f)
     val lyricsLineSpacing by rememberPreference(LyricsLineSpacingKey, 1.3f)
     val lyricsStandardBlur by rememberPreference(LyricsStandardBlurKey, false)
@@ -253,6 +254,7 @@ fun Lyrics(
     val deeplFormality by rememberPreference(DeeplFormalityKey, "default")
     
     val scope = rememberCoroutineScope()
+    var showLyricsAppearance by rememberSaveable { mutableStateOf(false) }
 
     val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
     val lyricsEntity by playerConnection.currentLyrics.collectAsState(initial = null)
@@ -739,6 +741,12 @@ fun Lyrics(
             .fillMaxSize()
             .padding(bottom = 12.dp)
     ) {
+        IconButton(
+            onClick = { showLyricsAppearance = true },
+            modifier = Modifier.align(Alignment.TopEnd).padding(top = 8.dp, end = 12.dp).zIndex(3f),
+        ) {
+            Icon(painter = painterResource(R.drawable.tune), contentDescription = "Apariencia de letras")
+        }
         if (lyricsMeshBackground) {
             val meshPalette = rememberArtPalette(mediaMetadata?.thumbnailUrl)
             LyricsMeshBackground(
@@ -1903,6 +1911,20 @@ fun Lyrics(
         }
         
         
+    }
+
+    if (showLyricsAppearance) {
+        LyricsAppearanceDialog(
+            skin = lyricsSkin,
+            animation = lyricsAnimationStyle,
+            meshBackground = lyricsMeshBackground,
+            glow = lyricsGlowEffect,
+            onSkinChange = onLyricsSkinChange,
+            onAnimationChange = onLyricsAnimationStyleChange,
+            onMeshChange = onLyricsMeshBackgroundChange,
+            onGlowChange = onLyricsGlowEffectChange,
+            onDismiss = { showLyricsAppearance = false },
+        )
     }
 
     Box(
