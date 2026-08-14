@@ -58,7 +58,7 @@ fun AuriqoWordmark(
 }
 
 /**
- * The complete Auriqo lockup: the original Q-orbit mark plus the fixed Cabinet Grotesk wordmark.
+ * The complete Auriqo lockup: the Cabinet Grotesk Q orbit with its lowercase a plus the fixed wordmark.
  */
 @Composable
 fun AuriqoBrand(
@@ -91,7 +91,7 @@ fun AuriqoBrand(
                     .padding(iconSize * 0.16f),
             )
             Text(
-                text = "A",
+                text = "a",
                 color = AuriqoInk,
                 modifier = Modifier.clearAndSetSemantics {},
                 style = TextStyle(

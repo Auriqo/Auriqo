@@ -39,7 +39,7 @@ Auriqo delivers a seamless, premium listening experience by leveraging YouTube M
 
 ## Brand
 
-Auriqo's icon is an icon-only monogram built from the real Cabinet Grotesk Bold A and Q outlines. The source SVG is available at branding/auriqo-logo.svg.
+Auriqo's icon is an icon-only monogram built from the real Cabinet Grotesk Bold lowercase a and Q outlines. The source SVG is available at branding/auriqo-logo.svg.
 
 The app wordmark is rendered with the bundled Cabinet Grotesk face and remains fixed even when users choose a custom interface font. The icon and wordmark are separate by design: the SVG stays an icon, while the name remains readable wherever Auriqo identifies itself.
 
