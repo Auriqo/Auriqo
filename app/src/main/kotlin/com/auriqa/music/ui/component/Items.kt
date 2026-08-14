@@ -1054,6 +1054,7 @@ fun MediaMetadataListItem(
 @Composable
 fun YouTubeListItem(
     item: YTItem,
+    additionalSubtitle: String? = null,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.surfaceContainer,
     albumIndex: Int? = null,
@@ -1092,7 +1093,7 @@ fun YouTubeListItem(
         ListItem(
             title = item.title,
             subtitle = when (item) {
-                is SongItem -> joinByBullet(item.artists.joinToString { it.name }, makeTimeString(item.duration?.times(1000L)))
+                is SongItem -> joinByBullet(item.artists.joinToString { it.name }, makeTimeString(item.duration?.times(1000L)), additionalSubtitle)
                 is AlbumItem -> joinByBullet(item.artists?.joinToString { it.name }, item.year?.toString())
                 is ArtistItem -> null
                 is PlaylistItem -> joinByBullet(item.author?.name, item.songCountText)
@@ -1831,5 +1832,4 @@ object Icon {
     }
 
 }
-
 
