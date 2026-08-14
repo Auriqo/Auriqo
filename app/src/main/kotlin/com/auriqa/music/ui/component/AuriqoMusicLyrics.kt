@@ -53,13 +53,14 @@ import com.auriqo.music.utils.rememberPreference
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun echomusicLyricsLine(
+fun betterLyricsLine(
     entry: LyricsEntry,
     nextEntryTime: Long?,
     effectivePlaybackPosition: Long,
     isSynced: Boolean,
     isActive: Boolean,
     distanceFromCurrent: Int,
+    isAboveCurrent: Boolean,
     lyricsTextPosition: LyricsPosition,
     textColor: Color,
     showRomanized: Boolean,
@@ -131,12 +132,15 @@ fun echomusicLyricsLine(
         }
     }
 
+    // Better Lyrics keeps the lines above the active one quieter than the
+    // upcoming lines, which makes the reading focus travel naturally.
     val targetAlpha = when {
         !isSynced || (isSelectionModeActive && isSelected) -> 1f
         isActive -> 1f
-        distanceFromCurrent == 1 -> 0.65f 
-        distanceFromCurrent == 2 -> 0.45f 
-        else -> 0.35f 
+        isAboveCurrent -> if (distanceFromCurrent <= 2) 0.33f else 0.24f
+        distanceFromCurrent == 1 -> 0.66f
+        distanceFromCurrent == 2 -> 0.56f
+        else -> 0.42f
     }
 
     val animatedAlpha by animateFloatAsState(

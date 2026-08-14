@@ -235,7 +235,9 @@ fun Lyrics(
     val lyricsGlowEffect by rememberPreference(LyricsGlowEffectKey, false)
     val lyricsAnimationStyle by rememberEnumPreference(LyricsAnimationStyleKey, LyricsAnimationStyle.auriqa_1)
     val lyricsSkin by rememberEnumPreference(LyricsSkinKey, LyricsSkin.DEFAULT)
-    val lyricsMeshBackground by rememberPreference(LyricsMeshBackgroundKey, false)
+    // Better Lyrics keeps the artwork present as a quiet, moving atmosphere
+    // behind the words instead of treating the lyrics page as a plain sheet.
+    val lyricsMeshBackground by rememberPreference(LyricsMeshBackgroundKey, true)
     val lyricsTextSize by rememberPreference(LyricsTextSizeKey, 24f)
     val lyricsLineSpacing by rememberPreference(LyricsLineSpacingKey, 1.3f)
     val lyricsStandardBlur by rememberPreference(LyricsStandardBlurKey, false)
@@ -948,13 +950,14 @@ fun Lyrics(
                         val isActiveByIndex = index == displayedCurrentLineIndex
                         val isActiveByTime = isLineAtSameTime && displayedCurrentLineIndex >= 0
 
-                        echomusicLyricsLine(
+                        betterLyricsLine(
                             entry = item,
                             nextEntryTime = lines.getOrNull(index + 1)?.time,
                             effectivePlaybackPosition = effectivePlaybackPosition,
                             isSynced = isSynced,
                             isActive = isActiveByIndex || isActiveByTime,
                             distanceFromCurrent = kotlin.math.abs(index - displayedCurrentLineIndex),
+                            isAboveCurrent = displayedCurrentLineIndex >= 0 && index < displayedCurrentLineIndex,
                             lyricsTextPosition = lyricsTextPosition,
                             textColor = textColor,
                             showRomanized = currentSong?.romanizeLyrics == true && (
