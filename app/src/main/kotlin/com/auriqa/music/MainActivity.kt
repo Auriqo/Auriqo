@@ -212,7 +212,7 @@ import com.auriqo.music.ui.screens.settings.DarkMode
 import com.auriqo.music.ui.screens.settings.NavigationTab
 import com.auriqo.music.ui.theme.ColorSaver
 import com.auriqo.music.ui.theme.DefaultThemeColor
-import com.auriqo.music.ui.theme.echomusicTheme
+import com.auriqo.music.ui.theme.auriqoTheme
 import com.auriqo.music.ui.theme.extractThemeColor
 import com.auriqo.music.ui.utils.appBarScrollBehavior
 import com.auriqo.music.ui.utils.resetHeightOffset
@@ -433,7 +433,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            echomusicApp(
+            auriqoApp(
                 playerConnection = playerConnection,
                 database = database,
                 downloadUtil = downloadUtil,
@@ -445,7 +445,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     @Composable
-    private fun echomusicApp(
+    private fun auriqoApp(
         playerConnection: PlayerConnection?,
         database: MusicDatabase,
         downloadUtil: DownloadUtil,
@@ -580,7 +580,7 @@ class MainActivity : ComponentActivity() {
         val lyricsFontFamily = rememberInheritingFontFamily(lyricsFontId, appFontFamily)
         val playerFontFamily = rememberInheritingFontFamily(playerFontId, appFontFamily)
 
-        echomusicTheme(
+        auriqoTheme(
             darkTheme = useDarkTheme,
             pureBlack = pureBlack,
             themeColor = themeColor,
@@ -999,13 +999,20 @@ class MainActivity : ComponentActivity() {
                                 Row {
                                     TopAppBar(
                                         title = {
-                                            Text(
-                                                text = currentTitle,
-                                                style = MaterialTheme.typography.titleLarge.copy(
-                                                    fontWeight = FontWeight.Bold,
-                                                    fontSize = 24.sp
-                                                ),
-                                            )
+                                            if (currentRoute == Screens.Home.route) {
+                                                AuriqoBrand(
+                                                    iconSize = 28.dp,
+                                                    wordmarkFontSize = 22.sp,
+                                                )
+                                            } else {
+                                                Text(
+                                                    text = currentTitle,
+                                                    style = MaterialTheme.typography.titleLarge.copy(
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 24.sp
+                                                    ),
+                                                )
+                                            }
                                         },
                                         actions = {
                                             if (showHistoryButton) {

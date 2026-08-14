@@ -1,9 +1,9 @@
 # Auriqo v1.0.0
 
-Primer release de Auriqo, el reproductor de música basado en Echo Music v5.2.89.
+Primer release de Auriqo, el reproductor de música basado en el trabajo upstream del reproductor original.
 
 ### Qué trae
-- **Rebranding completo**: nueva identidad Auriqo (package `com.auriqo.music`) sobre la base de Echo Music v5.2.89 con todas sus funciones.
+- **Rebranding completo**: nueva identidad Auriqo (package `com.auriqo.music`) con todas sus funciones.
 - **Wear OS companion**: tile con branding Auriqo que muestra la canción actual (artwork, título, artista) con controles de play/pause, anterior/siguiente, like, shuffle y repeat desde el reloj. Incluye app base en el watch para la futura app completa.
 - **Fix de playback**: recuperación robusta de streams de YouTube (n-transform fallback, cancelación de PoToken, invalidación de resoluciones inválidas).
 - **Nuevo provider de letras**: Letras.com con búsqueda verificada y toggle en settings.

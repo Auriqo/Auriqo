@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-labelledby="title">
+  <title id="title">Auriqo</title>
+  <rect width="640" height="160" rx="44" fill="#F7F8EF"/>
+  <rect x="16" y="16" width="128" height="128" rx="38" fill="#D8F36A"/>
+  <g transform="translate(26 26)">
+    <path
+      d="M54 13a41 41 0 1 1 0 82 41 41 0 1 1 0-82Zm0 14a27 27 0 1 0 0 54 27 27 0 1 0 0-54Z"
+      fill="#17302A"
+      fill-rule="evenodd"/>
+    <path d="m62 59 32 32-10 10-32-32Z" fill="#17302A"/>
+  </g>
+  <text
+    x="178"
+    y="105"
+    fill="#17302A"
+    font-family="Cabinet Grotesk, sans-serif"
+    font-size="82"
+    font-weight="700"
+    letter-spacing="-2">Auriqo</text>
+</svg>

@@ -24,7 +24,7 @@ We release patches for security vulnerabilities in the following versions:
 If you discover a security vulnerability in Auriqo, please report it responsibly:
 
 1. **Do NOT** create a public GitHub issue
-2. Email us at: [security@echomusic.fun](mailto:security@echomusic.fun)
+2. Open a private [GitHub security advisory](https://github.com/Auriqo/Auriqo/security/advisories/new)
 3. Include the following information:
    - Description of the vulnerability
    - Steps to reproduce
@@ -73,7 +73,6 @@ Auriqo is committed to user privacy:
 
 For security-related questions or to report vulnerabilities:
 
-- Email: [security@echomusic.fun](mailto:security@echomusic.fun)
-- GitHub: Create a private security advisory
+- GitHub: [Create a private security advisory](https://github.com/Auriqo/Auriqo/security/advisories/new)
 
 Thank you for helping keep Auriqo secure!

@@ -146,7 +146,7 @@ fun ChangelogScreen(
                 } else {
                     val changelogUrl = URL("https://github.com/Auriqo/Auriqo/releases/download/$tag/changelog.json")
                     val connection = changelogUrl.openConnection() as HttpURLConnection
-                    connection.setRequestProperty("User-Agent", "echomusic-Changelog-App")
+                    connection.setRequestProperty("User-Agent", "Auriqo-Changelog-App")
                     connection.setRequestProperty("Accept", "application/json")
                     
                     if (connection.responseCode == 200) {
@@ -219,7 +219,7 @@ fun ChangelogScreen(
             try {
                 val releasesUrl = URL("https://api.github.com/repos/Auriqo/Auriqo/releases")
                 val connection = releasesUrl.openConnection() as HttpURLConnection
-                connection.setRequestProperty("User-Agent", "echomusic-Changelog-App")
+                connection.setRequestProperty("User-Agent", "Auriqo-Changelog-App")
                 connection.setRequestProperty("Accept", "application/vnd.github+json")
                 
                 if (connection.responseCode == 200) {

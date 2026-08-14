@@ -261,7 +261,7 @@ highlightKey: String? = null) {
                 add(
                     Material3SettingsItem(
                         isHighlighted = (highlightKey == systemUpdateText),
-                        icon = painterResource(if (isUpdateAvailable) R.drawable.ic_launcher_nobg else R.drawable.update),
+                        icon = painterResource(if (isUpdateAvailable) R.drawable.auriqo_logo_mark else R.drawable.update),
                         title = { Text(systemUpdateText) },
                         description = if (isUpdateAvailable) {
                             {

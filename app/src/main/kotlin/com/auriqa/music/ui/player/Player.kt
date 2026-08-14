@@ -1461,7 +1461,7 @@ fun BottomSheetPlayer(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.ic_launcher_nobg),
+                                        painter = painterResource(R.drawable.auriqo_logo_mark),
                                         contentDescription = null,
                                         modifier = Modifier
                                             .size(32.dp),

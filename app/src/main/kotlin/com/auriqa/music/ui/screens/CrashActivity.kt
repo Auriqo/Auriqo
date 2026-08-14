@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import com.auriqo.music.R
-import com.auriqo.music.ui.theme.echomusicTheme
+import com.auriqo.music.ui.theme.auriqoTheme
 import com.auriqo.music.utils.CrashHandler
 import java.io.File
 import java.text.SimpleDateFormat
@@ -57,7 +57,7 @@ class CrashActivity : ComponentActivity() {
         
         setContent {
             val darkTheme = isSystemInDarkTheme()
-            echomusicTheme(darkTheme = darkTheme) {
+            auriqoTheme(darkTheme = darkTheme) {
                 CrashScreen(
                     crashLog = crashLog,
                     onClose = { finishAffinity() },
@@ -79,7 +79,7 @@ class CrashActivity : ComponentActivity() {
         try {
             
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-            val fileName = "echomusic_crash_$timestamp.txt"
+            val fileName = "auriqo_crash_$timestamp.txt"
             val crashFile = File(cacheDir, fileName)
             crashFile.writeText(crashLog)
             

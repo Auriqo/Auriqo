@@ -455,7 +455,7 @@
         <service
             android:name=".quicksettings.MusicRecognizerTileService"
             android:label="@string/qs_tile_music_recognizer"
-            android:icon="@drawable/ic_qs_echo_logo"
+            android:icon="@drawable/auriqo_logo_mark"
             android:exported="true"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
