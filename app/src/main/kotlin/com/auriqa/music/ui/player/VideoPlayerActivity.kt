@@ -74,7 +74,7 @@ import com.music.innertube.pages.VideoStreamExtractor
 import com.music.innertube.pages.VideoStreamExtractor.VideoQuality
 import com.auriqo.music.R
 import com.auriqo.music.pip.PipHelper
-import com.auriqo.music.ui.theme.echomusicTheme
+import com.auriqo.music.ui.theme.auriqoTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -101,7 +101,7 @@ class VideoPlayerActivity : ComponentActivity() {
         val startPosition = intent.getLongExtra(EXTRA_START_POSITION, 0L)
 
         setContent {
-            echomusicTheme {
+            auriqoTheme {
                 VideoPlayerContent(
                     videoId = videoId,
                     startPosition = startPosition,

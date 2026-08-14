@@ -116,7 +116,7 @@ Output MUST be a JSON array with EXACTLY $lineCount strings."""
                 }
                 .addHeader("Content-Type", "application/json")
                 .addHeader("HTTP-Referer", "https://github.com/Auriqo/Auriqo")
-                .addHeader("X-Title", "echomusic")
+                .addHeader("X-Title", "Auriqo")
                 .post(jsonBody.toString().toRequestBody(JSON))
                 .build()
 

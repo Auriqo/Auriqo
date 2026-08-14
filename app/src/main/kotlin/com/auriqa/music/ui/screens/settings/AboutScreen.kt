@@ -5,7 +5,6 @@ package com.auriqo.music.ui.screens.settings
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -44,6 +43,8 @@ import com.auriqo.music.BuildConfig
 import com.auriqo.music.LocalPlayerAwareWindowInsets
 import com.auriqo.music.R
 import com.auriqo.music.ui.component.IconButton
+import com.auriqo.music.ui.component.AuriqoBrand
+import com.auriqo.music.ui.component.AuriqoWordmark
 import com.auriqo.music.ui.utils.backToMain
 
 import androidx.compose.ui.platform.LocalContext
@@ -223,11 +224,9 @@ private fun AboutAppCard() {
                 contentAlignment = Alignment.Center
             ) {
                 if (rotation <= 90f) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_launcher_nobg),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(if (isDark) Color.White else Color(0xFFEA3829)),
-                        modifier = Modifier.fillMaxSize()
+                    AuriqoBrand(
+                        iconSize = 76.dp,
+                        showWordmark = false,
                     )
                 } else {
                     coil3.compose.AsyncImage(
@@ -243,12 +242,19 @@ private fun AboutAppCard() {
             
             Spacer(Modifier.height(4.dp))
             
-            Text(
-                text = if (rotation <= 90f) "Auriqo" else "Developed by Berrueta",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            if (rotation <= 90f) {
+                AuriqoWordmark(
+                    fontSize = 22.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            } else {
+                Text(
+                    text = "Developed by Berrueta",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically,

@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/Echo-new.png" alt="Auriqo Logo" width="120"/>
+  <img src="branding/auriqo-logo.svg" alt="Auriqo Logo" width="360"/>
 
   <h1>Auriqo</h1>
 
@@ -13,7 +13,6 @@
   <p>
     <a href="https://t.me/AuriqoApp" style="text-decoration:none;"><img src="https://img.shields.io/badge/Telegram-Join-2CA5E0?style=flat-square&logo=telegram&logoColor=white" alt="Telegram"></a>
     <a href="https://discord.gg/EcfV3AxH5c" style="text-decoration:none;"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
-    <a href="https://hosted.weblate.org/projects/echo-music/" style="text-decoration:none;"><img src="https://img.shields.io/weblate/progress/echo-music?server=https%3A%2F%2Fhosted.weblate.org&style=flat-square" alt="Weblate"></a>
   </p>
   <p>
     <a href="https://trendshift.io/repositories/20485" target="_blank" style="text-decoration:none;"><img src="https://trendshift.io/api/badge/repositories/20485" alt="Auriqo/Auriqo | Trendshift" style="width: 200px; height: 44px;" width="200" height="44"/></a>
@@ -21,10 +20,10 @@
   <table style="margin: 0 auto; border-collapse: collapse; border: none;">
     <tr>
       <td align="center" style="padding: 15px; border: none;">
-        <a href="https://echomusic.fun/download" style="text-decoration:none;"><img src="assets/download.png" alt="Download" width="150" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/></a>
+        <a href="https://github.com/Auriqo/Auriqo/releases" style="text-decoration:none;"><img src="assets/download.png" alt="Download" width="150" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/></a>
       </td>
       <td align="center" style="padding: 15px; border: none;">
-        <a href="https://echomusic.fun/obtainium" style="text-decoration:none;"><img src="assets/obtainium.png" alt="Get it on Obtainium" width="150" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/></a>
+        <a href="https://github.com/Auriqo/Auriqo/releases" style="text-decoration:none;"><img src="assets/obtainium.png" alt="Get it on Obtainium" width="150" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/></a>
       </td>
     </tr>
   </table>
@@ -80,8 +79,8 @@ Auriqo delivers a seamless, premium listening experience by leveraging YouTube M
         <img src="Screenshots/sc_5.png" alt="Music Library" width="220" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/>
       </td>
       <td align="center" style="padding: 15px; border: none;">
-        <b>Echo Find (Recognition)</b><br><br>
-        <img src="Screenshots/sc_6.png" alt="Echo Find" width="220" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/>
+        <b>Auriqo Find (Recognition)</b><br><br>
+        <img src="Screenshots/sc_6.png" alt="Auriqo Find" width="220" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/>
       </td>
     </tr>
   </table>
@@ -121,11 +120,11 @@ Auriqo delivers a seamless, premium listening experience by leveraging YouTube M
 </details>
 
 <details>
-<summary><b>Discovery & Echo Find</b></summary>
+<summary><b>Discovery & Auriqo Find</b></summary>
 <br>
 
-- **Echo Find** — Identify songs playing around you using advanced audio recognition.
-- **Echo Brain** — An intelligent, on-device engine that analyzes your listening momentum and auto-injects perfectly aligned tracks into your queue. Read more in the [Echo Brain Documentation](ECHO_BRAIN_DOCS.md).
+- **Auriqo Find** — Identify songs playing around you using advanced audio recognition.
+- **Auriqo Brain** — An intelligent, on-device engine that analyzes your listening momentum and auto-injects perfectly aligned tracks into your queue.
 - **Smart Recommendations** — Personalized suggestions based on your listening history.
 - **Comprehensive Browsing** — Explore Charts, Podcasts, Moods, and Genres.
 
@@ -220,11 +219,7 @@ Download the latest pre-compiled APK from the [Releases Page](https://github.com
 
 ## Translations
 
-<h3>We use Weblate to translate Auriqo. <a href="https://hosted.weblate.org/projects/echo-music/">Help us bring Auriqo to more people!</a></h3>
-
-<div align="center">
-  <a href="https://hosted.weblate.org/projects/echo-music/" style="text-decoration:none;"><img src="https://hosted.weblate.org/widgets/echo-music/-/horizontal-auto.svg" alt="Translation status" /></a>
-</div>
+<h3>Help translate Auriqo by opening a pull request or issue on GitHub.</h3>
 
 ---
 
@@ -275,8 +270,8 @@ Auriqo stands on the shoulders of several excellent open-source projects. Sincer
 | **[ArchiveTune](https://github.com/koiverse/ArchiveTune)** | Material You UI inspiration |
 | **[Better Lyrics](https://better-lyrics.boidu.dev/)** | Lyrics enhancement and synchronization |
 | **[SimpMusic](https://github.com/maxrave-dev/SimpMusic)** | Lyrics implementation reference |
-| **[Music Recognizer](https://github.com/aleksey-saenko/MusicRecognizer)** | Audio recognition (Echo Find) |
-| **[Flow](https://github.com/a-edev/Flow)** | AI queue generation engine (Echo Brain) |
+| **[Music Recognizer](https://github.com/aleksey-saenko/MusicRecognizer)** | Audio recognition (Auriqo Find) |
+| **[Flow](https://github.com/a-edev/Flow)** | AI queue generation engine (Auriqo Brain) |
 | **[zemer-cipher](https://github.com/ZemerTeam/zemer-cipher)** | YouTube cipher deobfuscation and PoToken generation |
 
 ---

@@ -18,3 +18,11 @@ Google Fonts lists Google Sans Flex as an open-source family. The bundled binari
 - Designer: Google
 
 The app's downloadable-font catalog also uses Google Fonts' public metadata and CSS endpoints. Each downloaded family remains subject to its own upstream license.
+
+## Cabinet Grotesk
+
+Cabinet Grotesk is bundled as the fixed Auriqo wordmark face. The font files are downloaded unchanged from Fontshare.
+
+- Source: [Cabinet Grotesk on Fontshare](https://www.fontshare.com/fonts/cabinet-grotesk)
+- License information: [Fontshare font licenses](https://fontshare.com/licenses/itf-ffl)
+- The font is distributed by Fontshare under its free-font license terms for personal and commercial use.

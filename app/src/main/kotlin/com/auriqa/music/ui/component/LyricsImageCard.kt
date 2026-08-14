@@ -399,26 +399,12 @@ fun LyricsImageCard(
                     )
                 }
                 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                        contentDescription = null,
-                        modifier = Modifier.size(22.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        text = context.getString(R.string.app_name),
-                        color = secondaryColor,
-                        fontFamily = appFontFamily,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                AuriqoBrand(
+                    modifier = Modifier.fillMaxWidth(),
+                    iconSize = 22.dp,
+                    wordmarkFontSize = 14.sp,
+                    wordmarkColor = secondaryColor,
+                )
             }
         }
     }

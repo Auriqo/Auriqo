@@ -25,6 +25,6 @@
     <item
         android:width="140dp"
         android:height="140dp"
-        android:drawable="@drawable/ic_launcher_nobg"
+        android:drawable="@drawable/auriqo_logo_mark"
         android:gravity="center" />
 </layer-list>

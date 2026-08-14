@@ -22,6 +22,7 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import androidx.core.content.FileProvider
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toBitmap
 import androidx.palette.graphics.Palette
@@ -276,7 +277,8 @@ object ComposeToImage {
         val appNamePaint = TextPaint().apply {
             color = secondaryTxtColor
             textSize = 14f * scale
-            typeface = appTypeface?.let { Typeface.create(it, Typeface.BOLD) } ?: Typeface.DEFAULT_BOLD
+            typeface = ResourcesCompat.getFont(context, R.font.cabinet_grotesk_bold)
+                ?: Typeface.DEFAULT_BOLD
             isAntiAlias = true
         }
         
