@@ -463,6 +463,18 @@
             </intent-filter>
         </service>
 
+        <activity
+            android:name=".ui.player.VideoPlayerActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:supportsPictureInPicture="true"
+            android:theme="@style/Theme.auriqa" />
+
+        <receiver
+            android:name=".pip.PipActionReceiver"
+            android:exported="false" />
+
     </application>
 
 </manifest>
