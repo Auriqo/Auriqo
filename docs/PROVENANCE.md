@@ -1,16 +1,19 @@
 # Code and asset provenance
 
-This document separates what can currently be attributed from what still needs maintainer evidence. It is deliberately conservative: a project name in a comment or commit message is not proof that a file was copied under a compatible license.
+This document separates Auriqo-owned work, adapted code and bundled assets. A project name in a comment or commit message is not by itself proof that a file was copied under a compatible license.
 
 ## Auriqo-owned work
 
 The Auriqo-specific application package, branding, UI composition, build configuration, integration glue and documentation are maintained in this repository under the project license unless a file-level notice says otherwise. Contributors should add an SPDX/license header or an entry here when importing code or assets.
 
-## Adapted or externally derived code requiring confirmation
+## Adapted or externally derived code
 
 ### BetterLyrics
 
-The `betterlyrics` module was integrated in commit `5721f005`. It contains a Kotlin client for `lyrics-api.boidu.dev` and a TTML parser. The current tree does not preserve a complete upstream file mapping or an author/license notice for that port. The upstream [Better Lyrics project](https://github.com/better-lyrics/better-lyrics) is GPL-3.0-licensed and requests attribution. Confirm the exact source, contributor permission and required notice before publishing an official artifact.
+- Introduced in commit `5721f005` as a Kotlin client and TTML parser.
+- Current paths: `betterlyrics/src/main/kotlin/com/auriqa/music/betterlyrics/BetterLyrics.kt`, `TTMLParser.kt` and `models/Track.kt`.
+- The upstream [Better Lyrics project](https://github.com/better-lyrics/better-lyrics) is GPLv3-licensed and requests attribution.
+- The upstream project is a TypeScript browser extension; the current Auriqo files are Kotlin and the repository history has no exact file-level copy mapping. Keep the attribution and have the maintainer confirm the contributor's authorship record before a stable release.
 
 ### KuGou lyrics client
 
@@ -18,17 +21,18 @@ The `betterlyrics` module was integrated in commit `5721f005`. It contains a Kot
 
 ### InnerTube/NewPipe-related code
 
-The build comments identify a local NewPipe Extractor-related copy or adaptation in the InnerTube area. Map the relevant files to the exact upstream commit, retain the license/notice and verify that the resulting distribution obligations are compatible with GPLv3. Do not rely on the module name alone.
+The build comments identify a local NewPipe Extractor-related copy or adaptation in the InnerTube area. Map relevant files to the exact upstream commit, retain the license/notice and verify that distribution obligations remain compatible with GPLv3. Do not rely on a module name alone.
 
 ### Inspiration versus copied code
 
-Project history names Metrolist, VIVI Music, SimpMusic, ArchiveTune, Music Recognizer and other projects as inspiration or sources of ideas. Unless a file has an explicit attribution or a documented mapping, this repository makes no claim that those projects' code is present. If code was copied or adapted, add the upstream commit, license, file paths, modifications and notice before merging.
+Project history names Metrolist, VIVI Music, SimpMusic, ArchiveTune, Music Recognizer and other projects as inspiration or sources of ideas. Unless a file has an explicit attribution or documented mapping, this repository makes no claim that those projects' code is present. If code was copied or adapted, add the upstream commit, license, file paths, modifications and notice before merging.
 
 ## Fonts and binary assets
 
-Font binaries and current repository SHA-256 values are listed in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). Cabinet Grotesk, BBH Bartle and Google Sans Flex still require different levels of upstream source/license verification. Do not infer a license from a font's appearance or a web specimen.
-
-Unused historical or personal images are not acceptable repository assets. New images must have a documented source, license, author/attribution and a reason to ship in the APK.
+- BBH Bartle is documented as an OFL 1.1 asset with a local license copy and current blob hash.
+- Cabinet Grotesk is documented under Fontshare's ITF Free Font License. That license is separate from GPLv3 and its public-repository redistribution terms need maintainer confirmation before an official artifact.
+- The unused Google Sans Flex binaries were removed from the current tree because their redistributable provenance was not established.
+- Historical or personal images are not acceptable repository assets. New images need a documented source, license, author/attribution and a reason to ship in the APK.
 
 ## Dependency and service boundaries
 
@@ -45,4 +49,4 @@ For every imported or adapted file, record:
 5. modifications made by Auriqo; and
 6. whether the source is bundled, generated or fetched at runtime.
 
-The release is blocked until the open BetterLyrics, Google Sans Flex and complete dependency-inventory questions are resolved with verifiable evidence.
+Before an official artifact, resolve the Cabinet font distribution evidence and complete the dependency inventory. Keep provenance questions visible in pull requests instead of silently assuming a compatible license.
