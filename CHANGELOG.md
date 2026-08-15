@@ -4,7 +4,15 @@ This file records user-visible and release-process changes. It does not replace 
 
 ## [Unreleased]
 
-No unreleased changes are recorded after the `v1.0.3-alpha` candidate.
+No unreleased changes are recorded after the `v1.0.3-alpha.1` candidate.
+
+## [1.0.3-alpha.1] - 2026-08-15
+
+### Wear OS
+
+- Fixed the Wear `applicationId` to `com.auriqo.music`, matching the phone package and persistent
+  debug signature required by Google Play Services Data Layer. The previous `v1.0.3-alpha` Wear
+  APK used a different package and could not connect to the phone.
 
 ## [1.0.3-alpha] - 2026-08-15
 

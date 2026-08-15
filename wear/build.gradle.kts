@@ -9,7 +9,9 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.auriqo.music.wear"
+        // Google Play Services Data Layer requires the phone and Wear APKs to
+        // use the same application package and signing certificate.
+        applicationId = "com.auriqo.music"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
