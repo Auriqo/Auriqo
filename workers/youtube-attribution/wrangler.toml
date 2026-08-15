@@ -3,8 +3,9 @@ main = "src/index.ts"
 compatibility_date = "2026-08-14"
 
 [vars]
-ALLOWED_ORIGINS = "*"
+ALLOWED_ORIGINS = ""
+ALLOW_PUBLIC_PLAYLISTS = "false"
 
 # Set these with `wrangler secret put`, never commit them:
-# - YOUTUBE_DATA_API_KEY for public playlists
-# - PROXY_SHARED_SECRET to restrict calls from Auriqo while OAuth is being added
+# - YOUTUBE_DATA_API_KEY for the explicitly opt-in public-playlist mode
+# - PROXY_SHARED_SECRET for non-OAuth clients that can send the request header
