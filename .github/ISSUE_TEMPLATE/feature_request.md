@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Propose a focused, privacy-conscious improvement
+about: Suggest an improvement to Auriqo
 title: "[Feature]: "
 labels: enhancement
 assignees: ""
@@ -22,4 +22,4 @@ Mention any affected build variant, platform version, existing setting or integr
 
 ## Additional context
 
-Screenshots and examples are welcome when they contain no credentials or personal data.
+Screenshots and examples are welcome.

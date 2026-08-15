@@ -1,12 +1,12 @@
 # Auriqo
 
-Auriqo is an open-source Android music player built around YouTube Music/YouTube playback, local media, playlists, synchronized lyrics and optional integrations. It is distributed under the GNU General Public License v3.0.
+Auriqo is an open-source Android music player built around YouTube Music/YouTube playback, local media, playlists, synchronized lyrics and optional integrations. It is a community project released under the GNU General Public License v3.0.
 
 Auriqo is an independent project. It is not affiliated with, endorsed by or operated by YouTube, Google, Spotify, Discord, Last.fm, ListenBrainz, Shazam, or any lyrics provider.
 
 ## Project status
 
-The repository is public and under active maintenance, but the application should still be treated as pre-release software. Provider APIs, authentication flows and media availability can change without notice. There is no promise of uninterrupted playback, lyrics availability, offline availability or compatibility with a particular upstream service.
+Auriqo is in active development and is still an alpha release. Core playback, local media, playlists and lyrics are available today, while integrations continue to evolve with the services they use. Provider APIs and media availability can change, so occasional breakage is expected while the project grows.
 
 The repository contains an existing `v1.0.2-alpha` tag. The Android module currently declares `versionCode 1` and `versionName 1.0.0`; this metadata must be reconciled before an official stable release. The existing alpha tag and release must not be replaced in place.
 
@@ -26,7 +26,7 @@ The list above describes code present in this repository; it is not a guarantee 
 
 ## Screenshots
 
-This repository currently does not ship a maintained screenshot gallery. Historical images from earlier project identities were intentionally removed; contributors should not add screenshots containing obsolete branding or personal material. Add current screenshots only when they can be kept in sync with a released build.
+There is not a current screenshot gallery yet. Earlier images were removed because they no longer represented the app. Current screenshots and short demos are welcome when they match a released build.
 
 ## Requirements
 
@@ -45,9 +45,13 @@ Clone the repository and configure the SDK path locally:
 ```bash
 git clone https://github.com/Auriqo/Auriqo.git
 cd Auriqo
+
+# Linux/macOS
 cp local.properties.template local.properties
 # Edit local.properties and set sdk.dir to your Android SDK directory.
 ```
+
+On Windows PowerShell, use `Copy-Item local.properties.template local.properties` instead.
 
 The FOSS debug variant does not require private credentials or a Firebase file:
 
@@ -73,7 +77,7 @@ The GMS debug variant enables Google Play Services integrations such as Cast:
 ./gradlew :app:assembleUniversalGmsDebug --no-daemon
 ```
 
-`app/google-services.json` is optional and ignored by Git. When present, the current Gradle configuration also enables the Firebase plugins for that local configuration. Obtain it only from the Firebase project maintained for the build; never commit it or paste its contents into an issue or pull request.
+`app/google-services.json` is optional and ignored by Git. When present, the current Gradle configuration also enables the Firebase plugins for that local configuration. It is only needed for the maintainer's Firebase setup; the FOSS build does not need it.
 
 Release builds require maintainer-controlled signing material and are not part of the contributor setup. See [SETUP.md](SETUP.md) and [RELEASE_INFO.md](RELEASE_INFO.md).
 
@@ -103,26 +107,24 @@ The `variant` dimension provides `foss` and `gms` builds. The `abi` dimension pr
 
 The application identifier remains `com.auriqa.music` for compatibility with existing installs, preferences and deep links. Some URI hosts and package names inherited from earlier development also remain in technical code; do not rename them as a cosmetic cleanup.
 
-## Optional services and data flows
+## Optional integrations
 
-Several features contact third-party services only when the corresponding feature is enabled or used. The app may send media identifiers, song/artist/album metadata, playlist identifiers, account tokens or user-entered API keys as described in [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
+Auriqo can connect to external services for lyrics, playlist access, scrobbling, recognition, Discord Rich Presence and Listen Together. These integrations are optional and are used when you choose the corresponding feature. The current data flows are summarized in [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
 - Lyrics providers and BetterLyrics: [docs/LYRICS_PROVIDERS.md](docs/LYRICS_PROVIDERS.md).
 - The playlist-attribution Worker: [docs/WORKERS.md](docs/WORKERS.md).
 - Provenance and open license questions: [docs/PROVENANCE.md](docs/PROVENANCE.md) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-Disable optional providers and revoke their tokens when you no longer want those network requests. Auriqo does not provide a universal cloud account or a promise that third-party providers delete data on a particular schedule.
-
 ## Known limitations
 
 - YouTube/YouTube Music and lyrics providers can change protocols, rate limits, authentication requirements or content availability.
-- Some account features require user-provided cookies or OAuth tokens. These are stored locally by the current app; see the privacy and security documentation before using them on a shared or backed-up device.
-- Listen Together may use a configured remote or local server. The current Android network policy permits cleartext traffic for local-session compatibility; this is a documented hardening item, not a security guarantee.
-- The release workflow still needs maintainer remediation before it can be trusted for public releases. See [docs/CI_RELEASE_REVIEW.md](docs/CI_RELEASE_REVIEW.md).
+- Some account features require a sign-in flow, cookie or OAuth token. These settings are kept in the app and should only be configured on a device you trust.
+- Listen Together may use a configured remote or local server. See [PRIVACY_POLICY.md](PRIVACY_POLICY.md) for the current network notes.
+- Official release signing is maintainer-only; contributors can build and install the FOSS debug APK.
 
 ## Contributing
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md), follow the [Code of Conduct](CODE_OF_CONDUCT.md), and keep pull requests focused. Do not include credentials, cookies, private logs, personal screenshots or generated build output. Security reports must follow [SECURITY.md](SECURITY.md), not a public issue.
+Read [CONTRIBUTING.md](CONTRIBUTING.md), follow the [Code of Conduct](CODE_OF_CONDUCT.md), and open a focused pull request. Keep local configuration, credentials and generated build output out of commits. Security reports must follow [SECURITY.md](SECURITY.md), not a public issue.
 
 ## License
 

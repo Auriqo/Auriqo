@@ -16,6 +16,6 @@ assignees: ""
 
 ## What I tried
 
-Paste short, redacted commands or errors only. Do not include SDK paths containing personal usernames, cookies, tokens, API keys or private configuration files.
+Include the command, error or screenshot that helps explain the question. Remove credentials or other personal details first.
 
 For a suspected vulnerability, use [SECURITY.md](../../SECURITY.md) instead of this template.

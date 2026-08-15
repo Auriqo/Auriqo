@@ -1,14 +1,12 @@
 ---
 name: Bug report
-about: Report a reproducible problem without sharing private data
+about: Report a reproducible problem
 title: "[Bug]: "
 labels: bug
 assignees: ""
 ---
 
-## Summary
-
-<!-- Do not include cookies, OAuth tokens, API keys, webhook URLs or private logs. -->
+## What happened?
 
 ## Environment
 
@@ -27,14 +25,14 @@ assignees: ""
 
 ## Actual behavior
 
-## Safe diagnostics
+## Logs or screenshots (optional)
 
-<!-- Paste only short, redacted errors. Remove authorization headers, cookies, IDs and personal data. -->
+<!-- Add a short error, log or screenshot if it helps. Remove credentials and personal details first. -->
 
 ```text
-Paste redacted output here.
+Add output here.
 ```
 
 ## Additional context
 
-<!-- For security vulnerabilities, stop and follow SECURITY.md instead of posting here. -->
+<!-- For a security vulnerability, use SECURITY.md instead of posting details publicly. -->
