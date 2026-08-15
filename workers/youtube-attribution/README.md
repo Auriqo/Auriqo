@@ -1,8 +1,8 @@
 # Auriqo YouTube attribution Worker
 
-This optional Cloudflare Worker proxies `youtube/v3/playlistItems` so the app can display channel attribution for playlist items. It does not store cookies or tokens in application code or a database.
+This optional Cloudflare Worker proxies `youtube/v3/playlistItems` so the app can display channel attribution for playlist items. It is not needed for the FOSS Android build.
 
-Full endpoint, privacy and deployment documentation is in [../../docs/WORKERS.md](../../docs/WORKERS.md).
+Full endpoint, authentication, CORS and deployment documentation is in [../../docs/WORKERS.md](../../docs/WORKERS.md).
 
 ## Quick reference
 
@@ -12,4 +12,4 @@ npm run typecheck
 npm run dev
 ```
 
-The deployment uses `YOUTUBE_DATA_API_KEY` and, when the client authentication design is ready, `PROXY_SHARED_SECRET` as Wrangler secrets. Never commit their values. The current app does not send the shared-secret header, so enabling that secret on the app's existing endpoint will break current clients until both sides are updated.
+The checked-in deployment is closed to anonymous playlist requests and browser origins by default. OAuth bearer requests are supported; anonymous public-playlist mode is an explicit `ALLOW_PUBLIC_PLAYLISTS = "true"` deployment choice. Keep `YOUTUBE_DATA_API_KEY` and `PROXY_SHARED_SECRET` in Wrangler secrets and never commit their values.

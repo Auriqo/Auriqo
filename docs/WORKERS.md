@@ -10,30 +10,27 @@ The Worker exposes:
 - `GET /v1/playlist-attributions?playlistId=...` for playlist-item attribution data;
 - `OPTIONS` for CORS preflight.
 
-For each playlist page it forwards a request to Google's `youtube/v3/playlistItems` endpoint and returns channel IDs/titles, the playlist item's published timestamp and a default thumbnail URL. The Worker source does not write request data or tokens to a database.
+For each playlist page it forwards a request to Google's `youtube/v3/playlistItems` endpoint and returns channel IDs/titles, the playlist item's published timestamp and a default thumbnail URL. The Worker does not write request data or tokens to a database and does not return full upstream error messages.
 
 ### Configuration
 
+The checked-in `wrangler.toml` is fail-closed by default:
+
+- `ALLOWED_ORIGINS`: comma-separated exact browser origins. An empty value denies browser CORS; native Android requests do not need CORS.
+- `ALLOW_PUBLIC_PLAYLISTS`: `false` by default. Set it to `true` only when the maintainer intentionally accepts an unauthenticated, quota-bearing public endpoint and has edge abuse controls in place.
+
 Secrets must be provisioned with Wrangler and must never be committed:
 
-- `YOUTUBE_DATA_API_KEY`: allows public-playlist requests when the caller does not provide OAuth.
-- `PROXY_SHARED_SECRET`: optional request gate checked through `X-Auriqo-Proxy-Secret`.
-- `ALLOWED_ORIGINS`: comma-separated CORS allowlist.
+- `YOUTUBE_DATA_API_KEY`: used for the explicit public-playlist mode.
+- `PROXY_SHARED_SECRET`: accepted through `X-Auriqo-Proxy-Secret` for clients that can send it.
 
-The checked-in `wrangler.toml` currently uses `ALLOWED_ORIGINS = "*"`. The code also treats a missing `PROXY_SHARED_SECRET` as authorized. These defaults are deployment risks, not security recommendations.
+`GET /health` is public. Playlist attribution requires a valid-looking Google OAuth bearer token, the configured shared-secret header, or the explicit public-playlist switch. The Worker forwards OAuth to YouTube/Google; it does not validate or store the token itself.
 
-### Compatibility warning
+### Android compatibility
 
-The current Android client sends an optional Google OAuth bearer token to the Worker but does not send `X-Auriqo-Proxy-Secret`. Enabling `PROXY_SHARED_SECRET` on the endpoint used by the current app will therefore return `401` and break playlist attribution until the client and deployment are changed together. Coordinate that change; do not silently enable it in production.
+The Android client sends an optional Google OAuth bearer token to the Worker. It does not send `X-Auriqo-Proxy-Secret`. When no OAuth token is configured, the client does not make an anonymous Worker call; a user-supplied YouTube API key is used directly as the existing fallback. Local attribution remains available without either credential.
 
-Before exposing a production Worker, the maintainer should:
-
-1. choose and implement a client-to-Worker authentication design;
-2. replace the wildcard CORS value with the actual allowed origins or an authenticated non-browser route;
-3. keep Google API keys and shared secrets in Wrangler secrets;
-4. avoid logging bearer tokens, playlist contents or full upstream errors;
-5. set rate limits/abuse controls at the edge; and
-6. verify Cloudflare operational logs and retention separately from the source-level no-storage behavior.
+If a deployment enables `ALLOW_PUBLIC_PLAYLISTS`, anonymous attribution remains available for clients that need it, but the maintainer is accepting exposure of the configured YouTube API quota. Keep that choice explicit in the deployment review.
 
 ### Local development and deployment
 
@@ -53,7 +50,9 @@ npx wrangler secret put PROXY_SHARED_SECRET
 npm run deploy
 ```
 
-Only provision the shared secret after the Android client is prepared to send it. Never paste secret values into `wrangler.toml`, documentation, issues or CI output.
+The secrets are optional depending on the selected mode. Never paste secret values into `wrangler.toml`, documentation, issues or CI output. Configure exact browser origins in `wrangler.toml` only when a browser client is intentionally supported.
+
+Before a production deployment, verify the Worker URL, Google quota, Cloudflare rate/abuse controls and operational log settings. The source-level no-database behavior does not define Cloudflare's platform retention.
 
 ## Other remote services
 

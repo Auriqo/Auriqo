@@ -95,7 +95,7 @@ class OnlinePlaylistViewModel @Inject constructor(
                     val apiKey = context.dataStore.get(YouTubeDataApiKey, "")
                     val shouldLoadRemoteAttributions = localAttributions.isEmpty() ||
                         accessToken.isNotBlank() || apiKey.isNotBlank()
-                    if (shouldLoadRemoteAttributions && workerUrl.isNotBlank()) {
+                    if (shouldLoadRemoteAttributions && workerUrl.isNotBlank() && accessToken.isNotBlank()) {
                         YouTubeDataApi.workerPlaylistAttributions(workerUrl, playlistId, accessToken)
                             .onSuccess { setRemoteAttributions(it) }
                             .onFailure {
