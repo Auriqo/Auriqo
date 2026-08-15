@@ -1,252 +1,129 @@
-<div align="center">
-  <img src="branding/auriqo-logo.svg" alt="Auriqo icon" width="160"/>
-
-  <h1>Auriqo</h1>
-
-  <p><b>A modern Android music app with ad-free streaming, synced lyrics, offline playback, and an intuitive user experience.</b></p>
-  
-  <p>
-    <a href="https://github.com/Auriqo/Auriqo/releases" style="text-decoration:none;"><img src="https://img.shields.io/github/v/release/Auriqo/Auriqo?style=flat-square&color=6f42c1" alt="GitHub Release"></a>
-    <a href="https://github.com/Auriqo/Auriqo/stargazers" style="text-decoration:none;"><img src="https://img.shields.io/github/stars/Auriqo/Auriqo?style=flat-square&color=e3b341" alt="GitHub Stars"></a>
-    <a href="LICENSE" style="text-decoration:none;"><img src="https://img.shields.io/github/license/Auriqo/Auriqo?style=flat-square&color=28a745" alt="License"></a>
-  </p>
-  <p>
-    <a href="https://t.me/AuriqoApp" style="text-decoration:none;"><img src="https://img.shields.io/badge/Telegram-Join-2CA5E0?style=flat-square&logo=telegram&logoColor=white" alt="Telegram"></a>
-    <a href="https://discord.gg/EcfV3AxH5c" style="text-decoration:none;"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
-  </p>
-  <p>
-    <a href="https://trendshift.io/repositories/20485" target="_blank" style="text-decoration:none;"><img src="https://trendshift.io/api/badge/repositories/20485" alt="Auriqo/Auriqo | Trendshift" style="width: 200px; height: 44px;" width="200" height="44"/></a>
-  </p>
-  <table style="margin: 0 auto; border-collapse: collapse; border: none;">
-    <tr>
-      <td align="center" style="padding: 15px; border: none;">
-        <a href="https://github.com/Auriqo/Auriqo/releases" style="text-decoration:none;"><img src="assets/download.png" alt="Download" width="150" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/></a>
-      </td>
-      <td align="center" style="padding: 15px; border: none;">
-        <a href="https://github.com/Auriqo/Auriqo/releases" style="text-decoration:none;"><img src="assets/obtainium.png" alt="Get it on Obtainium" width="150" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/></a>
-      </td>
-    </tr>
-  </table>
-</div>
-
----
+# Auriqo
 
-## Overview
-
-Auriqo delivers a seamless, premium listening experience by leveraging YouTube Music's vast library — without the ads. It adds powerful extras including offline downloads, real-time synchronized lyrics, and environment-aware music recognition.
+Auriqo is an open-source Android music player built around YouTube Music/YouTube playback, local media, playlists, synchronized lyrics and optional integrations. It is distributed under the GNU General Public License v3.0.
 
----
-
-## Brand
-
-Auriqo's icon is an icon-only monogram built from the real Cabinet Grotesk Bold lowercase a and Q outlines. The source SVG is available at branding/auriqo-logo.svg.
-
-The app wordmark is rendered with the bundled Cabinet Grotesk face and remains fixed even when users choose a custom interface font. The icon and wordmark are separate by design: the SVG stays an icon, while the name remains readable wherever Auriqo identifies itself.
-
----
-
-## Table of Contents
+Auriqo is an independent project. It is not affiliated with, endorsed by or operated by YouTube, Google, Spotify, Discord, Last.fm, ListenBrainz, Shazam, or any lyrics provider.
 
-- [Overview](#overview)
-- [Brand](#brand)
-- [Features](#features)
-- [Installation & Setup](#installation--setup)
-- [Translations](#translations)
-- [Community & Support](#community--support)
-- [Support the Project](#support-the-project)
-- [Contributors](#contributors)
-- [Special Thanks](#special-thanks)
+## Project status
 
----
+The repository is public and under active maintenance, but the application should still be treated as pre-release software. Provider APIs, authentication flows and media availability can change without notice. There is no promise of uninterrupted playback, lyrics availability, offline availability or compatibility with a particular upstream service.
 
-## Features
+The repository contains an existing `v1.0.2-alpha` tag. The Android module currently declares `versionCode 1` and `versionName 1.0.0`; this metadata must be reconciled before an official stable release. The existing alpha tag and release must not be replaced in place.
 
-### What's New
+## Current functionality
 
-> - **Lossless Music Hub** — Stream and contribute 16-bit/24-bit FLAC files directly to the Auriqo ecosystem.
-> - **Data Saver Mode (Beta)** — Automatically reduces data usage during playback for limited connections.
-> - **Settings Search Index** — Quickly find and navigate to any settings option instantly.
-> - **Redesigned UI** — Cleaner, faster, and more intuitive interface from the ground up.
-> - **Import from Spotify** — Bring your playlists and tracks over with ease.
-> - **Listen Together** — Sync music in real time, similar to Spotify Jam.
-> - **Podcast Support** — Listen to podcasts alongside your music library.
-> - **Local Media Support** — Play music files stored directly on your device.
-> - **Dynamic Island Support** — Enhanced playback notifications on supported Android devices.
+The current codebase includes these user-facing areas, subject to provider availability and build variant:
 
-<br>
+- YouTube Music/YouTube playback through the local InnerTube client, plus local media playback.
+- Queues, library and playlist workflows, including optional account-backed playlist access.
+- Synchronized lyrics from multiple providers, including BetterLyrics, LRCLIB, Paxsenix, KuGou, SimpMusic, YouLyPlus and Letras.com.
+- Optional lyrics translation through a user-selected AI endpoint.
+- Artwork and canvas/video-related playback surfaces when a provider supplies the required data.
+- Optional Spotify playlist import, Last.fm and ListenBrainz scrobbling, Discord Rich Presence, music recognition and Listen Together sessions.
+- An optional Wear OS module and Google Cast support in the GMS variant.
 
-<details>
-<summary><b>Streaming & Playback</b></summary>
-<br>
-
-- **Ad-Free** — Stream without any interruptions.
-- **Lossless Audio** — Support for 16-bit and 24-bit high fidelity FLAC audio.
-- **Data Saver Mode** — Reduce data consumption when streaming on cellular networks.
-- **Seamless Playback** — Switch effortlessly between audio-only and video modes.
-- **Background Playback** — Listen while using other apps or with the screen off.
-- **Offline Mode** — Download tracks, albums, and playlists via a dedicated download manager.
-- **Crossfade** — Smooth transitions between tracks.
-- **Canvas Animations** — Visual animations while playing music.
-
-</details>
-
-<details>
-<summary><b>Discovery & Auriqo Find</b></summary>
-<br>
+The list above describes code present in this repository; it is not a guarantee that every remote service is available in every country or at every point in time.
 
-- **Auriqo Find** — Identify songs playing around you using advanced audio recognition.
-- **Auriqo Brain** — An intelligent, on-device engine that analyzes your listening momentum and auto-injects perfectly aligned tracks into your queue.
-- **Smart Recommendations** — Personalized suggestions based on your listening history.
-- **Comprehensive Browsing** — Explore Charts, Podcasts, Moods, and Genres.
+## Screenshots
 
-</details>
+This repository currently does not ship a maintained screenshot gallery. Historical images from earlier project identities were intentionally removed; contributors should not add screenshots containing obsolete branding or personal material. Add current screenshots only when they can be kept in sync with a released build.
 
-<details>
-<summary><b>Lyrics</b></summary>
-<br>
+## Requirements
 
-- **Multiple Lyric Animations** — Choose from various lyric display styles.
-- **Word-by-Word Lyrics** — Precise per-word synchronization.
-- **Lyrics+** — New lyrics provider for improved accuracy and coverage.
-- **AI Translation** — Built-in Google Translate integration for lyrics in any language.
+- JDK 21.
+- Android SDK Platform 36 and Build-Tools provided by the Android SDK installation.
+- Android NDK `27.0.12077973` for native components.
+- Git. Android Studio is optional; the Gradle wrapper is the canonical build entry point.
+- Linux, macOS or Windows with a working Android SDK path. Windows users should use `gradlew.bat`.
 
-</details>
+The repository pins Gradle 9.3.1, Android Gradle Plugin 9.0.0 and Kotlin 2.3.10 in the checked-in build configuration. Do not commit `local.properties`, Firebase configuration, API keys or signing material.
 
-<details>
-<summary><b>Integrations</b></summary>
-<br>
+## Build
 
-- **Music Sharing via Odesli** — Share songs as Song.link for cross-platform listening.
-- **Set as Ringtone** — Directly set any song as your device ringtone.
+Clone the repository and configure the SDK path locally:
 
-</details>
+```bash
+git clone https://github.com/Auriqo/Auriqo.git
+cd Auriqo
+cp local.properties.template local.properties
+# Edit local.properties and set sdk.dir to your Android SDK directory.
+```
 
-<details>
-<summary><b>Smart Playback</b></summary>
-<br>
+The FOSS debug variant does not require private credentials or a Firebase file:
 
-- **Pause on Mute** — Auto-pause when your device is muted.
-- **Resume on Bluetooth** — Playback resumes when headphones or earbuds reconnect.
+```bash
+./gradlew :app:assembleUniversalFossDebug --no-daemon
+```
 
-</details>
+The APK is written to:
 
-<details>
-<summary><b>Customization</b></summary>
-<br>
+```text
+app/build/outputs/apk/universalFoss/debug/app-universal-foss-debug.apk
+```
 
-- **UI Density Scale** — Adjust interface spacing to your preference.
-- **High Refresh Rate Support** — Smoother UI and animations on supported displays.
-- **Hide Player Thumbnail** — Keep the player minimal without album art.
-- **Crop Album Art** — Adjust album art display to fit your style.
-- **Hide Video Songs** — Filter out video content from your feed.
-- **Hide YouTube Shorts** — Keep Shorts out of your music browsing.
+Install a locally built debug APK on an authorized device or emulator with:
 
-</details>
+```bash
+adb install -r app/build/outputs/apk/universalFoss/debug/app-universal-foss-debug.apk
+```
 
----
+The GMS debug variant enables Google Play Services integrations such as Cast:
 
-## Installation & Setup
+```bash
+./gradlew :app:assembleUniversalGmsDebug --no-daemon
+```
 
-### Android Installation
+`app/google-services.json` is optional and ignored by Git. When present, the current Gradle configuration also enables the Firebase plugins for that local configuration. Obtain it only from the Firebase project maintained for the build; never commit it or paste its contents into an issue or pull request.
 
-Download the latest pre-compiled APK from the [Releases Page](https://github.com/Auriqo/Auriqo/releases/latest).
+Release builds require maintainer-controlled signing material and are not part of the contributor setup. See [SETUP.md](SETUP.md) and [RELEASE_INFO.md](RELEASE_INFO.md).
 
-<details>
-<summary><b>Building from Source</b></summary>
-<br>
+## Tests and checks
 
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/Auriqo/Auriqo.git
-   cd Auriqo
-   ```
+Useful local checks include:
 
-2. **Configure Android SDK**
-   Create a `local.properties` file:
-   ```bash
-   echo "sdk.dir=/path/to/your/android/sdk" > local.properties
-   ```
-   *(For detailed paths on Windows/macOS/Linux, refer to [SETUP.md](SETUP.md))*
+```bash
+./gradlew :app:compileUniversalFossDebugKotlin --no-daemon
+./gradlew :app:testUniversalFossDebugUnitTest --no-daemon
+./gradlew :innertube:testDebugUnitTest --no-daemon
+./gradlew :letras:test --no-daemon
+./gradlew :app:lintUniversalFossDebug --no-daemon
+```
 
-3. **Firebase Configuration (Optional)**
-   Firebase is required for analytics and crash reporting. See the instructions in [SETUP.md](SETUP.md#3-configure-firebase-optional) for adding your `google-services.json`.
+Run the worker type check separately when changing `workers/youtube-attribution`:
 
-4. **Build the Application**
-   Auriqo has two build variants: **FOSS** (without Google Play Services / Cast) and **GMS** (with Cast support).
-   
-   - To build the **FOSS** Universal Debug variant:
-     ```bash
-     ./gradlew assembleUniversalFossDebug
-     ```
-   - To build the **GMS** Universal Debug variant:
-     ```bash
-     ./gradlew assembleUniversalGmsDebug
-     ```
-   *(For optimized ARM64 builds, release builds, or other options, refer to [SETUP.md](SETUP.md))*
+```bash
+cd workers/youtube-attribution
+npm ci
+npm run typecheck
+```
 
-</details>
+## Variants
 
----
+The `variant` dimension provides `foss` and `gms` builds. The `abi` dimension provides `universal`, `arm64`, `armeabi`, `x86` and `x86_64` builds. The `UniversalFossDebug` build is the least dependent on external credentials and is the reference build for pull requests.
 
-## Translations
+The application identifier remains `com.auriqa.music` for compatibility with existing installs, preferences and deep links. Some URI hosts and package names inherited from earlier development also remain in technical code; do not rename them as a cosmetic cleanup.
 
-<h3>Help translate Auriqo by opening a pull request or issue on GitHub.</h3>
+## Optional services and data flows
 
----
+Several features contact third-party services only when the corresponding feature is enabled or used. The app may send media identifiers, song/artist/album metadata, playlist identifiers, account tokens or user-entered API keys as described in [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
-## Community & Support
+- Lyrics providers and BetterLyrics: [docs/LYRICS_PROVIDERS.md](docs/LYRICS_PROVIDERS.md).
+- The playlist-attribution Worker: [docs/WORKERS.md](docs/WORKERS.md).
+- Provenance and open license questions: [docs/PROVENANCE.md](docs/PROVENANCE.md) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-Join the community for updates, discussions, and help.
+Disable optional providers and revoke their tokens when you no longer want those network requests. Auriqo does not provide a universal cloud account or a promise that third-party providers delete data on a particular schedule.
 
-<div align="center">
-  <table style="margin: 0 auto; border-collapse: collapse; border: none;">
-    <tr>
-      <td align="center" style="padding: 15px; border: none;">
-        <a href="https://discord.gg/EcfV3AxH5c" style="text-decoration:none;"><img src="assets/discord.png" alt="Discord Logo" width="140" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/></a>
-      </td>
-      <td align="center" style="padding: 15px; border: none;">
-        <a href="https://t.me/AuriqoApp" style="text-decoration:none;"><img src="assets/telegram.png" alt="Telegram Logo" width="130" style="border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.2);"/></a>
-      </td>
-    </tr>
-  </table>
-</div>
+## Known limitations
 
----
+- YouTube/YouTube Music and lyrics providers can change protocols, rate limits, authentication requirements or content availability.
+- Some account features require user-provided cookies or OAuth tokens. These are stored locally by the current app; see the privacy and security documentation before using them on a shared or backed-up device.
+- Listen Together may use a configured remote or local server. The current Android network policy permits cleartext traffic for local-session compatibility; this is a documented hardening item, not a security guarantee.
+- The release workflow still needs maintainer remediation before it can be trusted for public releases. See [docs/CI_RELEASE_REVIEW.md](docs/CI_RELEASE_REVIEW.md).
 
-## Support the Project
+## Contributing
 
-If Auriqo has been useful to you, consider supporting its development on [GitHub](https://github.com/Auriqo/Auriqo).
+Read [CONTRIBUTING.md](CONTRIBUTING.md), follow the [Code of Conduct](CODE_OF_CONDUCT.md), and keep pull requests focused. Do not include credentials, cookies, private logs, personal screenshots or generated build output. Security reports must follow [SECURITY.md](SECURITY.md), not a public issue.
 
-<br>
+## License
 
-## Contributors
-
-A huge thank you to everyone who has helped improve Auriqo! Whether you've fixed bugs, added new features, or updated translations, your contributions are greatly appreciated.
-
-<div align="center">
-  <a href="https://github.com/Auriqo/Auriqo/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=Auriqo/Auriqo" alt="Contributors" />
-  </a>
-</div>
-
----
-
-## Special Thanks
-
-Auriqo stands on the shoulders of several excellent open-source projects. Sincere thanks to:
-
-| Project | Description |
-| :--- | :--- |
-| **[Metrolist](https://github.com/MetrolistGroup/Metrolist)** & **[Vivi Music](https://github.com/vivizzz007/vivi-music)** | Foundational inspiration and architecture reference |
-| **[ArchiveTune](https://github.com/koiverse/ArchiveTune)** | Material You UI inspiration |
-| **[Better Lyrics](https://better-lyrics.boidu.dev/)** | Lyrics enhancement and synchronization |
-| **[SimpMusic](https://github.com/maxrave-dev/SimpMusic)** | Lyrics implementation reference |
-| **[Music Recognizer](https://github.com/aleksey-saenko/MusicRecognizer)** | Audio recognition (Auriqo Find) |
-| **[Flow](https://github.com/a-edev/Flow)** | AI queue generation engine (Auriqo Brain) |
-| **[zemer-cipher](https://github.com/ZemerTeam/zemer-cipher)** | YouTube cipher deobfuscation and PoToken generation |
-
----
-
-<div align="center">
-  <p>Licensed under <a href="LICENSE">GPL-3.0</a></p>
-</div>
+Auriqo is licensed under the [GNU General Public License v3.0](LICENSE). Third-party code, fonts and services have additional notices and open provenance questions documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [docs/PROVENANCE.md](docs/PROVENANCE.md).

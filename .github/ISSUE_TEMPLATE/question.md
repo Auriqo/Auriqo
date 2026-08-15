@@ -1,27 +1,21 @@
 ---
 name: Question
-about: Ask a question about Auriqo
-title: '[QUESTION] '
+about: Ask for help using or building Auriqo
+title: "[Question]: "
 labels: question
-assignees: ''
-
+assignees: ""
 ---
 
-## ❓ Question
-What would you like to know about Auriqo?
+## Question
 
-## 🔍 Context
-Provide any relevant context about your question.
+## Context
 
-## 📱 Environment
-- **Device**: [e.g. Samsung Galaxy S21]
-- **Android Version**: [e.g. Android 12]
-- **App Version**: [e.g. v1.4]
+- Auriqo version/tag or commit:
+- Build variant:
+- Android version/device or build environment:
 
-## 📋 Additional Information
-Any other information that might be helpful.
+## What I tried
 
-## ✅ Checklist
-- [ ] I have searched existing issues and discussions
-- [ ] I have provided relevant context
-- [ ] I have included device information
+Paste short, redacted commands or errors only. Do not include SDK paths containing personal usernames, cookies, tokens, API keys or private configuration files.
+
+For a suspected vulnerability, use [SECURITY.md](../../SECURITY.md) instead of this template.
