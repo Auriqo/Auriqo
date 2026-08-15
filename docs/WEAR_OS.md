@@ -21,6 +21,9 @@ as a small music surface rather than a single remote-control screen:
 
 - `Now Playing`: title/artist, progress and plain transport controls, with the Auriqo mark as the
   deliberate entry point for like, shuffle and repeat.
+- The physical rotary bezel adjusts media volume on the phone (or the Cast receiver when casting).
+  It does not seek. Seeking is deliberately reserved for dragging the thin progress rail, so the
+  two interactions cannot fight each other.
 - `Home`: the library entry point and current-track handoff.
 - `Tracks`, `Albums`, `Artists`, `Playlists` and `Queue`: scrollable, actionable lists. Tapping an
   item asks the phone to build that item (or collection) into the active player queue.
@@ -65,9 +68,9 @@ Current paths are:
 - `/auriqo/browse_state` (phone -> Wear DataItem with bounded parallel arrays of item metadata)
 - `/auriqo/browse_command` (Wear -> phone message: `kind|id` to play a track, collection or queue item)
 
-Commands currently forwarded by the Wear proxy are play/pause, previous, next, seek, like, shuffle
-and repeat. The Wear UI follows the same transport and mode state, while the system surface may
-choose a different layout or put custom actions in overflow.
+Commands currently forwarded by the Wear proxy are play/pause, previous, next, seek, volume step,
+like, shuffle and repeat. The Wear UI follows the same transport and mode state, while the system
+surface may choose a different layout or put custom actions in overflow.
 
 Browse data is intentionally bounded to 80 entries per request and is sourced from the phone's
 existing Room library/player queue. It is not a second library database on the watch. If the phone

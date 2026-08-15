@@ -38,6 +38,7 @@ private const val CMD_LIKE = "like"
 private const val CMD_SHUFFLE = "shuffle"
 private const val CMD_REPEAT = "repeat"
 private const val CMD_SEEK_PREFIX = "seek:"
+private const val CMD_VOLUME_PREFIX = "volume:"
 
 data class NowPlaying(
     val connected: Boolean = false,
@@ -429,6 +430,12 @@ object PhoneSyncManager : DataClient.OnDataChangedListener {
                 receivedAtElapsedRealtimeMs = now,
             )
         }
+    }
+
+    fun adjustVolume(context: Context, direction: Int) {
+        val normalizedDirection = direction.coerceIn(-1, 1)
+        if (normalizedDirection == 0) return
+        sendCommand(context, "$CMD_VOLUME_PREFIX$normalizedDirection")
     }
 }
 

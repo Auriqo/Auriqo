@@ -47,6 +47,7 @@ private const val CMD_LIKE = "like"
 private const val CMD_SHUFFLE = "shuffle"
 private const val CMD_REPEAT = "repeat"
 private const val CMD_SEEK_PREFIX = "seek:"
+private const val CMD_VOLUME_PREFIX = "volume:"
 
 private data class SyncSnapshot(
     val mediaId: String? = null,
@@ -248,6 +249,10 @@ class GmsWearSyncManager(
                 command.startsWith(CMD_SEEK_PREFIX) ->
                     command.removePrefix(CMD_SEEK_PREFIX).toLongOrNull()?.let { position ->
                         player.seekTo(position.coerceAtLeast(0L))
+                    }
+                command.startsWith(CMD_VOLUME_PREFIX) ->
+                    command.removePrefix(CMD_VOLUME_PREFIX).toIntOrNull()?.let { direction ->
+                        service.adjustMediaVolume(direction)
                     }
                 else -> return
             }

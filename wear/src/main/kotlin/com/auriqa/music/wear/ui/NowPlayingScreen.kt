@@ -7,6 +7,8 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -35,6 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
@@ -50,6 +55,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
 import coil3.compose.AsyncImage
@@ -74,8 +81,13 @@ private enum class WearDestination {
 fun NowPlayingScreen(modifier: Modifier = Modifier) {
     val state by PhoneSyncManager.nowPlaying.collectAsState()
     val context = LocalContext.current
+    val rotaryFocusRequester = remember { FocusRequester() }
     var routeName by rememberSaveable { mutableStateOf(WearDestination.NOW_PLAYING.name) }
     val destination = WearDestination.valueOf(routeName)
+
+    LaunchedEffect(destination) {
+        rotaryFocusRequester.requestFocus()
+    }
 
     BackHandler(enabled = destination != WearDestination.NOW_PLAYING) {
         routeName = if (destination == WearDestination.HOME) {
@@ -86,7 +98,22 @@ fun NowPlayingScreen(modifier: Modifier = Modifier) {
     }
 
     Box(
-        modifier = modifier.background(AuriqoWearColors.Surface),
+        modifier = modifier
+            .background(AuriqoWearColors.Surface)
+            .onRotaryScrollEvent { event ->
+                val direction =
+                    when {
+                        event.verticalScrollPixels > 0f -> 1
+                        event.verticalScrollPixels < 0f -> -1
+                        else -> 0
+                    }
+                if (direction != 0) {
+                    PhoneSyncManager.adjustVolume(context, direction)
+                }
+                direction != 0
+            }
+            .focusRequester(rotaryFocusRequester)
+            .focusable(),
     ) {
         when (destination) {
             WearDestination.NOW_PLAYING -> NowPlayingSurface(
@@ -209,8 +236,10 @@ private fun ConnectedNowPlaying(
                 )
                 Spacer(Modifier.width(5.dp))
                 ProgressRail(
-                    progress = position.toFloat() / state.durationMs,
+                    positionMs = position,
+                    durationMs = state.durationMs,
                     modifier = Modifier.weight(1f),
+                    onSeek = { PhoneSyncManager.seekTo(context, it) },
                 )
                 Spacer(Modifier.width(5.dp))
                 Text(
@@ -720,23 +749,60 @@ private fun PlainControl(
 }
 
 @Composable
-private fun ProgressRail(progress: Float, modifier: Modifier = Modifier) {
-    Canvas(modifier.height(2.dp)) {
-        val y = size.height / 2f
-        drawLine(
-            color = Color.White.copy(alpha = 0.18f),
-            start = Offset(0f, y),
-            end = Offset(size.width, y),
-            strokeWidth = size.height,
-            cap = StrokeCap.Round,
-        )
-        drawLine(
-            color = AuriqoWearColors.Accent,
-            start = Offset(0f, y),
-            end = Offset(size.width * progress.coerceIn(0f, 1f), y),
-            strokeWidth = size.height,
-            cap = StrokeCap.Round,
-        )
+private fun ProgressRail(
+    positionMs: Long,
+    durationMs: Long,
+    modifier: Modifier = Modifier,
+    onSeek: (Long) -> Unit,
+) {
+    val progress =
+        if (durationMs > 0L) {
+            positionMs.toFloat() / durationMs.toFloat()
+        } else {
+            0f
+        }
+
+    Box(
+        modifier = modifier
+            .height(26.dp)
+            .pointerInput(durationMs) {
+                if (durationMs > 0L) {
+                    val width = size.width.toFloat().coerceAtLeast(1f)
+                    fun seekAt(x: Float) {
+                        val fraction = (x / width).coerceIn(0f, 1f)
+                        onSeek((durationMs * fraction).toLong())
+                    }
+                    detectDragGestures(
+                        onDragStart = { offset -> seekAt(offset.x) },
+                        onDrag = { change, _ ->
+                            change.consume()
+                            seekAt(change.position.x)
+                        },
+                    )
+                }
+            }
+            .semantics {
+                contentDescription = "Arrastrar para buscar en la canción"
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(Modifier.fillMaxWidth().height(2.dp)) {
+            val y = size.height / 2f
+            drawLine(
+                color = Color.White.copy(alpha = 0.18f),
+                start = Offset(0f, y),
+                end = Offset(size.width, y),
+                strokeWidth = size.height,
+                cap = StrokeCap.Round,
+            )
+            drawLine(
+                color = AuriqoWearColors.Accent,
+                start = Offset(0f, y),
+                end = Offset(size.width * progress.coerceIn(0f, 1f), y),
+                strokeWidth = size.height,
+                cap = StrokeCap.Round,
+            )
+        }
     }
 }
 

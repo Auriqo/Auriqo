@@ -14,6 +14,8 @@ This file records user-visible and release-process changes. It does not replace 
 - Reworked the complete Wear companion surface toward the TIDAL reference: near-black Now Playing,
   left-aligned track typography, thin progress rail, plain transport glyphs and the Auriqo mark as
   the secondary-controls affordance.
+- Wired the physical rotary bezel to media volume (including Cast output); progress seeking is now
+  an explicit drag on the progress rail instead of a rotary action.
 - Added Home, Tracks, Albums, Artists, Playlists and Queue screens backed by a bounded GMS Data
   Layer browse protocol; tapping a library item can start it on the phone.
 - Added periodic GMS Data Layer heartbeats while playing and aligned the Tile palette with the

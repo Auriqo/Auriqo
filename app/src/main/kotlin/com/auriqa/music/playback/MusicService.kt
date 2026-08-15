@@ -403,6 +403,35 @@ class MusicService :
         player.volume = if (muted) 0f else playerVolume.value
     }
 
+    /**
+     * Adjusts the output controlled by the Wear rotary crown. Local playback
+     * follows the phone's media stream; Cast playback follows the receiver's
+     * own volume instead.
+     */
+    fun adjustMediaVolume(direction: Int) {
+        val normalizedDirection = direction.coerceIn(-1, 1)
+        if (normalizedDirection == 0) return
+
+        runCatching {
+            val cast = castConnectionHandler
+            if (cast?.isCasting?.value == true) {
+                cast.setVolume(cast.castVolume.value + normalizedDirection * 0.05f)
+            } else {
+                audioManager.adjustStreamVolume(
+                    AudioManager.STREAM_MUSIC,
+                    if (normalizedDirection > 0) {
+                        AudioManager.ADJUST_RAISE
+                    } else {
+                        AudioManager.ADJUST_LOWER
+                    },
+                    0,
+                )
+            }
+        }.onFailure { error ->
+            Timber.tag(TAG).w(error, "Unable to adjust media volume from Wear")
+        }
+    }
+
     fun setPreferredAudioDevice(deviceId: Int?) { 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val devices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
