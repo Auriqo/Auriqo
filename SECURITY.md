@@ -22,8 +22,8 @@ Security fixes are evaluated against the latest `main` and the latest published 
 ## Security-sensitive design notes
 
 - The app handles user-supplied YouTube cookies, OAuth access/refresh tokens, AI keys, scrobbling tokens and proxy credentials. The current implementation stores these values in app-private DataStore/preferences and does not provide encrypted-at-rest storage for every credential.
-- Android backup is currently enabled for parts of the app data. The settings DataStore contains account and integration tokens; backup exclusion or encrypted-storage migration is an open hardening decision because changing it can affect restore behavior.
-- The network security configuration currently permits cleartext traffic to support local Listen Together servers. Use HTTPS/WSS for remote endpoints. Narrowing this policy needs a compatibility design for arbitrary trusted LAN servers.
+- Android system backup excludes the settings DataStore from cloud backup and device transfer. The explicit in-app Backup action still exports settings and the local database when the user chooses it, so treat that archive as sensitive.
+- The network security configuration requires TLS for remote traffic. Cleartext WebSocket connections are accepted only for localhost and common Android emulator loopback addresses; use WSS for remote Listen Together servers.
 - The optional attribution Worker forwards playlist requests to YouTube/Google. Its authentication and CORS settings are deployment-sensitive; see [docs/WORKERS.md](docs/WORKERS.md).
 - Debug logging must not include cookies, bearer tokens, PoTokens, Botguard responses, full provider responses or user identifiers. Release builds are not a substitute for safe debug logging.
 - `app/persistent-debug.keystore` is deterministic debug-only signing material used for local upgrades. It is not a release credential and must never sign an official artifact.

@@ -399,7 +399,8 @@ class ListenTogetherClient @Inject constructor(
         .build()
 
     private fun getServerUrl(): String {
-        return context.dataStore.get(ListenTogetherServerUrlKey, DEFAULT_SERVER_URL)
+        val configured = context.dataStore.get(ListenTogetherServerUrlKey, DEFAULT_SERVER_URL)
+        return configured.takeIf { ListenTogetherServers.isAllowedServerUrl(it) } ?: DEFAULT_SERVER_URL
     }
     
     

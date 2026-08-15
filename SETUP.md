@@ -93,7 +93,7 @@ Optional providers are configured in the app, not by committing credentials:
 
 - AI translation: enter an API key and, when needed, a base URL under the app's AI settings. The key is user-provided and should be treated as a secret.
 - Spotify, Discord, YouTube and ListenBrainz: complete the relevant account flow or enter a token in the app. Do not paste tokens into source or issues.
-- Listen Together: use the configured service or a local server only when you trust its endpoint. See the cleartext and session notes in [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
+- Listen Together: use the configured WSS service, or a `ws://` server only on localhost or the common Android emulator loopback addresses. See the session notes in [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
 ## Release-only configuration
 

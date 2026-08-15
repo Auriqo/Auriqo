@@ -16,7 +16,7 @@ Auriqo stores ordinary application state such as playback position, queues, libr
 - AI provider keys and custom endpoint settings;
 - Listen Together session values and proxy credentials.
 
-These values are not committed to the repository. The current implementation does not encrypt every DataStore/shared-preference value with Android Keystore. Android backup is enabled for parts of the app data and the settings file is not currently excluded, so a device backup or transfer may contain settings and credentials. Treat a backup as sensitive. This is an open hardening item documented in [SECURITY.md](SECURITY.md).
+These values are not committed to the repository. The current implementation does not encrypt every DataStore/shared-preference value with Android Keystore. Android system backup excludes the settings DataStore from cloud backup and device transfer. The optional in-app Backup action deliberately includes settings and the local database so it can restore the app; keep any exported archive in a trusted location.
 
 Uninstalling the app or clearing its app data is the practical way to remove app-private storage. Use each provider's logout/revocation controls as well; deleting local state does not revoke a token that a provider has already issued.
 
@@ -62,7 +62,7 @@ The app currently uses debug logging in development builds. Sensitive values mus
 
 ## Listen Together and cleartext traffic
 
-The Android network security configuration permits cleartext traffic to preserve compatibility with local Listen Together servers. This means an `http://` endpoint configured or reached by a feature is not protected by TLS. Use the production WSS endpoint or a trusted local network only. Narrowing the policy is a pending compatibility decision; it should not be interpreted as a security guarantee.
+Listen Together uses WSS for remote servers. The app accepts `ws://` only for `localhost`, `127.0.0.1`, `10.0.2.2` and `10.0.3.2`, which cover local development and common Android emulator loopback paths. Other custom servers must provide WSS.
 
 ## Third-party retention and deletion
 

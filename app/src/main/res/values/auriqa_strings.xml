@@ -608,6 +608,7 @@
     <string name="listen_together_choose_server">Choose server</string>
     <string name="listen_together_custom_server">Custom server</string>
     <string name="listen_together_use_custom_server">Use custom server</string>
+    <string name="listen_together_invalid_server_url">Use a secure WSS URL. For local development, WS is limited to localhost or the emulator.</string>
     <string name="listen_together_username">Username</string>
     <string name="listen_together_connected">Connected</string>
     <string name="listen_together_reconnecting">Reconnecting…</string>

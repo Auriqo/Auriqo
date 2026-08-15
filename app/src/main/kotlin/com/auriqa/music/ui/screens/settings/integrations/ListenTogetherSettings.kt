@@ -156,8 +156,12 @@ highlightKey: String? = null) {
                 showServerUrlDialog = false
             },
             onUseCustom = { customUrl ->
-                serverUrl = customUrl
-                showServerUrlDialog = false
+                if (ListenTogetherServers.isAllowedServerUrl(customUrl)) {
+                    serverUrl = customUrl
+                    showServerUrlDialog = false
+                } else {
+                    Toast.makeText(context, R.string.listen_together_invalid_server_url, Toast.LENGTH_LONG).show()
+                }
             },
             onDismiss = { showServerUrlDialog = false }
         )
