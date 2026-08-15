@@ -26,7 +26,7 @@ Project history names Metrolist, VIVI Music, SimpMusic, ArchiveTune, Music Recog
 
 ## Fonts and binary assets
 
-Font binaries are listed in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). Cabinet Grotesk, BBH Bartle and Google Sans Flex require different levels of source/license verification. Keep upstream download URLs, version/date, SHA-256 and license text in maintainer records; do not infer a license from a font's appearance or a web specimen.
+Font binaries and current repository SHA-256 values are listed in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). Cabinet Grotesk, BBH Bartle and Google Sans Flex still require different levels of upstream source/license verification. Do not infer a license from a font's appearance or a web specimen.
 
 Unused historical or personal images are not acceptable repository assets. New images must have a documented source, license, author/attribution and a reason to ship in the APK.
 
