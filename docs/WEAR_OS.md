@@ -30,12 +30,14 @@ as a small music surface rather than a single remote-control screen:
 
 The visual system uses the same Material You direction as the phone app. On Android 12 and newer,
 the Wear companion maps the device's dynamic Material 3 scheme into Wear Material tokens for the
-background, surfaces, text, controls and progress rail; older versions use the Auriqo fallback
-palette. The Tile resolves the same system palette without Compose. The round-display layout,
-left-aligned typography, thin progress rail and unfilled transport controls remain deliberately
-Wear-specific, so the screen feels like Auriqo without becoming a square phone UI. Vector controls
-and the Cabinet-derived Auriqo mark replace emoji and the generic system-player layout. Secondary
-playback modes remain available behind the mark instead of being removed from the product.
+background, surface containers, text, tonal controls, outlines and progress rail; older versions
+use the Auriqo fallback palette. The Tile resolves the same system palette without Compose.
+Companion screens derive their top/bottom padding, horizontal safe area, card radius, artwork size
+and control size from the device configuration, including whether the screen is round. Round
+watches get a protected circular safe area; square watches keep tighter rectangular margins instead
+of inheriting round-display padding. Vector controls and the Cabinet-derived Auriqo mark replace
+emoji and the generic system-player layout. Secondary playback modes remain available behind the
+mark instead of being removed from the product.
 
 The Wear scheme follows the watch's system dynamic colors. Matching a user-selected custom phone
 seed exactly would require sending the phone's resolved color tokens over the Data Layer; that is a

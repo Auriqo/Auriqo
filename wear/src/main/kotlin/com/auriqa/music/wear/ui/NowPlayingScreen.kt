@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -44,6 +45,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
@@ -76,6 +78,70 @@ private enum class WearDestination {
     ARTISTS,
     PLAYLISTS,
     QUEUE,
+}
+
+private data class WearScreenSpec(
+    val isRound: Boolean,
+    val compact: Boolean,
+    val horizontalPadding: Dp,
+    val topPadding: Dp,
+    val bottomPadding: Dp,
+    val itemSpacing: Dp,
+    val cardCorner: Dp,
+    val artworkSize: Dp,
+    val sideControlSize: Dp,
+    val sideIconSize: Dp,
+    val primaryControlSize: Dp,
+    val primaryIconSize: Dp,
+    val headerHeight: Dp,
+    val markRowHeight: Dp,
+)
+
+@Composable
+private fun rememberWearScreenSpec(): WearScreenSpec {
+    val configuration = LocalConfiguration.current
+    val shortestEdgeDp = minOf(configuration.screenWidthDp, configuration.screenHeightDp)
+    val compact = shortestEdgeDp <= 240
+    val isRound = configuration.isScreenRound
+
+    return WearScreenSpec(
+        isRound = isRound,
+        compact = compact,
+        horizontalPadding =
+            when {
+                isRound && compact -> 24.dp
+                isRound -> 30.dp
+                compact -> 14.dp
+                else -> 18.dp
+            },
+        topPadding =
+            when {
+                isRound && compact -> 24.dp
+                isRound -> 30.dp
+                compact -> 14.dp
+                else -> 18.dp
+            },
+        bottomPadding =
+            when {
+                isRound && compact -> 8.dp
+                isRound -> 12.dp
+                else -> 10.dp
+            },
+        itemSpacing = if (compact) 6.dp else 8.dp,
+        cardCorner = if (isRound) 24.dp else 18.dp,
+        artworkSize =
+            when {
+                compact -> 38.dp
+                isRound -> 44.dp
+                else -> 50.dp
+            },
+        sideControlSize = if (compact) 44.dp else 50.dp,
+        sideIconSize = if (compact) 22.dp else 25.dp,
+        primaryControlSize = if (compact) 54.dp else 62.dp,
+        primaryIconSize = if (compact) 34.dp else 40.dp,
+        headerHeight = if (compact) 24.dp else 27.dp,
+        markRowHeight = if (compact) 28.dp else 34.dp,
+    )
 }
 
 @Composable
@@ -190,39 +256,28 @@ private fun ConnectedNowPlaying(
     onOpenHome: () -> Unit,
 ) {
     var showModes by rememberSaveable { mutableStateOf(false) }
+    val spec = rememberWearScreenSpec()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 1.dp),
+            .padding(
+                start = spec.horizontalPadding,
+                end = spec.horizontalPadding,
+                top = spec.topPadding,
+                bottom = spec.bottomPadding,
+            ),
     ) {
         ScreenHeader(
             label = "NOW PLAYING",
             onBack = onOpenHome,
             backDescription = "Abrir biblioteca",
+            spec = spec,
         )
-        Spacer(Modifier.height(9.dp))
+        Spacer(Modifier.height(spec.itemSpacing))
 
-        Text(
-            text = state.title.orEmpty(),
-            color = AuriqoWearColors.OnSurface,
-            fontSize = 17.sp,
-            lineHeight = 19.sp,
-            fontWeight = FontWeight.Bold,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        Spacer(Modifier.height(1.dp))
-        Text(
-            text = state.artist.orEmpty(),
-            color = AuriqoWearColors.Muted,
-            fontSize = 10.sp,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        Spacer(Modifier.height(7.dp))
+        NowPlayingIdentityCard(state = state, spec = spec)
+        Spacer(Modifier.height(spec.itemSpacing))
 
         if (state.durationMs > 0L) {
             Row(
@@ -232,7 +287,7 @@ private fun ConnectedNowPlaying(
                 Text(
                     text = formatTime(position),
                     color = AuriqoWearColors.Muted,
-                    fontSize = 7.sp,
+                    fontSize = if (spec.compact) 7.sp else 8.sp,
                     fontWeight = FontWeight.Medium,
                 )
                 Spacer(Modifier.width(5.dp))
@@ -246,25 +301,25 @@ private fun ConnectedNowPlaying(
                 Text(
                     text = formatTime(state.durationMs),
                     color = AuriqoWearColors.Muted,
-                    fontSize = 7.sp,
+                    fontSize = if (spec.compact) 7.sp else 8.sp,
                     fontWeight = FontWeight.Medium,
                 )
             }
         }
 
-        Spacer(Modifier.height(7.dp))
-        TransportControls(state = state, context = context)
+        Spacer(Modifier.height(spec.itemSpacing))
+        TransportControls(state = state, context = context, spec = spec)
         Spacer(Modifier.weight(1f))
 
         if (showModes) {
-            SecondaryControls(state = state, context = context)
-            Spacer(Modifier.height(2.dp))
+            SecondaryControls(state = state, context = context, spec = spec)
+            Spacer(Modifier.height(if (spec.compact) 1.dp else 2.dp))
         }
 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(34.dp),
+                .height(spec.markRowHeight),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -272,10 +327,57 @@ private fun ConnectedNowPlaying(
                 contentDescription = if (showModes) "Ocultar controles adicionales" else "Mostrar controles adicionales",
                 tint = Color.Unspecified,
                 modifier = Modifier
-                    .offset(y = (-7).dp)
-                    .size(22.dp)
+                    .offset(y = if (spec.isRound) (-5).dp else 0.dp)
+                    .size(if (spec.compact) 20.dp else 22.dp)
                     .clickable { showModes = !showModes }
                     .semantics { role = Role.Button },
+            )
+        }
+    }
+}
+
+@Composable
+private fun NowPlayingIdentityCard(
+    state: NowPlaying,
+    spec: WearScreenSpec,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(spec.cardCorner))
+            .background(AuriqoWearColors.SurfaceContainer)
+            .padding(
+                horizontal = if (spec.compact) 8.dp else 10.dp,
+                vertical = if (spec.compact) 7.dp else 9.dp,
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        ArtworkThumbnail(
+            uri = state.artworkUri,
+            title = state.title.orEmpty(),
+            size = spec.artworkSize,
+            corner = if (spec.isRound) 15.dp else 13.dp,
+        )
+        Spacer(Modifier.width(if (spec.compact) 8.dp else 10.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = state.title.orEmpty(),
+                color = AuriqoWearColors.OnSurface,
+                fontSize = if (spec.compact) 14.sp else 16.sp,
+                lineHeight = if (spec.compact) 16.sp else 18.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(1.dp))
+            Text(
+                text = state.artist.orEmpty(),
+                color = AuriqoWearColors.Muted,
+                fontSize = if (spec.compact) 9.sp else 10.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
@@ -287,44 +389,54 @@ private fun HomeSurface(
     onOpen: (WearDestination) -> Unit,
     onBack: () -> Unit,
 ) {
+    val spec = rememberWearScreenSpec()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 5.dp),
+            .padding(
+                start = spec.horizontalPadding,
+                end = spec.horizontalPadding,
+                top = spec.topPadding,
+                bottom = spec.bottomPadding,
+            ),
     ) {
-        ScreenHeader(label = "AURIQO", onBack = onBack, backDescription = "Volver a Now Playing")
-        Spacer(Modifier.height(8.dp))
+        ScreenHeader(label = "Auriqo", onBack = onBack, backDescription = "Volver a Now Playing", spec = spec)
+        Spacer(Modifier.height(spec.itemSpacing))
         Text(
-            text = "YOUR MUSIC",
+            text = "Tu música",
             color = AuriqoWearColors.OnSurface,
-            fontSize = 18.sp,
+            fontSize = if (spec.compact) 16.sp else 18.sp,
             fontWeight = FontWeight.Bold,
-            letterSpacing = 0.7.sp,
         )
-        Spacer(Modifier.height(5.dp))
+        Spacer(Modifier.height(if (spec.compact) 4.dp else 5.dp))
 
         if (!state.title.isNullOrBlank()) {
             MiniNowPlaying(
                 state = state,
+                spec = spec,
                 onClick = { onOpen(WearDestination.NOW_PLAYING) },
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(spec.itemSpacing))
         }
 
         Text(
-            text = "LIBRARY",
+            text = "Biblioteca",
             color = AuriqoWearColors.Accent,
-            fontSize = 8.sp,
+            fontSize = if (spec.compact) 8.sp else 9.sp,
             fontWeight = FontWeight.Bold,
-            letterSpacing = 1.2.sp,
         )
-        Spacer(Modifier.height(2.dp))
-        HomeAction("TRACKS", "Canciones guardadas") { onOpen(WearDestination.TRACKS) }
-        HomeAction("ALBUMS", "Álbumes de tu biblioteca") { onOpen(WearDestination.ALBUMS) }
-        HomeAction("ARTISTS", "Artistas guardados") { onOpen(WearDestination.ARTISTS) }
-        HomeAction("PLAYLISTS", "Tus listas") { onOpen(WearDestination.PLAYLISTS) }
-        HomeAction("QUEUE", "Orden de reproducción") { onOpen(WearDestination.QUEUE) }
+        Spacer(Modifier.height(4.dp))
+        HomeAction("Canciones", "Guardadas en Auriqo", spec) { onOpen(WearDestination.TRACKS) }
+        Spacer(Modifier.height(5.dp))
+        HomeAction("Álbumes", "Tu biblioteca", spec) { onOpen(WearDestination.ALBUMS) }
+        Spacer(Modifier.height(5.dp))
+        HomeAction("Artistas", "Guardados", spec) { onOpen(WearDestination.ARTISTS) }
+        Spacer(Modifier.height(5.dp))
+        HomeAction("Playlists", "Tus listas", spec) { onOpen(WearDestination.PLAYLISTS) }
+        Spacer(Modifier.height(5.dp))
+        HomeAction("Cola", "Orden de reproducción", spec) { onOpen(WearDestination.QUEUE) }
     }
 }
 
@@ -336,6 +448,7 @@ private fun BrowseSurface(
     onBack: () -> Unit,
     onOpenNowPlaying: () -> Unit,
 ) {
+    val spec = rememberWearScreenSpec()
     val browseState by PhoneSyncManager.browse.collectAsState()
     LaunchedEffect(section) {
         PhoneSyncManager.requestBrowse(context, section)
@@ -347,22 +460,27 @@ private fun BrowseSurface(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = 18.dp, end = 18.dp, top = 22.dp, bottom = 2.dp),
+            .padding(
+                start = spec.horizontalPadding,
+                end = spec.horizontalPadding,
+                top = spec.topPadding,
+                bottom = spec.bottomPadding,
+            ),
     ) {
-        ScreenHeader(label = section.label, onBack = onBack, backDescription = "Abrir biblioteca")
-        Spacer(Modifier.height(5.dp))
+        ScreenHeader(label = section.displayLabel(), onBack = onBack, backDescription = "Abrir biblioteca", spec = spec)
+        Spacer(Modifier.height(if (spec.compact) 4.dp else 5.dp))
         Text(
-            text = if (browseState.loading && remoteItems.isEmpty()) "SINCRONIZANDO CON AURIQO" else "TOCAR PARA REPRODUCIR",
+            text = if (browseState.loading && remoteItems.isEmpty()) "Sincronizando" else "${items.size} elementos",
             color = AuriqoWearColors.Muted,
-            fontSize = 7.sp,
+            fontSize = if (spec.compact) 8.sp else 9.sp,
             fontWeight = FontWeight.Bold,
-            letterSpacing = 0.85.sp,
         )
-        Spacer(Modifier.height(3.dp))
+        Spacer(Modifier.height(if (spec.compact) 5.dp else 6.dp))
 
         if (items.isEmpty()) {
             EmptyBrowse(
                 message = browseState.error ?: "No hay elementos guardados todavía",
+                spec = spec,
             )
         } else {
             Column(
@@ -373,16 +491,27 @@ private fun BrowseSurface(
                 items.forEach { item ->
                     BrowseRow(
                         item = item,
+                        spec = spec,
                         onClick = {
                             PhoneSyncManager.playBrowseItem(context, item)
                             onOpenNowPlaying()
                         },
                     )
+                    Spacer(Modifier.height(5.dp))
                 }
             }
         }
     }
 }
+
+private fun BrowseSection.displayLabel(): String =
+    when (this) {
+        BrowseSection.TRACKS -> "Canciones"
+        BrowseSection.ALBUMS -> "Álbumes"
+        BrowseSection.ARTISTS -> "Artistas"
+        BrowseSection.PLAYLISTS -> "Playlists"
+        BrowseSection.QUEUE -> "Cola"
+    }
 
 private fun fallbackItems(section: BrowseSection, state: NowPlaying): List<BrowseItem> =
     if (section == BrowseSection.TRACKS || section == BrowseSection.QUEUE) {
@@ -406,17 +535,17 @@ private fun ScreenHeader(
     label: String,
     onBack: () -> Unit,
     backDescription: String,
+    spec: WearScreenSpec,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(27.dp)
-            .padding(horizontal = 20.dp),
+            .height(spec.headerHeight),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             modifier = Modifier
-                .size(30.dp)
+                .size(spec.headerHeight)
                 .clickable(role = Role.Button, onClick = onBack)
                 .semantics {
                     contentDescription = backDescription
@@ -427,24 +556,22 @@ private fun ScreenHeader(
             Text(
                 text = "‹",
                 color = AuriqoWearColors.Accent,
-                fontSize = 26.sp,
+                fontSize = if (spec.compact) 24.sp else 26.sp,
                 fontWeight = FontWeight.Light,
             )
         }
         Text(
             text = label,
             color = AuriqoWearColors.Accent,
-            fontSize = 9.sp,
+            fontSize = if (spec.compact) 9.sp else 10.sp,
             fontWeight = FontWeight.Bold,
-            letterSpacing = 1.25.sp,
         )
         Spacer(Modifier.weight(1f))
         Text(
             text = "AURIQO",
             color = AuriqoWearColors.Muted.copy(alpha = 0.82f),
-            fontSize = 7.sp,
+            fontSize = if (spec.compact) 7.sp else 8.sp,
             fontWeight = FontWeight.Bold,
-            letterSpacing = 0.9.sp,
         )
     }
 }
@@ -453,13 +580,17 @@ private fun ScreenHeader(
 private fun HomeAction(
     title: String,
     subtitle: String,
+    spec: WearScreenSpec,
     onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(43.dp)
+            .height(if (spec.compact) 42.dp else 46.dp)
+            .clip(RoundedCornerShape(spec.cardCorner))
+            .background(AuriqoWearColors.SurfaceContainer)
             .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = if (spec.compact) 10.dp else 12.dp)
             .semantics {
                 contentDescription = title
                 role = Role.Button
@@ -468,18 +599,17 @@ private fun HomeAction(
     ) {
         Box(
             Modifier
-                .width(3.dp)
-                .height(22.dp)
+                .size(if (spec.compact) 6.dp else 7.dp)
+                .clip(CircleShape)
                 .background(AuriqoWearColors.Accent),
         )
-        Spacer(Modifier.width(9.dp))
+        Spacer(Modifier.width(if (spec.compact) 9.dp else 10.dp))
         Column(Modifier.weight(1f)) {
             Text(
                 text = title,
                 color = AuriqoWearColors.OnSurface,
-                fontSize = 11.sp,
+                fontSize = if (spec.compact) 10.sp else 11.sp,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 0.45.sp,
             )
             Text(
                 text = subtitle,
@@ -492,7 +622,7 @@ private fun HomeAction(
         Text(
             text = "›",
             color = AuriqoWearColors.Muted,
-            fontSize = 19.sp,
+            fontSize = if (spec.compact) 18.sp else 19.sp,
         )
     }
 }
@@ -500,25 +630,34 @@ private fun HomeAction(
 @Composable
 private fun MiniNowPlaying(
     state: NowPlaying,
+    spec: WearScreenSpec,
     onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(47.dp)
+            .height(if (spec.compact) 48.dp else 54.dp)
+            .clip(RoundedCornerShape(spec.cardCorner))
+            .background(AuriqoWearColors.AccentContainer)
             .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = if (spec.compact) 8.dp else 10.dp)
             .semantics {
                 contentDescription = "Abrir Now Playing"
                 role = Role.Button
             },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ArtworkThumbnail(uri = state.artworkUri, title = state.title.orEmpty(), size = 34.dp)
-        Spacer(Modifier.width(9.dp))
+        ArtworkThumbnail(
+            uri = state.artworkUri,
+            title = state.title.orEmpty(),
+            size = if (spec.compact) 32.dp else 36.dp,
+            corner = if (spec.isRound) 12.dp else 10.dp,
+        )
+        Spacer(Modifier.width(if (spec.compact) 8.dp else 9.dp))
         Column(Modifier.weight(1f)) {
             Text(
                 text = state.title.orEmpty(),
-                color = AuriqoWearColors.OnSurface,
+                color = AuriqoWearColors.AccentContainerInk,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
@@ -526,7 +665,7 @@ private fun MiniNowPlaying(
             )
             Text(
                 text = state.artist.orEmpty(),
-                color = AuriqoWearColors.Muted,
+                color = AuriqoWearColors.AccentContainerInk.copy(alpha = 0.75f),
                 fontSize = 8.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -534,7 +673,7 @@ private fun MiniNowPlaying(
         }
         Text(
             text = "▶",
-            color = AuriqoWearColors.Accent,
+            color = AuriqoWearColors.AccentContainerInk,
             fontSize = 14.sp,
         )
     }
@@ -543,21 +682,30 @@ private fun MiniNowPlaying(
 @Composable
 private fun BrowseRow(
     item: BrowseItem,
+    spec: WearScreenSpec,
     onClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(51.dp)
+            .height(if (spec.compact) 48.dp else 54.dp)
+            .clip(RoundedCornerShape(spec.cardCorner))
+            .background(AuriqoWearColors.SurfaceContainer)
             .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = if (spec.compact) 8.dp else 10.dp)
             .semantics {
                 contentDescription = "Reproducir ${item.title}"
                 role = Role.Button
             },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ArtworkThumbnail(uri = item.artworkUri, title = item.title, size = 35.dp)
-        Spacer(Modifier.width(9.dp))
+        ArtworkThumbnail(
+            uri = item.artworkUri,
+            title = item.title,
+            size = if (spec.compact) 32.dp else 36.dp,
+            corner = if (spec.isRound) 12.dp else 10.dp,
+        )
+        Spacer(Modifier.width(if (spec.compact) 8.dp else 9.dp))
         Column(Modifier.weight(1f)) {
             Text(
                 text = item.title,
@@ -577,25 +725,30 @@ private fun BrowseRow(
         }
         Text(
             text = "▶",
-            color = AuriqoWearColors.Accent.copy(alpha = 0.85f),
+            color = AuriqoWearColors.Muted,
             fontSize = 11.sp,
         )
     }
 }
 
 @Composable
-private fun ArtworkThumbnail(uri: String?, title: String, size: Dp) {
+private fun ArtworkThumbnail(
+    uri: String?,
+    title: String,
+    size: Dp,
+    corner: Dp,
+) {
     Box(
         modifier = Modifier
             .size(size)
-            .clip(RoundedCornerShape(8.dp))
-            .background(AuriqoWearColors.RaisedSurface),
+            .clip(RoundedCornerShape(corner))
+            .background(AuriqoWearColors.SecondaryContainer),
         contentAlignment = Alignment.Center,
     ) {
         if (uri.isNullOrBlank()) {
             Text(
                 text = title.take(1).uppercase(),
-                color = AuriqoWearColors.Accent,
+                color = AuriqoWearColors.SecondaryContainerInk,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
             )
@@ -611,18 +764,21 @@ private fun ArtworkThumbnail(uri: String?, title: String, size: Dp) {
 }
 
 @Composable
-private fun EmptyBrowse(message: String) {
+private fun EmptyBrowse(message: String, spec: WearScreenSpec) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 22.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(spec.cardCorner))
+            .background(AuriqoWearColors.SurfaceContainer)
+            .padding(horizontal = if (spec.compact) 14.dp else 18.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "NO HAY DATOS",
+            text = "Sin datos",
             color = AuriqoWearColors.OnSurface,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
-            letterSpacing = 0.8.sp,
         )
         Spacer(Modifier.height(5.dp))
         Text(
@@ -637,7 +793,7 @@ private fun EmptyBrowse(message: String) {
 }
 
 @Composable
-private fun TransportControls(state: NowPlaying, context: Context) {
+private fun TransportControls(state: NowPlaying, context: Context, spec: WearScreenSpec) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -647,32 +803,35 @@ private fun TransportControls(state: NowPlaying, context: Context) {
             iconRes = R.drawable.ic_previous,
             description = "Canción anterior",
             enabled = state.canSkipPrevious,
-            size = 50.dp,
-            iconSize = 27.dp,
+            size = spec.sideControlSize,
+            iconSize = spec.sideIconSize,
+            container = AuriqoWearColors.SurfaceContainer,
             onClick = { PhoneSyncManager.skipToPrevious(context) },
         )
         PlainControl(
             iconRes = if (state.isPlaying) R.drawable.ic_pause else R.drawable.ic_play,
             description = if (state.isPlaying) "Pausar" else "Reproducir",
             enabled = true,
-            size = 64.dp,
-            iconSize = 43.dp,
-            tint = AuriqoWearColors.Accent,
+            size = spec.primaryControlSize,
+            iconSize = spec.primaryIconSize,
+            tint = AuriqoWearColors.AccentInk,
+            container = AuriqoWearColors.Accent,
             onClick = { PhoneSyncManager.togglePlayPause(context) },
         )
         PlainControl(
             iconRes = R.drawable.ic_next,
             description = "Canción siguiente",
             enabled = state.canSkipNext,
-            size = 50.dp,
-            iconSize = 27.dp,
+            size = spec.sideControlSize,
+            iconSize = spec.sideIconSize,
+            container = AuriqoWearColors.SurfaceContainer,
             onClick = { PhoneSyncManager.skipToNext(context) },
         )
     }
 }
 
 @Composable
-private fun SecondaryControls(state: NowPlaying, context: Context) {
+private fun SecondaryControls(state: NowPlaying, context: Context, spec: WearScreenSpec) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -682,8 +841,9 @@ private fun SecondaryControls(state: NowPlaying, context: Context) {
             iconRes = R.drawable.ic_heart,
             description = if (state.isLiked) "Quitar Me gusta" else "Me gusta",
             enabled = state.canLike,
-            tint = if (state.isLiked) AuriqoWearColors.Accent else AuriqoWearColors.OnSurface,
-            size = 42.dp,
+            tint = if (state.isLiked) AuriqoWearColors.AccentContainerInk else AuriqoWearColors.OnSurface,
+            container = if (state.isLiked) AuriqoWearColors.AccentContainer else AuriqoWearColors.SurfaceContainer,
+            size = if (spec.compact) 38.dp else 42.dp,
             iconSize = 18.dp,
             onClick = { PhoneSyncManager.toggleLike(context) },
         )
@@ -691,8 +851,9 @@ private fun SecondaryControls(state: NowPlaying, context: Context) {
             iconRes = R.drawable.ic_shuffle,
             description = if (state.shuffleEnabled) "Desactivar aleatorio" else "Activar aleatorio",
             enabled = true,
-            tint = if (state.shuffleEnabled) AuriqoWearColors.Accent else AuriqoWearColors.OnSurface,
-            size = 42.dp,
+            tint = if (state.shuffleEnabled) AuriqoWearColors.AccentContainerInk else AuriqoWearColors.OnSurface,
+            container = if (state.shuffleEnabled) AuriqoWearColors.AccentContainer else AuriqoWearColors.SurfaceContainer,
+            size = if (spec.compact) 38.dp else 42.dp,
             iconSize = 18.dp,
             onClick = { PhoneSyncManager.toggleShuffle(context) },
         )
@@ -700,8 +861,9 @@ private fun SecondaryControls(state: NowPlaying, context: Context) {
             iconRes = R.drawable.ic_repeat,
             description = "Cambiar repetición",
             enabled = true,
-            tint = if (state.repeatMode != 0) AuriqoWearColors.Accent else AuriqoWearColors.OnSurface,
-            size = 42.dp,
+            tint = if (state.repeatMode != 0) AuriqoWearColors.AccentContainerInk else AuriqoWearColors.OnSurface,
+            container = if (state.repeatMode != 0) AuriqoWearColors.AccentContainer else AuriqoWearColors.SurfaceContainer,
+            size = if (spec.compact) 38.dp else 42.dp,
             iconSize = 18.dp,
             badge = if (state.repeatMode == 1) "1" else null,
             onClick = { PhoneSyncManager.toggleRepeatMode(context) },
@@ -718,6 +880,7 @@ private fun PlainControl(
     iconSize: Dp,
     enabled: Boolean,
     tint: Color? = null,
+    container: Color? = null,
     badge: String? = null,
 ) {
     val resolvedTint = tint ?: AuriqoWearColors.OnSurface
@@ -725,6 +888,8 @@ private fun PlainControl(
     Box(
         modifier = Modifier
             .size(size)
+            .clip(CircleShape)
+            .background(container ?: Color.Transparent)
             .alpha(if (enabled) 1f else 0.28f)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .semantics {
@@ -771,8 +936,9 @@ private fun ProgressRail(
         if (!isDragging) dragProgress = progress.coerceIn(0f, 1f)
     }
 
-    val onSurface = AuriqoWearColors.OnSurface
+    val track = AuriqoWearColors.OutlineVariant
     val accent = AuriqoWearColors.Accent
+    val thumb = AuriqoWearColors.AccentInk
 
     Box(
         modifier = modifier
@@ -810,21 +976,28 @@ private fun ProgressRail(
             },
         contentAlignment = Alignment.Center,
     ) {
-        Canvas(Modifier.fillMaxWidth().height(2.dp)) {
+        Canvas(Modifier.fillMaxWidth().height(18.dp)) {
             val y = size.height / 2f
+            val strokeWidth = if (isDragging) 5.dp.toPx() else 4.dp.toPx()
+            val activeEnd = size.width * dragProgress.coerceIn(0f, 1f)
             drawLine(
-                color = onSurface.copy(alpha = 0.18f),
+                color = track,
                 start = Offset(0f, y),
                 end = Offset(size.width, y),
-                strokeWidth = size.height,
+                strokeWidth = strokeWidth,
                 cap = StrokeCap.Round,
             )
             drawLine(
                 color = accent,
                 start = Offset(0f, y),
-                end = Offset(size.width * dragProgress.coerceIn(0f, 1f), y),
-                strokeWidth = size.height,
+                end = Offset(activeEnd, y),
+                strokeWidth = strokeWidth,
                 cap = StrokeCap.Round,
+            )
+            drawCircle(
+                color = thumb,
+                radius = if (isDragging) 4.5.dp.toPx() else 3.5.dp.toPx(),
+                center = Offset(activeEnd.coerceIn(0f, size.width), y),
             )
         }
     }
@@ -836,58 +1009,80 @@ private fun DisconnectedPlayer(
     context: Context,
     onOpenHome: () -> Unit,
 ) {
+    val spec = rememberWearScreenSpec()
+
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 22.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(
+                start = spec.horizontalPadding,
+                end = spec.horizontalPadding,
+                top = spec.topPadding,
+                bottom = spec.bottomPadding,
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        ScreenHeader(label = "NOW PLAYING", onBack = onOpenHome, backDescription = "Abrir biblioteca")
+        ScreenHeader(label = "Now Playing", onBack = onOpenHome, backDescription = "Abrir biblioteca", spec = spec)
         Spacer(Modifier.weight(1f))
-        Icon(
-            painter = painterResource(R.drawable.ic_auriqo_wear),
-            contentDescription = "Auriqo",
-            tint = Color.Unspecified,
-            modifier = Modifier.size(47.dp),
-        )
-        Spacer(Modifier.height(9.dp))
-        Text(
-            text = "SIN SESIÓN",
-            color = AuriqoWearColors.OnSurface,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.sp,
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = "Reproducí algo en Auriqo",
-            color = AuriqoWearColors.Muted,
-            fontSize = 9.sp,
-            textAlign = TextAlign.Center,
-        )
-        state.error?.let { error ->
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(spec.cardCorner))
+                .background(AuriqoWearColors.SurfaceContainer)
+                .padding(horizontal = if (spec.compact) 14.dp else 18.dp, vertical = if (spec.compact) 14.dp else 18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_auriqo_wear),
+                contentDescription = "Auriqo",
+                tint = Color.Unspecified,
+                modifier = Modifier.size(if (spec.compact) 40.dp else 47.dp),
+            )
+            Spacer(Modifier.height(9.dp))
+            Text(
+                text = "Sin sesión",
+                color = AuriqoWearColors.OnSurface,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+            )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = error,
-                color = AuriqoWearColors.Muted.copy(alpha = 0.8f),
-                fontSize = 8.sp,
+                text = "Reproducí algo en Auriqo",
+                color = AuriqoWearColors.Muted,
+                fontSize = 9.sp,
+                textAlign = TextAlign.Center,
+            )
+            state.error?.let { error ->
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = error,
+                    color = AuriqoWearColors.Muted.copy(alpha = 0.8f),
+                    fontSize = 8.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = "Reconectar",
+                color = AuriqoWearColors.AccentContainerInk,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(AuriqoWearColors.AccentContainer)
+                    .clickable(role = Role.Button) { PhoneSyncManager.ensureConnected(context) }
+                    .padding(horizontal = 13.dp, vertical = 7.dp)
+                    .semantics {
+                        contentDescription = "Reconectar con el teléfono"
+                        role = Role.Button
+                    },
             )
         }
-        Spacer(Modifier.height(9.dp))
-        Text(
-            text = "RECONECTAR",
-            color = AuriqoWearColors.Accent,
-            fontSize = 8.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 0.8.sp,
-            modifier = Modifier
-                .clickable(role = Role.Button) { PhoneSyncManager.ensureConnected(context) }
-                .semantics {
-                    contentDescription = "Reconectar con el teléfono"
-                    role = Role.Button
-                },
-        )
         Spacer(Modifier.weight(1f))
         Icon(
             painter = painterResource(R.drawable.ic_auriqo_wear),

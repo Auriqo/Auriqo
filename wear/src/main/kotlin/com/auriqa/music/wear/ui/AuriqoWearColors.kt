@@ -23,12 +23,19 @@ import androidx.wear.compose.material.MaterialTheme
 private data class WearPalette(
     val accent: Color,
     val accentInk: Color,
+    val accentContainer: Color,
+    val accentContainerInk: Color,
     val secondary: Color,
     val secondaryInk: Color,
+    val secondaryContainer: Color,
+    val secondaryContainerInk: Color,
     val surface: Color,
+    val surfaceContainer: Color,
     val raisedSurface: Color,
     val muted: Color,
     val onSurface: Color,
+    val outline: Color,
+    val outlineVariant: Color,
     val error: Color,
     val onError: Color,
 )
@@ -37,12 +44,19 @@ private val FallbackPalette =
     WearPalette(
         accent = Color(0xFFD8F36A),
         accentInk = Color(0xFF17302A),
+        accentContainer = Color(0xFF3C4A16),
+        accentContainerInk = Color(0xFFE9FF9C),
         secondary = Color(0xFFD8F36A),
         secondaryInk = Color(0xFF17302A),
+        secondaryContainer = Color(0xFF28322A),
+        secondaryContainerInk = Color(0xFFD8E8D2),
         surface = Color(0xFF050606),
+        surfaceContainer = Color(0xFF101411),
         raisedSurface = Color(0xFF151916),
         muted = Color(0xFFA6ADA7),
         onSurface = Color.White,
+        outline = Color(0xFF6F786F),
+        outlineVariant = Color(0xFF2F372F),
         error = Color(0xFFB3261E),
         onError = Color.White,
     )
@@ -53,12 +67,19 @@ private fun ColorScheme.toWearPalette(): WearPalette =
     WearPalette(
         accent = primary,
         accentInk = onPrimary,
+        accentContainer = primaryContainer,
+        accentContainerInk = onPrimaryContainer,
         secondary = secondary,
         secondaryInk = onSecondary,
+        secondaryContainer = secondaryContainer,
+        secondaryContainerInk = onSecondaryContainer,
         surface = background,
+        surfaceContainer = surface,
         raisedSurface = surfaceVariant,
         muted = onSurfaceVariant,
         onSurface = onBackground,
+        outline = outline,
+        outlineVariant = outlineVariant,
         error = error,
         onError = onError,
     )
@@ -115,8 +136,23 @@ object AuriqoWearColors {
     val AccentInk: Color
         @Composable get() = LocalPalette.current.accentInk
 
+    val AccentContainer: Color
+        @Composable get() = LocalPalette.current.accentContainer
+
+    val AccentContainerInk: Color
+        @Composable get() = LocalPalette.current.accentContainerInk
+
+    val SecondaryContainer: Color
+        @Composable get() = LocalPalette.current.secondaryContainer
+
+    val SecondaryContainerInk: Color
+        @Composable get() = LocalPalette.current.secondaryContainerInk
+
     val Surface: Color
         @Composable get() = LocalPalette.current.surface
+
+    val SurfaceContainer: Color
+        @Composable get() = LocalPalette.current.surfaceContainer
 
     val RaisedSurface: Color
         @Composable get() = LocalPalette.current.raisedSurface
@@ -126,4 +162,10 @@ object AuriqoWearColors {
 
     val OnSurface: Color
         @Composable get() = LocalPalette.current.onSurface
+
+    val Outline: Color
+        @Composable get() = LocalPalette.current.outline
+
+    val OutlineVariant: Color
+        @Composable get() = LocalPalette.current.outlineVariant
 }

@@ -23,6 +23,8 @@ This file records user-visible and release-process changes. It does not replace 
 - Aligned the Wear companion and Tile with Auriqo's Material You direction: Android 12+ uses the
   system dynamic Material 3 palette, with a branded fallback on older Wear OS versions while
   preserving the circular-display layout.
+- Expanded the Wear companion Material You treatment with tonal containers, adaptive round/square
+  screen metrics, dynamic progress thumb/track colors and responsive control sizes.
 
 ## [1.0.3-alpha.1] - 2026-08-15
 
