@@ -424,12 +424,7 @@ object PhoneSyncManager : DataClient.OnDataChangedListener {
 
     fun seekTo(context: Context, positionMs: Long) {
         val position = positionMs.coerceAtLeast(0L)
-        sendCommand(context, "$CMD_SEEK_PREFIX$position") { state, now ->
-            state.copy(
-                positionMs = if (state.durationMs > 0L) position.coerceAtMost(state.durationMs) else position,
-                receivedAtElapsedRealtimeMs = now,
-            )
-        }
+        sendCommand(context, "$CMD_SEEK_PREFIX$position")
     }
 
     fun adjustVolume(context: Context, direction: Int) {

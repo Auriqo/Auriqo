@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.media.MediaMetadata
+import android.media.VolumeProvider
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
 import android.os.Build
@@ -66,6 +67,16 @@ class AuriqoMediaSessionService : MediaBrowserService() {
     private var foregroundStarted = false
     private var artworkUrl: String? = null
 
+    private val volumeProvider = object : VolumeProvider(
+        VOLUME_CONTROL_RELATIVE,
+        100,
+        50,
+    ) {
+        override fun onAdjustVolume(direction: Int) {
+            PhoneSyncManager.adjustVolume(this@AuriqoMediaSessionService, direction)
+        }
+    }
+
     private val callback = object : MediaSession.Callback() {
         override fun onPlay() = PhoneSyncManager.play(this@AuriqoMediaSessionService)
 
@@ -97,6 +108,7 @@ class AuriqoMediaSessionService : MediaBrowserService() {
                 MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS,
         )
         mediaSession.setCallback(callback)
+        mediaSession.setPlaybackToRemote(volumeProvider)
         mediaSession.setSessionActivity(
             PendingIntent.getActivity(
                 this,

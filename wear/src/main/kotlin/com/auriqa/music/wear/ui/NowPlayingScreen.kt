@@ -27,6 +27,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -761,6 +762,12 @@ private fun ProgressRail(
         } else {
             0f
         }
+    var dragProgress by remember { mutableFloatStateOf(progress.coerceIn(0f, 1f)) }
+    var isDragging by remember { mutableStateOf(false) }
+
+    LaunchedEffect(progress) {
+        if (!isDragging) dragProgress = progress.coerceIn(0f, 1f)
+    }
 
     Box(
         modifier = modifier
@@ -768,15 +775,27 @@ private fun ProgressRail(
             .pointerInput(durationMs) {
                 if (durationMs > 0L) {
                     val width = size.width.toFloat().coerceAtLeast(1f)
+                    var pendingProgress = dragProgress
                     fun seekAt(x: Float) {
-                        val fraction = (x / width).coerceIn(0f, 1f)
-                        onSeek((durationMs * fraction).toLong())
+                        pendingProgress = (x / width).coerceIn(0f, 1f)
+                        dragProgress = pendingProgress
                     }
                     detectDragGestures(
-                        onDragStart = { offset -> seekAt(offset.x) },
+                        onDragStart = { offset ->
+                            isDragging = true
+                            seekAt(offset.x)
+                        },
                         onDrag = { change, _ ->
                             change.consume()
                             seekAt(change.position.x)
+                        },
+                        onDragEnd = {
+                            isDragging = false
+                            onSeek((durationMs * pendingProgress).toLong())
+                        },
+                        onDragCancel = {
+                            isDragging = false
+                            dragProgress = progress.coerceIn(0f, 1f)
                         },
                     )
                 }
@@ -798,7 +817,7 @@ private fun ProgressRail(
             drawLine(
                 color = AuriqoWearColors.Accent,
                 start = Offset(0f, y),
-                end = Offset(size.width * progress.coerceIn(0f, 1f), y),
+                end = Offset(size.width * dragProgress.coerceIn(0f, 1f), y),
                 strokeWidth = size.height,
                 cap = StrokeCap.Round,
             )
