@@ -1,12 +1,12 @@
 # Contributing to Auriqo
 
-Thanks for helping improve Auriqo. Contributions are welcome, but please keep the project buildable, privacy-conscious and compatible with existing installs.
+Thanks for helping improve Auriqo. Bug reports, ideas, documentation fixes and code contributions are all welcome. A good contribution is focused, buildable and compatible with existing installs.
 
 ## Before opening an issue or pull request
 
 - Search existing issues and pull requests.
 - For a security vulnerability, follow [SECURITY.md](SECURITY.md) instead of opening a public issue.
-- For a provider outage or authentication breakage, include the provider, build variant, Android version and a redacted error description. Never include cookies, OAuth tokens, API keys, full request headers or private logs.
+- For a provider outage or authentication breakage, include the provider, build variant, Android version and a short error description.
 - Confirm that the proposed change is compatible with the `com.auriqa.music` application ID and existing preference/deep-link identifiers unless a migration is part of the proposal.
 
 ## Development setup
@@ -60,32 +60,25 @@ chore(ci): pin action versions
 
 Do not rewrite shared history, move tags, or force-push branches used by other contributors.
 
-## Secret and privacy hygiene
+## Keep local files local
 
-Never commit:
-
-- `local.properties`, Firebase configuration or environment files;
-- API keys, OAuth client secrets, cookies, bearer tokens or webhook URLs;
-- PEM files, keystores, signing properties or release credentials;
-- device logs, crash dumps, screenshots containing personal data or generated APKs.
-
-Values entered in the app for AI providers, scrobbling, proxies or account integrations are user secrets. Do not add logging around them. The tracked persistent debug keystore is for deterministic local debug builds only and must never be used to sign a release.
+Do not commit local configuration (`local.properties`, Firebase or environment files), credentials, signing material, device logs or generated APKs. If a log or screenshot helps explain a problem, remove account tokens and personal details first. The tracked persistent debug keystore is for local debug builds only and must never sign a release.
 
 ## Pull requests
 
-A pull request should:
+A good pull request should:
 
 - explain the user-visible or maintenance reason for the change;
 - identify affected build variants and modules;
 - include tests or explain why no automated test is practical;
 - update documentation and third-party notices when behavior, data flow or provenance changes;
 - avoid unrelated formatting or mass renames;
-- include screenshots only when necessary, current and free of personal/obsolete branding.
+- include screenshots only when they help explain the change and match the current app.
 
-Maintainers may request a smaller split if a change combines product behavior, security-sensitive changes and repository maintenance.
+If a change affects an integration, stored setting or release behavior, call it out in the pull request so reviewers can check compatibility.
 
 ## Code review expectations
 
-Reviewers will pay particular attention to authentication, WebViews, exported Android components, network endpoints, backup behavior, logging, permissions and dependency changes. A passing build does not by itself establish that a provider, license or release process is safe.
+Changes involving integrations, permissions, dependencies or release behavior may need an extra review pass.
 
 By participating, you agree to follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).

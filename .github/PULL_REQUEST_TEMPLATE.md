@@ -1,34 +1,38 @@
 ## Summary
 
-<!-- Explain the user or maintenance reason for this focused change. -->
+<!-- What does this change improve for users or maintainers? -->
 
-## Scope
+## What changed?
 
 - Affected modules/variants:
-- User-visible or data-flow change:
-- Compatibility impact on package ID, preferences or deep links:
+- User-visible behavior:
+- Compatibility notes, if any:
 
-## Validation
+## Testing
 
 - [ ] `git diff --check`
 - [ ] Relevant unit/module tests run (list commands below)
-- [ ] FOSS compile/build considered or run
-- [ ] Lint considered or run
-- [ ] Worker typecheck run, if applicable
-- [ ] No credentials, cookies, private logs, personal screenshots or generated APKs are included
-- [ ] Documentation/provenance updated when behavior or third-party code changed
+- [ ] FOSS compile/build run, when applicable
+- [ ] Lint run, when applicable
+- [ ] Worker typecheck run, when applicable
+- [ ] Documentation updated, when user behavior or third-party code changed
 
 Commands/results:
 
 ```text
-<!-- Add commands and concise results. Redact secrets. -->
+<!-- Add commands and concise results. -->
 ```
 
-## Security and privacy review
+## Screenshots (optional)
 
-<!-- Describe new permissions, exported components, WebViews, endpoints, tokens, logs, backups or network data. Write "None" when not applicable. -->
+<!-- Add screenshots or a short recording when they make the change easier to review. -->
 
-## Release impact
+## Notes for reviewers
 
-- [ ] This is not a release/tag/release-upload change.
-- [ ] If release-related, I followed `RELEASE_INFO.md` and explained maintainer approvals needed.
+<!-- Mention integration, stored-setting or release implications if relevant. -->
+
+## Checklist
+
+- [ ] This pull request is focused and does not include unrelated generated files.
+- [ ] I kept local configuration and credentials out of the changes.
+- [ ] This is not a release/tag/release-upload change, or I followed `RELEASE_INFO.md`.

@@ -5,4 +5,4 @@ contact_links:
     about: Report security issues privately; do not disclose credentials or exploit details in a public issue.
   - name: Documentation
     url: https://github.com/Auriqo/Auriqo/blob/main/README.md
-    about: Read the setup, contribution and privacy documentation before opening a support issue.
+    about: Start with the README and setup guide for build and usage help.
