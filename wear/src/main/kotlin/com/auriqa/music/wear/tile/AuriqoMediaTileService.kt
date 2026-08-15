@@ -1,6 +1,9 @@
 package com.auriqo.music.wear.tile
 
+import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.os.Build
 import androidx.wear.protolayout.ActionBuilders
 import androidx.wear.protolayout.ColorBuilders
 import androidx.wear.protolayout.DimensionBuilders
@@ -44,11 +47,46 @@ private const val ACTION_LIKE = "like"
 private const val ACTION_SHUFFLE = "shuffle"
 private const val ACTION_REPEAT = "repeat"
 
-private val COLOR_BACKGROUND = ColorBuilders.argb(0xFF050606.toInt())
-private val COLOR_ACCENT = ColorBuilders.argb(0xFFD8F36A.toInt())
-private val COLOR_TEXT = ColorBuilders.argb(0xFFFFFFFF.toInt())
-private val COLOR_TEXT_MUTED = ColorBuilders.argb(0xFFA6ADA7.toInt())
-private val COLOR_BUTTON = ColorBuilders.argb(0xFF151916.toInt())
+private data class TileColors(
+    val background: ColorBuilders.ColorProp,
+    val accent: ColorBuilders.ColorProp,
+    val text: ColorBuilders.ColorProp,
+    val mutedText: ColorBuilders.ColorProp,
+    val button: ColorBuilders.ColorProp,
+)
+
+private fun tileColors(context: Context): TileColors {
+    val dark =
+        (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+
+    fun systemOrFallback(resourceId: Int, fallback: Int): ColorBuilders.ColorProp {
+        val color = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            context.getColor(resourceId)
+        } else {
+            fallback
+        }
+        return ColorBuilders.argb(color)
+    }
+
+    return if (dark) {
+        TileColors(
+            background = systemOrFallback(android.R.color.system_neutral1_1000, 0xFF050606.toInt()),
+            accent = systemOrFallback(android.R.color.system_accent1_200, 0xFFD8F36A.toInt()),
+            text = systemOrFallback(android.R.color.system_neutral1_50, 0xFFFFFFFF.toInt()),
+            mutedText = systemOrFallback(android.R.color.system_neutral2_200, 0xFFA6ADA7.toInt()),
+            button = systemOrFallback(android.R.color.system_neutral1_900, 0xFF151916.toInt()),
+        )
+    } else {
+        TileColors(
+            background = systemOrFallback(android.R.color.system_neutral1_10, 0xFFF9F7FF.toInt()),
+            accent = systemOrFallback(android.R.color.system_accent1_600, 0xFF4F64A0.toInt()),
+            text = systemOrFallback(android.R.color.system_neutral1_900, 0xFF1A1B20.toInt()),
+            mutedText = systemOrFallback(android.R.color.system_neutral2_700, 0xFF5E5E66.toInt()),
+            button = systemOrFallback(android.R.color.system_neutral1_100, 0xFFE4E2EB.toInt()),
+        )
+    }
+}
 
 class AuriqoMediaTileService : TileService() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -144,17 +182,18 @@ class AuriqoMediaTileService : TileService() {
     }
 
     private fun buildTile(state: NowPlaying): TileBuilders.Tile {
+        val colors = tileColors(applicationContext)
         val column = LayoutElementBuilders.Column.Builder()
 
         column.addContent(header())
         column.addContent(LayoutElementBuilders.Spacer.Builder().setHeight(DimensionBuilders.dp(4f)).build())
 
         if (state.connected && !state.title.isNullOrBlank()) {
-            column.addContent(nowPlayingSection(state))
+            column.addContent(nowPlayingSection(state, colors))
             column.addContent(LayoutElementBuilders.Spacer.Builder().setHeight(DimensionBuilders.dp(4f)).build())
-            column.addContent(controlsSection(state))
+            column.addContent(controlsSection(state, colors))
         } else {
-            column.addContent(disconnectedSection())
+            column.addContent(disconnectedSection(colors))
         }
 
         val rootBox =
@@ -165,7 +204,7 @@ class AuriqoMediaTileService : TileService() {
                     ModifiersBuilders.Modifiers.Builder()
                         .setBackground(
                             ModifiersBuilders.Background.Builder()
-                                .setColor(COLOR_BACKGROUND)
+                                .setColor(colors.background)
                                 .build(),
                         )
                         .build(),
@@ -186,7 +225,10 @@ class AuriqoMediaTileService : TileService() {
             .setHeight(DimensionBuilders.dp(18f))
             .build()
 
-    private fun nowPlayingSection(state: NowPlaying): LayoutElementBuilders.LayoutElement {
+    private fun nowPlayingSection(
+        state: NowPlaying,
+        colors: TileColors,
+    ): LayoutElementBuilders.LayoutElement {
         val row = LayoutElementBuilders.Row.Builder()
 
         val artworkUrl = state.artworkUri
@@ -205,14 +247,14 @@ class AuriqoMediaTileService : TileService() {
         textColumn.addContent(
             LayoutElementBuilders.Text.Builder()
                 .setText(textProp(state.title ?: ""))
-                .setFontStyle(fontStyle(sizeSp = 13f, color = COLOR_TEXT))
+                .setFontStyle(fontStyle(sizeSp = 13f, color = colors.text))
                 .setMaxLines(int32Prop(2))
                 .build(),
         )
         textColumn.addContent(
             LayoutElementBuilders.Text.Builder()
                 .setText(textProp(state.artist ?: ""))
-                .setFontStyle(fontStyle(sizeSp = 11f, color = COLOR_TEXT_MUTED))
+                .setFontStyle(fontStyle(sizeSp = 11f, color = colors.mutedText))
                 .setMaxLines(int32Prop(1))
                 .build(),
         )
@@ -221,33 +263,43 @@ class AuriqoMediaTileService : TileService() {
         return row.build()
     }
 
-    private fun controlsSection(state: NowPlaying): LayoutElementBuilders.LayoutElement {
+    private fun controlsSection(
+        state: NowPlaying,
+        colors: TileColors,
+    ): LayoutElementBuilders.LayoutElement {
         val row = LayoutElementBuilders.Row.Builder()
 
         if (state.canSkipPrevious) {
-            row.addContent(iconButton(PREVIOUS_RESOURCE_ID, ACTION_PREV))
+            row.addContent(iconButton(PREVIOUS_RESOURCE_ID, ACTION_PREV, colors = colors))
         }
-        row.addContent(iconButton(if (state.isPlaying) PAUSE_RESOURCE_ID else PLAY_RESOURCE_ID, ACTION_PLAY_PAUSE, primary = true))
+        row.addContent(
+            iconButton(
+                if (state.isPlaying) PAUSE_RESOURCE_ID else PLAY_RESOURCE_ID,
+                ACTION_PLAY_PAUSE,
+                primary = true,
+                colors = colors,
+            ),
+        )
         if (state.canSkipNext) {
-            row.addContent(iconButton(NEXT_RESOURCE_ID, ACTION_NEXT))
+            row.addContent(iconButton(NEXT_RESOURCE_ID, ACTION_NEXT, colors = colors))
         }
 
         if (state.canLike) {
             row.addContent(LayoutElementBuilders.Spacer.Builder().setWidth(DimensionBuilders.dp(12f)).build())
-            row.addContent(iconButton(HEART_RESOURCE_ID, ACTION_LIKE, active = state.isLiked))
+            row.addContent(iconButton(HEART_RESOURCE_ID, ACTION_LIKE, active = state.isLiked, colors = colors))
         }
 
         row.addContent(LayoutElementBuilders.Spacer.Builder().setWidth(DimensionBuilders.dp(12f)).build())
-        row.addContent(iconButton(SHUFFLE_RESOURCE_ID, ACTION_SHUFFLE, active = state.shuffleEnabled))
-        row.addContent(iconButton(REPEAT_RESOURCE_ID, ACTION_REPEAT, active = state.repeatMode != 0))
+        row.addContent(iconButton(SHUFFLE_RESOURCE_ID, ACTION_SHUFFLE, active = state.shuffleEnabled, colors = colors))
+        row.addContent(iconButton(REPEAT_RESOURCE_ID, ACTION_REPEAT, active = state.repeatMode != 0, colors = colors))
 
         return row.build()
     }
 
-    private fun disconnectedSection(): LayoutElementBuilders.LayoutElement =
+    private fun disconnectedSection(colors: TileColors): LayoutElementBuilders.LayoutElement =
         LayoutElementBuilders.Text.Builder()
             .setText(textProp("Auriqo no conectado"))
-            .setFontStyle(fontStyle(sizeSp = 13f, color = COLOR_TEXT_MUTED))
+            .setFontStyle(fontStyle(sizeSp = 13f, color = colors.mutedText))
             .setMaxLines(int32Prop(2))
             .build()
 
@@ -271,9 +323,10 @@ class AuriqoMediaTileService : TileService() {
         action: String,
         primary: Boolean = false,
         active: Boolean = false,
+        colors: TileColors,
     ): LayoutElementBuilders.LayoutElement {
-        val buttonColor = if (primary || active) COLOR_ACCENT else COLOR_BUTTON
-        val glyphColor = if (primary || active) COLOR_BACKGROUND else COLOR_TEXT
+        val buttonColor = if (primary || active) colors.accent else colors.button
+        val glyphColor = if (primary || active) colors.background else colors.text
 
         val icon =
             LayoutElementBuilders.Image.Builder()

@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.compose.runtime)
     implementation(libs.compose.foundation)
     implementation(libs.compose.ui)
+    implementation(libs.material3)
     implementation(libs.activity)
     implementation(libs.play.services.wearable)
     implementation(libs.coil)

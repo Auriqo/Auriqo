@@ -205,7 +205,7 @@ private fun ConnectedNowPlaying(
 
         Text(
             text = state.title.orEmpty(),
-            color = Color.White,
+            color = AuriqoWearColors.OnSurface,
             fontSize = 17.sp,
             lineHeight = 19.sp,
             fontWeight = FontWeight.Bold,
@@ -297,7 +297,7 @@ private fun HomeSurface(
         Spacer(Modifier.height(8.dp))
         Text(
             text = "YOUR MUSIC",
-            color = Color.White,
+            color = AuriqoWearColors.OnSurface,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.7.sp,
@@ -476,7 +476,7 @@ private fun HomeAction(
         Column(Modifier.weight(1f)) {
             Text(
                 text = title,
-                color = Color.White,
+                color = AuriqoWearColors.OnSurface,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 0.45.sp,
@@ -518,7 +518,7 @@ private fun MiniNowPlaying(
         Column(Modifier.weight(1f)) {
             Text(
                 text = state.title.orEmpty(),
-                color = Color.White,
+                color = AuriqoWearColors.OnSurface,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
@@ -561,7 +561,7 @@ private fun BrowseRow(
         Column(Modifier.weight(1f)) {
             Text(
                 text = item.title,
-                color = Color.White,
+                color = AuriqoWearColors.OnSurface,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
@@ -619,7 +619,7 @@ private fun EmptyBrowse(message: String) {
     ) {
         Text(
             text = "NO HAY DATOS",
-            color = Color.White,
+            color = AuriqoWearColors.OnSurface,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.8.sp,
@@ -682,7 +682,7 @@ private fun SecondaryControls(state: NowPlaying, context: Context) {
             iconRes = R.drawable.ic_heart,
             description = if (state.isLiked) "Quitar Me gusta" else "Me gusta",
             enabled = state.canLike,
-            tint = if (state.isLiked) AuriqoWearColors.Accent else Color.White,
+            tint = if (state.isLiked) AuriqoWearColors.Accent else AuriqoWearColors.OnSurface,
             size = 42.dp,
             iconSize = 18.dp,
             onClick = { PhoneSyncManager.toggleLike(context) },
@@ -691,7 +691,7 @@ private fun SecondaryControls(state: NowPlaying, context: Context) {
             iconRes = R.drawable.ic_shuffle,
             description = if (state.shuffleEnabled) "Desactivar aleatorio" else "Activar aleatorio",
             enabled = true,
-            tint = if (state.shuffleEnabled) AuriqoWearColors.Accent else Color.White,
+            tint = if (state.shuffleEnabled) AuriqoWearColors.Accent else AuriqoWearColors.OnSurface,
             size = 42.dp,
             iconSize = 18.dp,
             onClick = { PhoneSyncManager.toggleShuffle(context) },
@@ -700,7 +700,7 @@ private fun SecondaryControls(state: NowPlaying, context: Context) {
             iconRes = R.drawable.ic_repeat,
             description = "Cambiar repetición",
             enabled = true,
-            tint = if (state.repeatMode != 0) AuriqoWearColors.Accent else Color.White,
+            tint = if (state.repeatMode != 0) AuriqoWearColors.Accent else AuriqoWearColors.OnSurface,
             size = 42.dp,
             iconSize = 18.dp,
             badge = if (state.repeatMode == 1) "1" else null,
@@ -717,9 +717,11 @@ private fun PlainControl(
     size: Dp,
     iconSize: Dp,
     enabled: Boolean,
-    tint: Color = Color.White,
+    tint: Color? = null,
     badge: String? = null,
 ) {
+    val resolvedTint = tint ?: AuriqoWearColors.OnSurface
+
     Box(
         modifier = Modifier
             .size(size)
@@ -734,13 +736,13 @@ private fun PlainControl(
         Icon(
             painter = painterResource(iconRes),
             contentDescription = null,
-            tint = tint,
+            tint = resolvedTint,
             modifier = Modifier.size(iconSize),
         )
         badge?.let {
             Text(
                 text = it,
-                color = tint,
+                color = resolvedTint,
                 fontSize = 7.sp,
                 fontWeight = FontWeight.Black,
                 modifier = Modifier.align(Alignment.TopEnd).padding(top = 2.dp, end = 5.dp),
@@ -768,6 +770,9 @@ private fun ProgressRail(
     LaunchedEffect(progress) {
         if (!isDragging) dragProgress = progress.coerceIn(0f, 1f)
     }
+
+    val onSurface = AuriqoWearColors.OnSurface
+    val accent = AuriqoWearColors.Accent
 
     Box(
         modifier = modifier
@@ -808,14 +813,14 @@ private fun ProgressRail(
         Canvas(Modifier.fillMaxWidth().height(2.dp)) {
             val y = size.height / 2f
             drawLine(
-                color = Color.White.copy(alpha = 0.18f),
+                color = onSurface.copy(alpha = 0.18f),
                 start = Offset(0f, y),
                 end = Offset(size.width, y),
                 strokeWidth = size.height,
                 cap = StrokeCap.Round,
             )
             drawLine(
-                color = AuriqoWearColors.Accent,
+                color = accent,
                 start = Offset(0f, y),
                 end = Offset(size.width * dragProgress.coerceIn(0f, 1f), y),
                 strokeWidth = size.height,
@@ -846,7 +851,7 @@ private fun DisconnectedPlayer(
         Spacer(Modifier.height(9.dp))
         Text(
             text = "SIN SESIÓN",
-            color = Color.White,
+            color = AuriqoWearColors.OnSurface,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.sp,

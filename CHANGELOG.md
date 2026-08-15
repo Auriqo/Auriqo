@@ -20,6 +20,9 @@ This file records user-visible and release-process changes. It does not replace 
   Layer browse protocol; tapping a library item can start it on the phone.
 - Added periodic GMS Data Layer heartbeats while playing and aligned the Tile palette with the
   Auriqo Wear surface.
+- Aligned the Wear companion and Tile with Auriqo's Material You direction: Android 12+ uses the
+  system dynamic Material 3 palette, with a branded fallback on older Wear OS versions while
+  preserving the circular-display layout.
 
 ## [1.0.3-alpha.1] - 2026-08-15
 

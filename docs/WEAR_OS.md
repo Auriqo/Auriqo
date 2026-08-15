@@ -28,11 +28,19 @@ as a small music surface rather than a single remote-control screen:
 - `Tracks`, `Albums`, `Artists`, `Playlists` and `Queue`: scrollable, actionable lists. Tapping an
   item asks the phone to build that item (or collection) into the active player queue.
 
-The visual system is intentionally close to the reference Wear music surface: near-black canvas,
-left-aligned typography, one lime Auriqo accent, thin progress rail and no filled circular button
-cluster. Vector controls and the Cabinet-derived Auriqo mark replace emoji and the generic
-system-player layout. Secondary playback modes remain available behind the mark instead of being
-removed from the product.
+The visual system uses the same Material You direction as the phone app. On Android 12 and newer,
+the Wear companion maps the device's dynamic Material 3 scheme into Wear Material tokens for the
+background, surfaces, text, controls and progress rail; older versions use the Auriqo fallback
+palette. The Tile resolves the same system palette without Compose. The round-display layout,
+left-aligned typography, thin progress rail and unfilled transport controls remain deliberately
+Wear-specific, so the screen feels like Auriqo without becoming a square phone UI. Vector controls
+and the Cabinet-derived Auriqo mark replace emoji and the generic system-player layout. Secondary
+playback modes remain available behind the mark instead of being removed from the product.
+
+The Wear scheme follows the watch's system dynamic colors. Matching a user-selected custom phone
+seed exactly would require sending the phone's resolved color tokens over the Data Layer; that is a
+separate synchronization feature, not a reason to duplicate the phone's Material 3 implementation
+inside the watch.
 
 The phone's Data Layer publisher lives in `app/src/gms`, so rich companion synchronization requires
 the GMS phone variant. The FOSS phone variant still exposes the standard Media3 session controls,
