@@ -1,2 +1,29 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Keep source, configuration and documentation portable across platforms.
+*.gradle text eol=lf
+*.gradle.kts text eol=lf
+*.kt text eol=lf
+*.java text eol=lf
+*.xml text eol=lf
+*.json text eol=lf
+*.properties text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Never apply text normalization to binary assets or signing material.
+*.gif binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.webp binary
+*.ttf binary
+*.otf binary
+*.jar binary
+*.keystore binary
+*.jks binary
