@@ -119,7 +119,7 @@ Auriqo can connect to external services for lyrics, playlist access, scrobbling,
 
 - YouTube/YouTube Music and lyrics providers can change protocols, rate limits, authentication requirements or content availability.
 - Some account features require a sign-in flow, cookie or OAuth token. These settings are kept in the app and should only be configured on a device you trust.
-- Listen Together may use a configured remote or local server. See [PRIVACY_POLICY.md](PRIVACY_POLICY.md) for the current network notes.
+- Listen Together uses WSS for remote servers; `ws://` is limited to localhost and common Android emulator loopback addresses.
 - Official release signing is maintainer-only; contributors can build and install the FOSS debug APK.
 
 ## Contributing

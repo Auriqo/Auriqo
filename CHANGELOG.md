@@ -7,7 +7,9 @@ This file records user-visible and release-process changes. It does not replace 
 ### Security
 
 - Removed debug logging of YouTube cookies, account identifiers, Botguard responses, integrity/PoToken material and full Discord asset API error bodies.
-- Documented the remaining Android backup, credential-storage, cleartext-network and Worker authentication decisions.
+- Excluded the settings DataStore from Android cloud backup and device transfer; the explicit in-app backup remains available.
+- Restricted Listen Together cleartext WebSockets to local development hosts and made remote server URLs require WSS.
+- Made the attribution Worker fail closed for browser origins and anonymous playlist requests by default.
 
 ### Maintenance
 
