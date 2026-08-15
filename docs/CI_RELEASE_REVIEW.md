@@ -1,39 +1,41 @@
 # CI and release review
 
-This is an audit record for the public workflows. The workflow files are intentionally not modified in this maintenance pass because the coordination handoff identifies an equivalent Windows checkout with an untracked workflow under active work. Apply the changes below only after reconciling that work with the maintainer.
+This document records the safety boundary between public collaboration builds and maintainer-only releases.
 
-## Findings in the current workflows
+## Current public CI
 
-### Build variant and credentials
+- `.github/workflows/gradle.yml` builds and tests `UniversalFossDebug`, runs the relevant module tests and lint, and runs the attribution Worker typecheck.
+- The FOSS job uses JDK 21 and the runner's Android SDK. It does not read Firebase files, API keys, OAuth secrets, cookies, signing material or webhooks.
+- `.github/workflows/codeql.yml` analyzes Actions, Kotlin/Java and TypeScript without passing provider credentials into the build.
+- `.github/workflows/sync-player-configs.yml` validates upstream JSON and opens a draft pull request. It does not commit downloaded content directly to `main`.
+- Actions are pinned to immutable commit SHAs with version comments. Build jobs have read-only contents permissions.
+- No workflow creates a GitHub release, signs an official APK or sends a release notification.
 
-`.github/workflows/gradle.yml` currently builds `assembleUniversalGmsDebug`, not the credential-free FOSS reference build. It passes `LASTFM_API_KEY`, `LASTFM_SECRET`, `GH_CLIENT_ID` and `GH_CLIENT_SECRET` into Gradle. The Android build writes these values into `BuildConfig`; a value compiled into an APK is recoverable by anyone who receives the APK. In particular, the Last.fm secret is used by the client-side request signing code and cannot be treated as a distributed secret.
+## Removed unsafe behavior
 
-Required action: make the FOSS build and tests the default public CI path, and redesign any provider flow that needs a real secret so the secret stays server-side or uses a public/client-safe OAuth flow. Do not “fix” this by adding more GitHub secret masking.
+The previous public workflow generated a predictable fallback keystore, built a GMS variant with provider secrets, granted `contents: write`, uploaded artifacts under release-like names and published releases/notifications from tags. That path has been removed.
 
-### Signing and publication
+The public FOSS build is deliberately separate from official release signing. A value placed in a client APK is recoverable by its recipient and is not a secret, even when it originated in GitHub Actions.
 
-The workflow can generate a predictable temporary release keystore when a release keystore secret is absent. It also has write permission and a tag-triggered path that creates a GitHub release and sends webhook notifications.
+## Release boundary
 
-Required action: remove predictable signing fallbacks; keep release signing in a protected manual environment with a real maintainer-controlled key; use read-only `contents` permissions for build jobs; separate artifact creation from publication; and require explicit approval for a release job. Never publish a debug-signed APK as an official release.
+Official releases remain a manual maintainer operation:
 
-### GMS/Firebase configuration
+1. review the exact commit and release notes;
+2. reconcile Android version metadata, tag and changelog;
+3. resolve the provenance and dependency-license gates;
+4. build the chosen release variant with the protected release keystore;
+5. inspect the APK and calculate SHA-256;
+6. test installation and upgrade behavior; and
+7. create the tag and GitHub release manually after approval.
 
-The public build should not require `google-services.json` or Firebase credentials. If a GMS/Firebase job is retained, it must be clearly separate, use an explicitly provisioned private configuration and prove that no credential is packaged into an artifact or log.
+Do not add a tag-triggered publishing step to the public FOSS workflow. If release automation is introduced later, it needs a separate approval-gated workflow with explicit permissions, protected environments and no signing fallback.
 
-### CodeQL and configuration sync
+## Acceptance criteria
 
-The CodeQL workflow should analyze/build the FOSS path without secret environment variables. The player-config synchronization workflow currently has write access and commits downloaded content directly to `main`; review downloaded content, pin actions and prefer a reviewed pull request or a protected bot path before enabling it for a public repository.
-
-### Actions and permissions
-
-Review every third-party action at an immutable commit or an approved maintained version, set job-level least-privilege permissions, restrict triggers, and prevent untrusted pull-request code from accessing secrets. Caches must be disposable and must not contain credentials.
-
-## Acceptance criteria before official publication
-
-- `:app:compileUniversalFossDebugKotlin`, `:app:assembleUniversalFossDebug`, relevant tests and FOSS lint pass without private secrets.
-- No API key, OAuth client secret, cookie, webhook or signing material is reachable in `BuildConfig`, APK resources, Gradle output or artifacts.
-- Release signing uses a protected external keystore and an approval-gated job.
-- Tag creation does not automatically create, overwrite or mutate a GitHub release without explicit maintainer approval.
-- Artifact names, variant, commit and SHA-256 are recorded in manually reviewed release notes.
-- CI logs and uploaded artifacts are scanned for secret markers and sensitive request data.
-- The workflow change is reviewed together with the Windows checkout changes described in the coordination handoff.
+- FOSS compile, assemble, tests and lint pass without private credentials.
+- No API key, OAuth client secret, cookie, webhook or signing material is reachable in the build output.
+- Release signing uses a protected external keystore and never the tracked persistent debug keystore.
+- Artifact name, variant, commit and SHA-256 are recorded in manually reviewed release notes.
+- Configuration sync is reviewed as a pull request.
+- CI logs and artifacts are checked for accidental sensitive data before publication.
