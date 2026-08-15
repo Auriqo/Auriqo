@@ -168,12 +168,10 @@ import com.auriqo.music.constants.MiniPlayerBottomSpacing
 import com.auriqo.music.constants.MiniPlayerHeight
 import com.auriqo.music.constants.NavigationBarAnimationSpec
 import com.auriqo.music.constants.NavigationBarHeight
+import com.auriqo.music.echomusic.ACTION_OPEN_UPDATE
 import com.auriqo.music.echomusic.updater.checkForUpdate
 import com.auriqo.music.echomusic.updater.getAutoUpdateCheckSetting
-import com.auriqo.music.echomusic.updater.isNewerVersion
-import com.auriqo.music.echomusic.updater.saveUpdateAvailableState
-import com.auriqo.music.echomusic.updater.getUpdateNotificationsSetting
-import com.auriqo.music.echomusic.UpdateNotificationHelper
+import com.auriqo.music.echomusic.updater.saveUpdateCheckResult
 import com.auriqo.music.constants.LyricsFontKey
 import com.auriqo.music.constants.PlayerFontKey
 import com.auriqo.music.fonts.AppFont
@@ -353,6 +351,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (::navController.isInitialized) {
+            if (handleUpdateIntent(intent, navController)) return
             handleDeepLinkIntent(intent, navController)
             handleRecognitionIntent(intent, navController)
             handleAssistantSearchIntent(intent, navController)
@@ -463,15 +462,9 @@ class MainActivity : ComponentActivity() {
                 delay(2000L)
                 checkForUpdate(
                     context = context,
-                    onSuccess = { latestVersion, isAvailable, _, _, _, _, _, _ ->
-                        val currentVersion = BuildConfig.VERSION_NAME
-                        Log.d("UpdateCheck", "Startup check success. Latest: $latestVersion, Current: $currentVersion, isAvailable: $isAvailable")
-                        saveUpdateAvailableState(context, isAvailable)
-                        
-                        if (isAvailable && getUpdateNotificationsSetting(context)) {
-                            Log.d("UpdateCheck", "Posting update notification for $latestVersion")
-                            UpdateNotificationHelper.showUpdateNotification(context, latestVersion)
-                        }
+                    onSuccess = { update ->
+                        Log.d("UpdateCheck", "Startup check success. Latest: ${update?.tag ?: "none"}")
+                        saveUpdateCheckResult(context, update, notify = true)
                     },
                     onError = {
                         Log.e("UpdateCheck", "Startup check failed")
@@ -883,11 +876,16 @@ class MainActivity : ComponentActivity() {
                 }
 
                 LaunchedEffect(Unit) {
-                    if (pendingIntent != null) {
+                    if (pendingIntent != null && pendingIntent!!.action == ACTION_OPEN_UPDATE) {
+                        handleUpdateIntent(pendingIntent!!, navController)
+                        pendingIntent = null
+                    } else if (pendingIntent != null) {
                         handleDeepLinkIntent(pendingIntent!!, navController)
                         handleRecognitionIntent(pendingIntent!!, navController)
                         handleAssistantSearchIntent(pendingIntent!!, navController)
                         pendingIntent = null
+                    } else if (intent != null && intent.action == ACTION_OPEN_UPDATE) {
+                        handleUpdateIntent(intent, navController)
                     } else if (intent != null && (intent.action == Intent.ACTION_VIEW || intent.action == Intent.ACTION_SEND)) {
                         handleDeepLinkIntent(intent, navController)
                     } else if (intent != null && intent.action == ACTION_RECOGNITION) {
@@ -899,7 +897,9 @@ class MainActivity : ComponentActivity() {
 
                 DisposableEffect(Unit) {
                     val listener = Consumer<Intent> { intent ->
-                        if (intent.action == Intent.ACTION_VIEW || intent.action == Intent.ACTION_SEND) {
+                        if (intent.action == ACTION_OPEN_UPDATE) {
+                            handleUpdateIntent(intent, navController)
+                        } else if (intent.action == Intent.ACTION_VIEW || intent.action == Intent.ACTION_SEND) {
                             handleDeepLinkIntent(intent, navController)
                         } else if (intent.action == ACTION_RECOGNITION) {
                             handleRecognitionIntent(intent, navController)
@@ -1439,6 +1439,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun handleUpdateIntent(intent: Intent, navController: NavHostController): Boolean {
+        if (intent.action != ACTION_OPEN_UPDATE) return false
+        intent.action = null
+        navController.navigate("update") {
+            launchSingleTop = true
+        }
+        return true
     }
 
     private fun handleDeepLinkIntent(intent: Intent, navController: NavHostController) {

@@ -31,6 +31,8 @@
     <string name="update_preview">Update preview</string>
     <string name="downloading_percent">Downloading… %1$d%%</string>
     <string name="download_failed">Download Failed</string>
+    <string name="checksum_mismatch">The downloaded update failed its integrity check.</string>
+    <string name="invalid_update_package">This update is not compatible with this installation.</string>
     <string name="new_features_include">New features include:</string>
     <string name="mobile_network_warning">Downloading updates over a mobile network or while roaming may cause additional charges.</string>
     <string name="update_size">Update size: %1$s MB</string>

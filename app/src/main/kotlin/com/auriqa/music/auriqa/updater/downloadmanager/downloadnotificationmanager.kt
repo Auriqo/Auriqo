@@ -5,12 +5,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.toColorInt
 import com.auriqo.music.R
+import com.auriqo.music.echomusic.updater.canRequestUpdateInstall
+import com.auriqo.music.echomusic.updater.createUnknownSourcesSettingsIntent
+import com.auriqo.music.echomusic.updater.createUpdateInstallIntent
 
 object DownloadNotificationManager {
     private lateinit var notificationManager: NotificationManager
@@ -169,17 +171,11 @@ object DownloadNotificationManager {
 
     @RequiresApi(Build.VERSION_CODES.BAKLAVA)
     private fun showDownloadCompleteModern(version: String, filePath: String) {
-        val installIntent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(
-                androidx.core.content.FileProvider.getUriForFile(
-                    appContext,
-                    "${appContext.packageName}.FileProvider",
-                    java.io.File(filePath)
-                ),
-                "application/vnd.android.package-archive"
-            )
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val apkFile = java.io.File(filePath)
+        val installIntent = if (canRequestUpdateInstall(appContext)) {
+            createUpdateInstallIntent(appContext, apkFile)
+        } else {
+            createUnknownSourcesSettingsIntent(appContext)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -280,17 +276,11 @@ object DownloadNotificationManager {
     }
 
     private fun showDownloadCompleteLegacy(version: String, filePath: String) {
-        val installIntent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(
-                androidx.core.content.FileProvider.getUriForFile(
-                    appContext,
-                    "${appContext.packageName}.FileProvider",
-                    java.io.File(filePath)
-                ),
-                "application/vnd.android.package-archive"
-            )
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val apkFile = java.io.File(filePath)
+        val installIntent = if (canRequestUpdateInstall(appContext)) {
+            createUpdateInstallIntent(appContext, apkFile)
+        } else {
+            createUnknownSourcesSettingsIntent(appContext)
         }
 
         val pendingIntent = PendingIntent.getActivity(

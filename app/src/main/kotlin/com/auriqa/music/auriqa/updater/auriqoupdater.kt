@@ -6,7 +6,6 @@ package com.auriqo.music.echomusic.updater
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -49,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
@@ -66,6 +64,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import com.auriqo.music.echomusic.updater.downloadmanager.UpdateDownloadWorker
 import com.auriqo.music.echomusic.updater.downloadmanager.DownloadNotificationManager
+import com.auriqo.music.echomusic.UpdateNotificationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -73,9 +72,12 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.io.IOException
+import java.net.HttpURLConnection
 import java.net.URL
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import java.util.regex.Pattern
 import com.auriqo.music.ui.component.ChangelogItem
 import com.auriqo.music.ui.component.leadingItemShape
@@ -110,6 +112,25 @@ import androidx.compose.ui.text.style.TextDecoration
 
 data class ChangelogSection(val title: String, val items: List<String>)
 
+data class UpdateAsset(
+    val name: String,
+    val url: String,
+    val sizeBytes: Long,
+    val digest: String?,
+)
+
+data class AuriqoUpdate(
+    val tag: String,
+    val changelog: List<ChangelogSection>,
+    val size: String,
+    val releaseDate: String,
+    val description: String?,
+    val imageUrl: String?,
+    val apkUrl: String,
+    val assetName: String,
+    val sha256: String?,
+)
+
 sealed class AuriqoUpdateStatus {
     object Idle : AuriqoUpdateStatus()
     object Checking : AuriqoUpdateStatus()
@@ -120,7 +141,9 @@ sealed class AuriqoUpdateStatus {
         val releaseDate: String,
         val description: String?,
         val imageUrl: String?,
-        val apkUrl: String?
+        val apkUrl: String?,
+        val assetName: String,
+        val sha256: String?
     ) : AuriqoUpdateStatus()
 
     data class NoUpdate(val version: String) : AuriqoUpdateStatus()
@@ -139,7 +162,6 @@ fun UpdateScreen(navController: NavHostController) {
     var downloadedFile by remember { mutableStateOf<File?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val currentVersion = BuildConfig.VERSION_NAME
     val autoUpdateCheckEnabled = getAutoUpdateCheckSetting(context)
 
     LaunchedEffect(Unit) {
@@ -199,22 +221,22 @@ fun UpdateScreen(navController: NavHostController) {
             delay(1000L)
             checkForUpdate(
                 context = context,
-                onSuccess = { tag, isAvailable, changelog, size, date, description, imageUrl, apkUrl ->
+                onSuccess = { update ->
                     saveLastCheckedTime(context, LocalDateTime.now().format(DateTimeFormatter.ofPattern("d MMMM yyyy, h:mm a")))
-                    saveUpdateAvailableState(context, isAvailable)
-                    status = if (isAvailable) {
+                    saveUpdateCheckResult(context, update, notify = false)
+                    status = update?.let {
                         AuriqoUpdateStatus.Available(
-                            version = tag,
-                            changelog = changelog,
-                            size = size,
-                            releaseDate = date,
-                            description = description,
-                            imageUrl = imageUrl,
-                            apkUrl = apkUrl
+                            version = it.tag,
+                            changelog = it.changelog,
+                            size = it.size,
+                            releaseDate = it.releaseDate,
+                            description = it.description,
+                            imageUrl = it.imageUrl,
+                            apkUrl = it.apkUrl,
+                            assetName = it.assetName,
+                            sha256 = it.sha256,
                         )
-                    } else {
-                        AuriqoUpdateStatus.NoUpdate(tag)
-                    }
+                    } ?: AuriqoUpdateStatus.NoUpdate(BuildConfig.VERSION_NAME)
                 },
                 onError = {
                     status = AuriqoUpdateStatus.Error(context.getString(R.string.cant_check_updates))
@@ -316,39 +338,49 @@ fun UpdateScreen(navController: NavHostController) {
                                                 downloadProgress = 0f
                                                 return@AnimatedActionButton
                                             }
-                                            file.let { f ->
-                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                                    if (!context.packageManager.canRequestPackageInstalls()) {
-                                                        val intent = Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                                                            data = Uri.parse("package:${context.packageName}")
-                                                        }
-                                                        context.startActivity(intent)
-                                                        return@let
-                                                    }
+
+                                            if (!isValidUpdateApk(context, file)) {
+                                                file.delete()
+                                                isDownloadComplete = false
+                                                downloadedFile = null
+                                                downloadProgress = 0f
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar(context.getString(R.string.invalid_update_package))
                                                 }
-                                                val uri = FileProvider.getUriForFile(context, "${context.packageName}.FileProvider", file)
-                                                val installIntent = Intent(Intent.ACTION_VIEW).apply {
-                                                    setDataAndType(uri, "application/vnd.android.package-archive")
-                                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                }
-                                                ContextCompat.startActivity(context, installIntent, null)
+                                                return@AnimatedActionButton
                                             }
+
+                                            if (!canRequestUpdateInstall(context)) {
+                                                ContextCompat.startActivity(
+                                                    context,
+                                                    createUnknownSourcesSettingsIntent(context),
+                                                    null,
+                                                )
+                                                return@AnimatedActionButton
+                                            }
+
+                                            ContextCompat.startActivity(
+                                                context,
+                                                createUpdateInstallIntent(context, file),
+                                                null,
+                                            )
                                         } else {
-                                            val fallbackAsset = if (BuildConfig.FLAVOR_variant == "gms") {
-                                                "app-universal-gms-debug.apk"
-                                            } else {
-                                                "app-universal-foss-debug.apk"
-                                            }
                                             val urlToDownload = currentStatus.apkUrl
-                                                ?: "https://github.com/Auriqo/Auriqo/releases/download/${currentStatus.version}/$fallbackAsset"
-                                            
+
                                             val constraints = Constraints.Builder()
                                                 .setRequiredNetworkType(NetworkType.CONNECTED)
                                                 .build()
 
                                             val downloadRequest = OneTimeWorkRequestBuilder<UpdateDownloadWorker>()
-                                                .setInputData(workDataOf("apk_url" to urlToDownload, "version" to currentStatus.version, "file_size" to currentStatus.size))
+                                                .setInputData(
+                                                    workDataOf(
+                                                        "apk_url" to urlToDownload,
+                                                        "version" to currentStatus.version,
+                                                        "file_size" to currentStatus.size,
+                                                        "expected_sha256" to currentStatus.sha256.orEmpty(),
+                                                        "file_name" to currentStatus.assetName,
+                                                    )
+                                                )
                                                 .setConstraints(constraints)
                                                 .setBackoffCriteria(
                                                     BackoffPolicy.EXPONENTIAL,
@@ -632,124 +664,204 @@ private fun formatGitHubDate(githubDate: String): String = try {
 }
 
 
-fun isNewerVersion(latestVersion: String, currentVersion: String): Boolean {
-    val latestVersionClean = latestVersion.removePrefix("b").removePrefix("v")
-    val currentVersionClean = currentVersion.removePrefix("b").removePrefix("v")
+private data class ParsedVersion(
+    val parts: List<Int>,
+    val prerelease: Boolean,
+)
 
-    val latestParts = latestVersionClean.split(".").map { it.toIntOrNull() ?: 0 }
-    val currentParts = currentVersionClean.split(".").map { it.toIntOrNull() ?: 0 }
-    
-    
-    for (i in 0 until maxOf(latestParts.size, currentParts.size)) {
-        val latest = latestParts.getOrElse(i) { 0 }
-        val current = currentParts.getOrElse(i) { 0 }
-        when {
-            latest > current -> return true
-            latest < current -> return false
-        }
-    }
-    
-    
-    if (latestVersionClean == currentVersionClean) {
-        val latestIsBeta = latestVersion.startsWith("b")
-        val currentIsBeta = currentVersion.startsWith("b")
-        
-        if (currentIsBeta && !latestIsBeta) return true
-    }
-    
-    return false
+private fun parseVersion(raw: String): ParsedVersion {
+    val normalized = raw.trim().removePrefix("v").removePrefix("b")
+    val core = normalized.substringBefore("-").substringBefore("+")
+    val parts = core.split(".").mapNotNull { it.toIntOrNull() }
+    return ParsedVersion(
+        parts = parts.ifEmpty { listOf(0) },
+        prerelease = normalized != core,
+    )
 }
 
+fun isNewerVersion(latestVersion: String, currentVersion: String): Boolean {
+    val latest = parseVersion(latestVersion)
+    val current = parseVersion(currentVersion)
+
+    for (index in 0 until maxOf(latest.parts.size, current.parts.size)) {
+        val latestPart = latest.parts.getOrElse(index) { 0 }
+        val currentPart = current.parts.getOrElse(index) { 0 }
+        if (latestPart != currentPart) return latestPart > currentPart
+    }
+
+    return current.prerelease && !latest.prerelease
+}
+
+internal fun selectUpdateAsset(
+    assets: List<UpdateAsset>,
+    variant: String,
+    debug: Boolean,
+): UpdateAsset? {
+    val variantToken = variant.lowercase(Locale.US)
+    val buildToken = if (debug) "debug" else "release"
+    val preferredName = "app-universal-" + variantToken + "-" + buildToken + ".apk"
+
+    val candidates = assets.filter { asset ->
+        val name = asset.name.lowercase(Locale.US)
+        name.endsWith(".apk") &&
+            name.contains(variantToken) &&
+            if (debug) name.contains("debug") else !name.contains("debug")
+    }
+
+    return candidates.firstOrNull { it.name.equals(preferredName, ignoreCase = true) }
+        ?: candidates.minByOrNull { it.name.length }
+}
+
+private fun normalizeDigest(rawDigest: String?): String? {
+    val digest = rawDigest
+        ?.substringAfter(":", rawDigest)
+        ?.trim()
+        ?.lowercase(Locale.US)
+        ?: return null
+    return digest.takeIf { digest.length == 64 && digest.all { it in "0123456789abcdef" } }
+}
+
+private fun readRemoteText(urlString: String): String {
+    val connection = URL(urlString).openConnection() as HttpURLConnection
+    connection.connectTimeout = 15_000
+    connection.readTimeout = 15_000
+    connection.requestMethod = "GET"
+    connection.setRequestProperty("Accept", "application/vnd.github+json")
+    connection.setRequestProperty("User-Agent", "Auriqo/" + BuildConfig.VERSION_NAME)
+
+    return try {
+        if (connection.responseCode !in 200..299) {
+            throw IOException("HTTP " + connection.responseCode)
+        }
+        connection.inputStream.bufferedReader().use { it.readText() }
+    } finally {
+        connection.disconnect()
+    }
+}
+
+suspend fun fetchLatestUpdate(context: Context): AuriqoUpdate? = withContext(Dispatchers.IO) {
+    val releases = JSONArray(
+        readRemoteText("https://api.github.com/repos/Auriqo/Auriqo/releases?per_page=20")
+    )
+    val variant = if (BuildConfig.CAST_AVAILABLE) "gms" else "foss"
+
+    for (index in 0 until releases.length()) {
+        val release = releases.getJSONObject(index)
+        if (release.optBoolean("draft", false)) continue
+        if (release.optBoolean("prerelease", false) && !getBetaUpdatesSetting(context)) continue
+
+        val tag = release.optString("tag_name").takeIf { it.isNotBlank() } ?: continue
+        if (!isNewerVersion(tag, BuildConfig.VERSION_NAME)) continue
+
+        val assets = buildList {
+            val releaseAssets = release.optJSONArray("assets") ?: return@buildList
+            for (assetIndex in 0 until releaseAssets.length()) {
+                val asset = releaseAssets.getJSONObject(assetIndex)
+                add(
+                    UpdateAsset(
+                        name = asset.optString("name"),
+                        url = asset.optString("browser_download_url"),
+                        sizeBytes = asset.optLong("size", 0L),
+                        digest = asset.optString("digest").takeIf { it.isNotBlank() },
+                    )
+                )
+            }
+        }
+        val selectedAsset = selectUpdateAsset(assets, variant, BuildConfig.DEBUG) ?: continue
+
+        val changelog = mutableListOf<ChangelogSection>()
+        var description: String? = null
+        var imageUrl: String? = null
+        try {
+            val changelogData = JSONObject(
+                readRemoteText(
+                    "https://github.com/Auriqo/Auriqo/releases/download/" +
+                        tag + "/changelog.json"
+                )
+            )
+            description = changelogData.optString("description").takeIf { it.isNotBlank() }
+            imageUrl = changelogData.optString("image").takeIf { it.isNotBlank() }
+            val changelogArray = changelogData.optJSONArray("changelog") ?: JSONArray()
+            for (sectionIndex in 0 until changelogArray.length()) {
+                val section = changelogArray.getJSONObject(sectionIndex)
+                val items = buildList {
+                    val itemArray = section.optJSONArray("items") ?: JSONArray()
+                    for (itemIndex in 0 until itemArray.length()) {
+                        add(itemArray.getString(itemIndex))
+                    }
+                }
+                changelog += ChangelogSection(section.optString("title"), items)
+            }
+        } catch (_: Exception) {
+            var body = release.optString("body", context.getString(R.string.no_changelog_available))
+            val imageRegex = Regex("!\\[(.*?)\\]\\((.*?)\\)")
+            val match = imageRegex.find(body)
+            if (match != null) {
+                imageUrl = match.groupValues[2]
+                body = body.replace(match.value, "").trim()
+            }
+            description = body.takeIf { it.isNotBlank() }
+        }
+
+        val publishedAt = release.optString("published_at").ifBlank {
+            release.optString("created_at")
+        }
+        val sizeInMb = if (selectedAsset.sizeBytes > 0) {
+            String.format(Locale.US, "%.1f", selectedAsset.sizeBytes / (1024.0 * 1024.0))
+        } else {
+            ""
+        }
+
+        return@withContext AuriqoUpdate(
+            tag = tag,
+            changelog = changelog,
+            size = sizeInMb,
+            releaseDate = formatGitHubDate(publishedAt),
+            description = description,
+            imageUrl = imageUrl,
+            apkUrl = selectedAsset.url,
+            assetName = selectedAsset.name,
+            sha256 = normalizeDigest(selectedAsset.digest),
+        )
+    }
+
+    return@withContext null
+}
 
 suspend fun checkForUpdate(
     context: Context,
-    onSuccess: (tag: String, isAvailable: Boolean, changelog: List<ChangelogSection>, size: String, date: String, description: String?, imageUrl: String?, apkUrl: String?) -> Unit,
+    onSuccess: (AuriqoUpdate?) -> Unit,
     onError: () -> Unit,
 ) {
-    withContext(Dispatchers.IO) {
-        try {
-            val url = URL("https://api.github.com/repos/Auriqo/Auriqo/releases/latest")
-            val json = url.openStream().bufferedReader().use { it.readText() }
-            val targetRelease = JSONObject(json)
-            
-            val currentVersion = BuildConfig.VERSION_NAME
-            val targetTagName = targetRelease.getString("tag_name")
-            val currentClean = currentVersion.removePrefix("b").removePrefix("v").trim()
-            val targetClean = targetTagName.removePrefix("b").removePrefix("v").trim()
-            val shouldShow = currentClean != targetClean
+    try {
+        val update = fetchLatestUpdate(context)
+        withContext(Dispatchers.Main) {
+            onSuccess(update)
+        }
+    } catch (error: Exception) {
+        Log.e("UpdateCheck", "Error checking for updates", error)
+        withContext(Dispatchers.Main) {
+            onError()
+        }
+    }
+}
 
-            if (shouldShow) {
-                val tagWithPrefix = targetRelease.getString("tag_name")
-                val displayTag = tagWithPrefix
+private const val KEY_LAST_NOTIFIED_UPDATE = "last_notified_update"
+private val updateNotificationLock = Any()
 
-                
-                val changelogList = mutableListOf<ChangelogSection>()
-                var description: String? = null
-                var imageUrl: String? = null
-                try {
-                    val changelogUrl =
-                        URL("https://github.com/Auriqo/Auriqo/releases/download/$tagWithPrefix/changelog.json")
-                    val changelogJson = changelogUrl.openStream().bufferedReader().use { it.readText() }
-                    val changelogData = JSONObject(changelogJson)
+fun saveUpdateCheckResult(
+    context: Context,
+    update: AuriqoUpdate?,
+    notify: Boolean,
+) {
+    saveUpdateAvailableState(context, update != null)
+    if (!notify || update == null || !getUpdateNotificationsSetting(context)) return
 
-                    description = changelogData.optString("description").takeIf { it.isNotEmpty() }
-                    imageUrl = changelogData.optString("image").takeIf { it.isNotEmpty() }
-
-                    val changelogArray = changelogData.getJSONArray("changelog")
-                    for (j in 0 until changelogArray.length()) {
-                        val sectionObj = changelogArray.getJSONObject(j)
-                        val title = sectionObj.getString("title")
-                        val itemsArray = sectionObj.getJSONArray("items")
-                        val itemsList = mutableListOf<String>()
-                        for (k in 0 until itemsArray.length()) {
-                            itemsList.add(itemsArray.getString(k))
-                        }
-                        changelogList.add(ChangelogSection(title, itemsList))
-                    }
-                } catch (e: Exception) {
-                    var body = targetRelease.optString("body", context.getString(R.string.no_changelog_available))
-                    
-                    val imageRegex = Regex("!\\[(.*?)\\]\\((.*?)\\)")
-                    val match = imageRegex.find(body)
-                    if (match != null) {
-                        imageUrl = match.groupValues[2]
-                        body = body.replace(match.value, "").trim()
-                    }
-                    description = body
-                }
-
-                val publishedAt = targetRelease.getString("published_at")
-                val formattedReleaseDate = formatGitHubDate(publishedAt)
-                val assets = targetRelease.getJSONArray("assets")
-
-                var apkSizeInMB = ""
-                var apkDownloadUrl = ""
-                for (j in 0 until assets.length()) {
-                    val asset = assets.getJSONObject(j)
-                    val assetName = asset.getString("name")
-                    if (assetName.endsWith(".apk", ignoreCase = true) && !assetName.lowercase().contains("debug")) {
-                        val apkSizeInBytes = asset.getLong("size")
-                        apkSizeInMB = String.format("%.1f", apkSizeInBytes / (1024.0 * 1024.0))
-                        apkDownloadUrl = asset.getString("browser_download_url")
-                        break
-                    }
-                }
-
-                if (apkDownloadUrl.isNotEmpty()) {
-                    withContext(Dispatchers.Main) {
-                        onSuccess(displayTag, true, changelogList, apkSizeInMB, formattedReleaseDate, description, imageUrl, apkDownloadUrl)
-                    }
-                    return@withContext
-                }
-            }
-
-            
-            withContext(Dispatchers.Main) {
-                onSuccess(currentVersion, false, emptyList(), "", "", null, null, null)
-            }
-        } catch (e: Exception) {
-            Log.e("UpdateCheck", "Error checking for updates: ${e.message}", e)
-            withContext(Dispatchers.Main) { onError() }
+    synchronized(updateNotificationLock) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (prefs.getString(KEY_LAST_NOTIFIED_UPDATE, null) == update.tag) return
+        if (UpdateNotificationHelper.showUpdateNotification(context, update.tag)) {
+            prefs.edit().putString(KEY_LAST_NOTIFIED_UPDATE, update.tag).apply()
         }
     }
 }

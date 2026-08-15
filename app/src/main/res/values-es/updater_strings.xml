@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="checksum_mismatch">La actualización descargada no superó la comprobación de integridad.</string>
+    <string name="invalid_update_package">Esta actualización no es compatible con esta instalación.</string>
+</resources>

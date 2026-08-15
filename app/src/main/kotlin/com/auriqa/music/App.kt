@@ -32,6 +32,7 @@ import com.auriqo.music.utils.CrashHandler
 import com.auriqo.music.utils.cipher.CipherDeobfuscator
 import com.auriqo.music.utils.dataStore
 import com.auriqo.music.utils.reportException
+import com.auriqo.music.echomusic.updater.scheduleUpdateChecks
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -104,6 +105,8 @@ class App : Application(), SingletonImageLoader.Factory {
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
+
+        scheduleUpdateChecks(this)
 
         applicationScope.launch(Dispatchers.IO) {
             cachedCoilCacheSize = dataStore.data.map { it[MaxImageCacheSizeKey] ?: 512 }.first()
