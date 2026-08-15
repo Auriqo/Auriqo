@@ -4,23 +4,21 @@ This file records user-visible and release-process changes. It does not replace 
 
 ## [Unreleased]
 
-### Security
+### Maintenance
 
-- Removed debug logging of YouTube cookies, account identifiers, Botguard responses, integrity/PoToken material and full Discord asset API error bodies.
+- Added a public FOSS CI path for compile, tests, lint, Worker typecheck and CodeQL.
+- Reworked player-config synchronization to open a draft pull request for review instead of writing downloaded content directly to `main`.
+- Removed a tracked machine-specific SDK path and a test API value from `gradle.properties`.
+- Removed unused Google Sans Flex binaries whose redistributable provenance was not established.
+- Added support, roadmap, documentation-index and release-review guidance.
+
+### Security and reliability
+
+- Redacted sensitive debug logging for cookies, account identifiers, Botguard responses, integrity/PoToken material and full Discord API error bodies.
 - Excluded the settings DataStore from Android cloud backup and device transfer; the explicit in-app backup remains available.
 - Restricted Listen Together cleartext WebSockets to local development hosts and made remote server URLs require WSS.
 - Made the attribution Worker fail closed for browser origins and anonymous playlist requests by default.
-
-### Maintenance
-
-- Added public setup, contribution, security, privacy, provenance, lyrics-provider, Worker and CI/release documentation.
-- Added repository line-ending/editor conventions and contributor issue/PR guidance.
-- Removed unused legacy-brand and personal image assets that had no code references.
-
-### Release engineering
-
-- Added a manual release checklist and artifact checksum policy.
-- Marked the current CI/release workflow as requiring maintainer remediation before it can publish official artifacts.
+- Removed public CI fallbacks that generated predictable signing material or passed provider secrets to a distributed build.
 
 ## [1.0.2-alpha]
 
