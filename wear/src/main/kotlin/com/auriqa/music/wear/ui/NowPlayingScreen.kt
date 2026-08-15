@@ -166,7 +166,7 @@ private fun ConnectedNowPlaying(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 1.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 1.dp),
     ) {
         ScreenHeader(
             label = "NOW PLAYING",
@@ -261,7 +261,7 @@ private fun HomeSurface(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 5.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 5.dp),
     ) {
         ScreenHeader(label = "AURIQO", onBack = onBack, backDescription = "Volver a Now Playing")
         Spacer(Modifier.height(8.dp))
@@ -317,7 +317,7 @@ private fun BrowseSurface(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 2.dp),
+            .padding(start = 18.dp, end = 18.dp, top = 22.dp, bottom = 2.dp),
     ) {
         ScreenHeader(label = section.label, onBack = onBack, backDescription = "Abrir biblioteca")
         Spacer(Modifier.height(5.dp))
@@ -378,7 +378,10 @@ private fun ScreenHeader(
     backDescription: String,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().height(27.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(27.dp)
+            .padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
@@ -744,7 +747,7 @@ private fun DisconnectedPlayer(
     onOpenHome: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 10.dp),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 22.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         ScreenHeader(label = "NOW PLAYING", onBack = onOpenHome, backDescription = "Abrir biblioteca")
