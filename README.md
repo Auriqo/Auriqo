@@ -38,6 +38,8 @@ There is not a current screenshot gallery yet. Earlier images were removed becau
 
 The repository pins Gradle 9.3.1, Android Gradle Plugin 9.0.0 and Kotlin 2.3.10 in the checked-in build configuration. Do not commit `local.properties`, Firebase configuration, API keys or signing material.
 
+The public CI builds the FOSS reference variant without private credentials. GMS and official release builds remain separate maintainer workflows.
+
 ## Build
 
 Clone the repository and configure the SDK path locally:
@@ -114,6 +116,15 @@ Auriqo can connect to external services for lyrics, playlist access, scrobbling,
 - Lyrics providers and BetterLyrics: [docs/LYRICS_PROVIDERS.md](docs/LYRICS_PROVIDERS.md).
 - The playlist-attribution Worker: [docs/WORKERS.md](docs/WORKERS.md).
 - Provenance and open license questions: [docs/PROVENANCE.md](docs/PROVENANCE.md) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Documentation
+
+- Setup and build help: [SETUP.md](SETUP.md) and [SUPPORT.md](SUPPORT.md).
+- Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md).
+- Project direction: [ROADMAP.md](ROADMAP.md).
+- Release process: [RELEASE_INFO.md](RELEASE_INFO.md) and [docs/CI_RELEASE_REVIEW.md](docs/CI_RELEASE_REVIEW.md).
+- Full documentation index: [docs/README.md](docs/README.md).
+
 
 ## Known limitations
 

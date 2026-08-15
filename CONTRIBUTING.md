@@ -82,3 +82,7 @@ If a change affects an integration, stored setting or release behavior, call it 
 Changes involving integrations, permissions, dependencies or release behavior may need an extra review pass.
 
 By participating, you agree to follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+## Questions and support
+
+For setup help or user-facing questions, see [SUPPORT.md](SUPPORT.md) and use the Question issue template. The [roadmap](ROADMAP.md) lists areas where focused contributions are useful.

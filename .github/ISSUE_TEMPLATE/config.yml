@@ -6,3 +6,6 @@ contact_links:
   - name: Documentation
     url: https://github.com/Auriqo/Auriqo/blob/main/README.md
     about: Start with the README and setup guide for build and usage help.
+  - name: Support and setup
+    url: https://github.com/Auriqo/Auriqo/blob/main/SUPPORT.md
+    about: Find the right place for questions, troubleshooting and feature ideas.
