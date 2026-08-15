@@ -210,7 +210,7 @@ object DiscordAssetRegistrar {
         val responseBody = response.body?.string() ?: return null
 
         if (!response.isSuccessful) {
-            Timber.tag(TAG).w("external-assets API error %d: %s", response.code, responseBody)
+            Timber.tag(TAG).w("external-assets API error: %d", response.code)
             return null
         }
 
@@ -246,7 +246,7 @@ object DiscordAssetRegistrar {
                 val responseBody = response.body?.string() ?: return@withContext urls.map { null }
 
                 if (!response.isSuccessful) {
-                    Timber.tag(TAG).w("external-assets API error %d: %s", response.code, responseBody)
+                    Timber.tag(TAG).w("external-assets API error: %d", response.code)
                     return@withContext urls.map { null }
                 }
 
