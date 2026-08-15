@@ -326,49 +326,6 @@
                 <action android:name="com.auriqo.music.widget.LIKE" />
                 <action android:name="com.auriqo.music.widget.UPDATE_WIDGET" />
             </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/music_widget_info" />
-        </receiver>
-
-        <!-- Turntable Widget -->
-        <receiver
-            android:name=".widget.TurntableWidgetReceiver"
-            android:exported="true"
-            android:label="@string/widget_turntable">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.auriqo.music.widget.TURNTABLE_PLAY_PAUSE" />
-                <action android:name="com.auriqo.music.widget.TURNTABLE_LIKE" />
-                <action android:name="com.auriqo.music.widget.UPDATE_TURNTABLE_WIDGET" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/turntable_widget_info" />
-        </receiver>
-
-        <!-- Google Cast Options Provider -->
-        <meta-data
-            android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="com.auriqo.music.cast.CastOptionsProvider" />
-        <!-- Google Cast Reconnection Service (required by setEnableReconnectionService(true)) -->
-        <service
-            android:name="com.google.android.gms.cast.framework.ReconnectionService"
-            android:exported="false"
-            android:process=":reconnection_service" />
-        <!-- Music Widget -->
-        <receiver
-            android:name=".widget.MusicWidgetReceiver"
-            android:exported="true"
-            android:label="@string/widget_music_player">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.auriqo.music.widget.PLAY_PAUSE" />
-                <action android:name="com.auriqo.music.widget.LIKE" />
-                <action android:name="com.auriqo.music.widget.UPDATE_WIDGET" />
-            </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/music_widget_info" />
@@ -404,7 +361,7 @@
         </receiver>
 
         <activity
-            android:name="com.music.echo.discord.DiscordOAuthCallbackActivity"
+            android:name="com.auriqa.music.discord.DiscordOAuthCallbackActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:noHistory="true">

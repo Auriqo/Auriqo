@@ -1,5 +1,6 @@
 package com.auriqo.music.recognition
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -7,6 +8,7 @@ import android.app.Service
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
@@ -212,6 +214,15 @@ class RecognitionForegroundService : Service() {
         actionIntent: PendingIntent?,
         actionTitle: String?,
     ) {
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+        ) {
+            Timber.tag(TAG).d("Skipping recognition notification: notification permission not granted")
+            return
+        }
+
         NotificationManagerCompat.from(this).notify(
             NOTIFICATION_ID,
             buildNotification(
