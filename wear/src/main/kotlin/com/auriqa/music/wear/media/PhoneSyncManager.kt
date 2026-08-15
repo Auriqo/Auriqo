@@ -25,6 +25,9 @@ private const val TAG = "AuriqoWear"
 object WearSyncPaths {
     const val NOW_PLAYING = "/auriqo/now_playing"
     const val COMMAND = "/auriqo/command"
+    const val BROWSE_REQUEST = "/auriqo/browse_request"
+    const val BROWSE_STATE = "/auriqo/browse_state"
+    const val BROWSE_COMMAND = "/auriqo/browse_command"
     const val LEGACY_NOW_PLAYING = "/auriqa/now_playing"
 }
 
@@ -72,11 +75,47 @@ data class NowPlaying(
     }
 }
 
+enum class BrowseSection(
+    val wireName: String,
+    val label: String,
+) {
+    TRACKS("tracks", "TRACKS"),
+    ALBUMS("albums", "ALBUMS"),
+    ARTISTS("artists", "ARTISTS"),
+    PLAYLISTS("playlists", "PLAYLISTS"),
+    QUEUE("queue", "QUEUE"),
+    ;
+
+    companion object {
+        fun fromWire(value: String?): BrowseSection? =
+            entries.firstOrNull { it.wireName == value }
+    }
+}
+
+data class BrowseItem(
+    val id: String,
+    val title: String,
+    val subtitle: String,
+    val artworkUri: String?,
+    val kind: String,
+)
+
+data class BrowseSnapshot(
+    val section: BrowseSection? = null,
+    val items: List<BrowseItem> = emptyList(),
+    val loading: Boolean = false,
+    val error: String? = null,
+    val updatedAt: Long = 0L,
+)
+
 object PhoneSyncManager : DataClient.OnDataChangedListener {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private val _nowPlaying = MutableStateFlow(NowPlaying())
     val nowPlaying: StateFlow<NowPlaying> = _nowPlaying.asStateFlow()
+
+    private val _browse = MutableStateFlow(BrowseSnapshot())
+    val browse: StateFlow<BrowseSnapshot> = _browse.asStateFlow()
 
     private var nodes: List<Node> = emptyList()
 
@@ -155,9 +194,15 @@ object PhoneSyncManager : DataClient.OnDataChangedListener {
             dataEvents
                 .asSequence()
                 .filter { it.type != DataEvent.TYPE_DELETED }
-                .mapNotNull { event -> parseNowPlaying(event.dataItem) }
-                .reduceOrNull(::newestNowPlaying)
-                ?.let(::applyIncoming)
+                .forEach { event ->
+                    parseNowPlaying(event.dataItem)?.let(::applyIncoming)
+                    parseBrowse(event.dataItem)?.let { snapshot ->
+                        val current = _browse.value
+                        if (snapshot.updatedAt >= current.updatedAt || snapshot.section != current.section) {
+                            _browse.value = snapshot
+                        }
+                    }
+                }
         } finally {
             dataEvents.release()
         }
@@ -193,6 +238,33 @@ object PhoneSyncManager : DataClient.OnDataChangedListener {
                 .coerceAtLeast(0L),
             sourceSequence = data.getLong("state_sequence", 0L).coerceAtLeast(0L),
             sourceUpdatedAtEpochMs = data.getLong("updated_at", 0L),
+        )
+    }
+
+    private fun parseBrowse(item: DataItem): BrowseSnapshot? {
+        if (item.uri.path != WearSyncPaths.BROWSE_STATE) return null
+        val data = DataMapItem.fromDataItem(item).dataMap
+        val section = BrowseSection.fromWire(data.getString("section")) ?: return null
+        val ids = data.getStringArrayList("ids") ?: return null
+        val titles = data.getStringArrayList("titles") ?: return null
+        val subtitles = data.getStringArrayList("subtitles") ?: arrayListOf()
+        val artworkUris = data.getStringArrayList("artwork_uris") ?: arrayListOf()
+        val kinds = data.getStringArrayList("kinds") ?: arrayListOf()
+        val count = minOf(ids.size, titles.size)
+        return BrowseSnapshot(
+            section = section,
+            items = (0 until count).map { index ->
+                BrowseItem(
+                    id = ids[index],
+                    title = titles[index],
+                    subtitle = subtitles.getOrNull(index).orEmpty(),
+                    artworkUri = artworkUris.getOrNull(index)?.takeIf(String::isNotBlank),
+                    kind = kinds.getOrNull(index).orEmpty(),
+                )
+            },
+            loading = false,
+            error = null,
+            updatedAt = data.getLong("updated_at", 0L),
         )
     }
 
@@ -234,6 +306,58 @@ object PhoneSyncManager : DataClient.OnDataChangedListener {
                 .addOnFailureListener { error ->
                     Log.e(TAG, "command failed: $command", error)
                     _nowPlaying.value = _nowPlaying.value.copy(error = "No se pudo enviar el control")
+                }
+        }
+    }
+
+    fun requestBrowse(context: Context, section: BrowseSection) {
+        _browse.value = BrowseSnapshot(section = section, loading = true)
+        dispatchBrowseMessage(context.applicationContext, WearSyncPaths.BROWSE_REQUEST, section.wireName)
+    }
+
+    fun playBrowseItem(context: Context, item: BrowseItem) {
+        dispatchBrowseMessage(
+            context.applicationContext,
+            WearSyncPaths.BROWSE_COMMAND,
+            "${item.kind}|${item.id}",
+        )
+    }
+
+    private fun dispatchBrowseMessage(context: Context, path: String, payload: String) {
+        val currentNodes = nodes
+        if (currentNodes.isNotEmpty()) {
+            sendBrowseMessage(context, currentNodes, path, payload)
+            return
+        }
+        Wearable.getNodeClient(context).connectedNodes.addOnSuccessListener { connected ->
+            nodes = connected
+            if (connected.isEmpty()) {
+                _browse.value = _browse.value.copy(
+                    loading = false,
+                    error = "Teléfono no vinculado",
+                )
+            } else {
+                sendBrowseMessage(context, connected, path, payload)
+            }
+        }.addOnFailureListener {
+            _browse.value = _browse.value.copy(
+                loading = false,
+                error = "No se pudo consultar el teléfono",
+            )
+        }
+    }
+
+    private fun sendBrowseMessage(context: Context, targets: List<Node>, path: String, payload: String) {
+        val messageClient = Wearable.getMessageClient(context)
+        targets.forEach { node ->
+            messageClient
+                .sendMessage(node.id, path, payload.toByteArray(Charsets.UTF_8))
+                .addOnFailureListener { error ->
+                    Log.e(TAG, "browse message failed: $path", error)
+                    _browse.value = _browse.value.copy(
+                        loading = false,
+                        error = "No se pudo consultar el teléfono",
+                    )
                 }
         }
     }

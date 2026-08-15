@@ -11,8 +11,11 @@ This file records user-visible and release-process changes. It does not replace 
   companion Activity.
 - Added a Wear media notification/session activity, artwork loading for system controls and
   forwarding for seek, play/pause, previous/next, like, shuffle and repeat.
-- Reworked the Now Playing screen for the circular display: compact artwork/progress hierarchy,
-  complete secondary controls and Wear-sized touch targets.
+- Reworked the complete Wear companion surface toward the TIDAL reference: near-black Now Playing,
+  left-aligned track typography, thin progress rail, plain transport glyphs and the Auriqo mark as
+  the secondary-controls affordance.
+- Added Home, Tracks, Albums, Artists, Playlists and Queue screens backed by a bounded GMS Data
+  Layer browse protocol; tapping a library item can start it on the phone.
 - Added periodic GMS Data Layer heartbeats while playing and aligned the Tile palette with the
   Auriqo Wear surface.
 

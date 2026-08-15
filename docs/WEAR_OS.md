@@ -16,9 +16,20 @@ instead of falling back to an anonymous generic remote session.
 
 ## Auriqo companion app and Tile
 
-The `wear` module provides the branded Auriqo player and Tile: artwork, progress, title/artist,
-play/pause, previous/next, like, shuffle and repeat. It uses vector controls and the outlined Auriqo
-mark rather than emoji or the generic system-player layout.
+The `wear` module provides the branded Auriqo player and Tile. The companion Activity is organized
+as a small music surface rather than a single remote-control screen:
+
+- `Now Playing`: title/artist, progress and plain transport controls, with the Auriqo mark as the
+  deliberate entry point for like, shuffle and repeat.
+- `Home`: the library entry point and current-track handoff.
+- `Tracks`, `Albums`, `Artists`, `Playlists` and `Queue`: scrollable, actionable lists. Tapping an
+  item asks the phone to build that item (or collection) into the active player queue.
+
+The visual system is intentionally close to the reference Wear music surface: near-black canvas,
+left-aligned typography, one lime Auriqo accent, thin progress rail and no filled circular button
+cluster. Vector controls and the Cabinet-derived Auriqo mark replace emoji and the generic
+system-player layout. Secondary playback modes remain available behind the mark instead of being
+removed from the product.
 
 The phone's Data Layer publisher lives in `app/src/gms`, so rich companion synchronization requires
 the GMS phone variant. The FOSS phone variant still exposes the standard Media3 session controls,
@@ -50,10 +61,18 @@ Current paths are:
 
 - `/auriqo/now_playing`
 - `/auriqo/command`
+- `/auriqo/browse_request` (Wear -> phone message: `tracks`, `albums`, `artists`, `playlists` or `queue`)
+- `/auriqo/browse_state` (phone -> Wear DataItem with bounded parallel arrays of item metadata)
+- `/auriqo/browse_command` (Wear -> phone message: `kind|id` to play a track, collection or queue item)
 
 Commands currently forwarded by the Wear proxy are play/pause, previous, next, seek, like, shuffle
 and repeat. The Wear UI follows the same transport and mode state, while the system surface may
 choose a different layout or put custom actions in overflow.
+
+Browse data is intentionally bounded to 80 entries per request and is sourced from the phone's
+existing Room library/player queue. It is not a second library database on the watch. If the phone
+APK predates the browse protocol, the watch keeps the current-track fallback and labels the list as
+syncing until a matching GMS build is installed.
 
 The historical `/auriqa/...` paths are accepted for one compatibility cycle and should be removed
 only in a documented breaking release.

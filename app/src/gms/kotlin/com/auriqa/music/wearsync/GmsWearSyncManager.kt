@@ -5,6 +5,7 @@ import android.os.SystemClock
 import android.provider.Settings
 import androidx.media3.common.C
 import androidx.media3.common.Player
+import com.auriqo.music.extensions.toMediaItem
 import com.auriqo.music.extensions.toggleRepeatMode
 import com.auriqo.music.playback.MusicService
 import com.google.android.gms.wearable.MessageClient
@@ -14,6 +15,7 @@ import com.google.android.gms.wearable.Wearable
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -21,12 +23,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 object WearSyncPaths {
     const val NOW_PLAYING = "/auriqo/now_playing"
     const val COMMAND = "/auriqo/command"
+    const val BROWSE_REQUEST = "/auriqo/browse_request"
+    const val BROWSE_STATE = "/auriqo/browse_state"
+    const val BROWSE_COMMAND = "/auriqo/browse_command"
 
     // Read/accept the pre-rebrand paths for one compatibility cycle.
     const val LEGACY_NOW_PLAYING = "/auriqa/now_playing"
@@ -57,6 +64,16 @@ private data class SyncSnapshot(
     val canPrev: Boolean = false,
 )
 
+private data class BrowseEntry(
+    val id: String,
+    val title: String,
+    val subtitle: String,
+    val artworkUri: String?,
+    val kind: String,
+)
+
+private const val MAX_BROWSE_ITEMS = 80
+
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class GmsWearSyncManager(
     private val service: MusicService,
@@ -64,6 +81,7 @@ class GmsWearSyncManager(
     private var started = false
     private var syncJob: Job? = null
     private var observedPlayer: Player? = null
+    private var workerScope: CoroutineScope? = null
     private val snapshot = MutableStateFlow(SyncSnapshot())
     private val sourceSession = UUID.randomUUID().toString()
     private val sourceBootCount = runCatching {
@@ -82,6 +100,7 @@ class GmsWearSyncManager(
     override fun start(scope: CoroutineScope) {
         if (started) return
         started = true
+        workerScope = scope
         Wearable.getMessageClient(service).addListener(this)
 
         syncJob =
@@ -120,6 +139,7 @@ class GmsWearSyncManager(
         started = false
         syncJob?.cancel()
         syncJob = null
+        workerScope = null
         observedPlayer?.removeListener(playerListener)
         observedPlayer = null
         runCatching { Wearable.getMessageClient(service).removeListener(this) }
@@ -197,6 +217,22 @@ class GmsWearSyncManager(
     }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
+        if (messageEvent.path == WearSyncPaths.BROWSE_REQUEST) {
+            if (messageEvent.data.size > 32) return
+            val section = String(messageEvent.data, Charsets.UTF_8).trim().lowercase()
+            workerScope?.launch(Dispatchers.IO) {
+                publishBrowseState(section, loadBrowseEntries(section))
+            }
+            return
+        }
+        if (messageEvent.path == WearSyncPaths.BROWSE_COMMAND) {
+            if (messageEvent.data.size > 512) return
+            val payload = String(messageEvent.data, Charsets.UTF_8)
+            workerScope?.launch(Dispatchers.IO) {
+                handleBrowseCommand(payload)
+            }
+            return
+        }
         if (messageEvent.path !in setOf(WearSyncPaths.COMMAND, WearSyncPaths.LEGACY_COMMAND)) return
         if (messageEvent.data.size > 64) return
         val player = service.playerFlow.value ?: return
@@ -217,5 +253,137 @@ class GmsWearSyncManager(
             }
         }
         updateSnapshot()
+    }
+
+    private suspend fun loadBrowseEntries(section: String): List<BrowseEntry> =
+        runCatching {
+            when (section) {
+                "tracks" -> service.database.songsByCreateDateAsc().first()
+                    .take(MAX_BROWSE_ITEMS)
+                    .map { song ->
+                        BrowseEntry(
+                            id = song.id,
+                            title = song.song.title,
+                            subtitle = song.artists.joinToString { it.name },
+                            artworkUri = song.thumbnailUrl,
+                            kind = "track",
+                        )
+                    }
+
+                "albums" -> service.database.albumsByCreateDateAsc().first()
+                    .take(MAX_BROWSE_ITEMS)
+                    .map { album ->
+                        BrowseEntry(
+                            id = album.id,
+                            title = album.album.title,
+                            subtitle = album.artists.joinToString { it.name },
+                            artworkUri = album.thumbnailUrl,
+                            kind = "album",
+                        )
+                    }
+
+                "artists" -> service.database.artistsByCreateDateAsc().first()
+                    .take(MAX_BROWSE_ITEMS)
+                    .map { artist ->
+                        BrowseEntry(
+                            id = artist.id,
+                            title = artist.artist.name,
+                            subtitle = "${artist.songCount} canciones",
+                            artworkUri = artist.thumbnailUrl,
+                            kind = "artist",
+                        )
+                    }
+
+                "playlists" -> service.database.playlistsByCreateDateAsc().first()
+                    .take(MAX_BROWSE_ITEMS)
+                    .map { playlist ->
+                        BrowseEntry(
+                            id = playlist.id,
+                            title = playlist.playlist.name,
+                            subtitle = "${playlist.songCount} canciones",
+                            artworkUri = playlist.thumbnails.firstOrNull(),
+                            kind = "playlist",
+                        )
+                    }
+
+                "queue" -> withContext(Dispatchers.Main.immediate) {
+                    service.playerFlow.value?.let { player ->
+                        (0 until player.mediaItemCount).map { index ->
+                            val metadata = player.getMediaItemAt(index).mediaMetadata
+                            BrowseEntry(
+                                id = player.getMediaItemAt(index).mediaId,
+                                title = metadata.title?.toString().orEmpty(),
+                                subtitle = metadata.artist?.toString().orEmpty(),
+                                artworkUri = metadata.artworkUri?.toString(),
+                                kind = "queue",
+                            )
+                        }.take(MAX_BROWSE_ITEMS)
+                    } ?: emptyList()
+                }
+
+                else -> emptyList()
+            }
+        }.getOrDefault(emptyList())
+
+    private fun publishBrowseState(section: String, entries: List<BrowseEntry>) {
+        val request =
+            PutDataMapRequest.create(WearSyncPaths.BROWSE_STATE).apply {
+                dataMap.putString("section", section)
+                dataMap.putLong("updated_at", System.currentTimeMillis())
+                dataMap.putStringArrayList("ids", ArrayList(entries.map(BrowseEntry::id)))
+                dataMap.putStringArrayList("titles", ArrayList(entries.map(BrowseEntry::title)))
+                dataMap.putStringArrayList("subtitles", ArrayList(entries.map(BrowseEntry::subtitle)))
+                dataMap.putStringArrayList(
+                    "artwork_uris",
+                    ArrayList(entries.map { it.artworkUri.orEmpty() }),
+                )
+                dataMap.putStringArrayList("kinds", ArrayList(entries.map(BrowseEntry::kind)))
+            }.asPutDataRequest().setUrgent()
+        Wearable.getDataClient(service).putDataItem(request)
+    }
+
+    private suspend fun handleBrowseCommand(payload: String) {
+        val parts = payload.split('|', limit = 2)
+        val kind = parts.getOrNull(0)?.takeIf(String::isNotBlank) ?: return
+        val id = parts.getOrNull(1)?.takeIf(String::isNotBlank) ?: return
+
+        if (kind == "queue") {
+            withContext(Dispatchers.Main.immediate) {
+                val player = service.playerFlow.value ?: return@withContext
+                val index = (0 until player.mediaItemCount)
+                    .firstOrNull { player.getMediaItemAt(it).mediaId == id }
+                    ?: return@withContext
+                player.seekTo(index, 0L)
+                player.play()
+            }
+            return
+        }
+
+        val items =
+            runCatching {
+                when (kind) {
+                    "track" -> service.database.song(id).first()?.toMediaItem()?.let(::listOf)
+                        ?: emptyList()
+
+                    "album" -> service.database.albumSongs(id).first()
+                        .map { it.toMediaItem() }
+
+                    "artist" -> service.database.artistSongsByCreateDateAsc(id).first()
+                        .map { it.toMediaItem() }
+
+                    "playlist" -> service.database.playlistSongs(id).first()
+                        .map { it.song.toMediaItem() }
+
+                    else -> emptyList()
+                }
+            }.getOrDefault(emptyList())
+
+        if (items.isEmpty()) return
+        withContext(Dispatchers.Main.immediate) {
+            val player = service.playerFlow.value ?: return@withContext
+            player.setMediaItems(items)
+            player.prepare()
+            player.play()
+        }
     }
 }
