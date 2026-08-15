@@ -1,17 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="48dp"
-    android:height="48dp"
-    android:viewportWidth="48"
-    android:viewportHeight="48">
-    <path
-        android:fillColor="#0F0F0F"
-        android:pathData="M0,0h48v48h-48z" />
-    <path
-        android:fillColor="#FFB20F"
-        android:pathData="M24,24m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0" />
-    <path
-        android:strokeColor="#FFB20F"
-        android:strokeWidth="2"
-        android:pathData="M24,8 L24,2 M24,46 L24,40 M40,24 L46,24 M2,24 L8,24 M35.3,12.7 L39.5,8.5 M8.5,39.5 L12.7,35.3 M35.3,35.3 L39.5,39.5 M8.5,8.5 L12.7,12.7" />
-</vector>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_auriqo_wear"
+    android:inset="6dp" />

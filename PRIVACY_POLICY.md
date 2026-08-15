@@ -1,6 +1,6 @@
 # Auriqo privacy and data-flow notes
 
-Last reviewed: 2026-08-14
+Last reviewed: 2026-08-15
 
 This document describes what the current open-source Android code can send or store. It is technical documentation, not a claim that a third-party provider has a particular retention policy or that a legal regime applies. Review the terms and privacy policy of every provider you enable.
 
@@ -16,6 +16,11 @@ Auriqo stores ordinary application state such as playback position, queues, libr
 - AI provider keys and custom endpoint settings;
 - Listen Together session values and proxy credentials.
 
+Better Lyrics theme files, candidate offsets and appearance preferences are kept in app-private
+storage. The Unison write identity is a P-256 private key encrypted with AES-GCM under a
+non-exportable Android Keystore key. An identity export is intentionally unencrypted JSON and must
+be protected by the user like a password.
+
 These values are not committed to the repository. The current implementation does not encrypt every DataStore/shared-preference value with Android Keystore. Android system backup excludes the settings DataStore from cloud backup and device transfer. The optional in-app Backup action deliberately includes settings and the local database so it can restore the app; keep any exported archive in a trusted location.
 
 Uninstalling the app or clearing its app data is the practical way to remove app-private storage. Use each provider's logout/revocation controls as well; deleting local state does not revoke a token that a provider has already issued.
@@ -28,6 +33,8 @@ Requests are feature-driven. Auriqo does not send every category below on every 
 | --- | --- | --- |
 | Playback, search, home and account playlists | Search terms, media and playlist identifiers, playback requests, and user-provided YouTube cookies or OAuth data | YouTube/YouTube Music and Google endpoints through the InnerTube/Data API clients |
 | Synchronized lyrics | Song title, artist, album, duration and, for some providers, a media/video identifier | BetterLyrics, LRCLIB, Paxsenix, KuGou, SimpMusic, YouLyPlus and Letras.com; see [docs/LYRICS_PROVIDERS.md](docs/LYRICS_PROVIDERS.md) |
+| Better Lyrics marketplace | GitHub request metadata and the selected theme id/build | GitHub API/raw endpoints for the official `better-lyrics/themes` registry; installed CSS/shader data is then stored locally |
+| Unison community writes | Public identity JWK, key id, signature, timestamp/nonce and the selected vote, report details, nickname or submitted lyrics/song metadata | `https://unison.boidu.dev`; reads do not require the identity |
 | AI translation, generation or recommendations | User-entered API key in the request authorization, lyrics and song metadata, and the configured model/base URL | The AI provider selected in the app, with OpenRouter as the default endpoint in the current UI |
 | Playlist attribution | Playlist ID and, when the user supplies it, an OAuth bearer token | The optional Auriqo Worker, which forwards the request to YouTube/Google; see [docs/WORKERS.md](docs/WORKERS.md) |
 | Spotify import | OAuth authorization data and playlist identifiers/metadata | Spotify authorization and Web API endpoints |
@@ -57,6 +64,11 @@ The main activity, media session, media-button receiver, widgets, quick-settings
 ## Cookies, WebViews and tokens
 
 The PoToken WebView loads local bundled JavaScript with a YouTube base URL and makes HTTPS requests to YouTube's Botguard endpoints. The current WebView does not need a user's YouTube cookie for that flow. The app's account flow can separately store a user-provided YouTube cookie for InnerTube requests.
+
+The Better Lyrics WebView is a different, local-only surface. It is served from Android's reserved
+appassets origin, has no cookie/provider bridge, and blocks remote network requests through both
+the WebView client and Content Security Policy. Kotlin downloads provider results and verified
+marketplace content before passing bounded data to the renderer. Theme JavaScript is not accepted.
 
 The app currently uses debug logging in development builds. Sensitive values must not be logged; recent hardening removed cookie, token, PoToken, Botguard response and full provider-response logging from the audited paths. Users should still avoid sharing logs from authenticated devices.
 

@@ -14,6 +14,12 @@ The Auriqo-specific application package, branding, UI composition, build configu
 - Current paths: `betterlyrics/src/main/kotlin/com/auriqa/music/betterlyrics/BetterLyrics.kt`, `TTMLParser.kt` and `models/Track.kt`.
 - The upstream [Better Lyrics project](https://github.com/better-lyrics/better-lyrics) is GPLv3-licensed and requests attribution.
 - The upstream project is a TypeScript browser extension; the current Auriqo files are Kotlin and the repository history has no exact file-level copy mapping. Keep the attribution and have the maintainer confirm the contributor's authorship record before a stable release.
+- The faithful renderer port is pinned to upstream commit `931f25829f6cfd81d0042ca36b4308a0cd38d467`
+  and `@braccato/core@1.1.0`. Its exact boundary, hashes and regeneration procedure are recorded in
+  [BETTER_LYRICS_SNAPSHOT.md](BETTER_LYRICS_SNAPSHOT.md).
+- Generated web assets are derived from the checked-in `betterlyrics/web` source and the exact npm
+  lockfile. Browser background scripts, request sniffing and YouTube Music DOM adapters are not
+  bundled.
 
 ### KuGou lyrics client
 
@@ -30,7 +36,7 @@ Project history names Metrolist, VIVI Music, SimpMusic, ArchiveTune, Music Recog
 ## Fonts and binary assets
 
 - BBH Bartle is documented as an OFL 1.1 asset with a local license copy and current blob hash.
-- Cabinet Grotesk is documented under Fontshare's ITF Free Font License. That license is separate from GPLv3 and its public-repository redistribution terms need maintainer confirmation before an official artifact.
+- Cabinet Grotesk is governed by Fontshare's ITF Free Font License. Because that license restricts redistribution of Font Software, Auriqo removed the TTF files and retains only the fixed Q/lowercase-a mark and `Auriqo` wordmark outlines permitted as logo/vector artwork. The source Cabinet Bold blob hash and paths are recorded in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
 - The unused Google Sans Flex binaries were removed from the current tree because their redistributable provenance was not established.
 - Historical or personal images are not acceptable repository assets. New images need a documented source, license, author/attribution and a reason to ship in the APK.
 
@@ -49,4 +55,4 @@ For every imported or adapted file, record:
 5. modifications made by Auriqo; and
 6. whether the source is bundled, generated or fetched at runtime.
 
-Before an official artifact, resolve the Cabinet font distribution evidence and complete the dependency inventory. Keep provenance questions visible in pull requests instead of silently assuming a compatible license.
+Before an official artifact, complete the dependency inventory. Keep provenance questions visible in pull requests instead of silently assuming a compatible license.

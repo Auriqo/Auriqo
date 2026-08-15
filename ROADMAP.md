@@ -9,6 +9,8 @@ This roadmap describes areas the maintainers would like to improve. It is a guid
 - Improve test coverage around playback, lyrics parsing, playlists and account flows.
 - Keep provider integrations resilient when upstream APIs change.
 - Finish the remaining dependency and asset provenance review for official artifacts.
+- Validate the custom Wear Data Layer end to end with a paired GMS phone and watch, including disconnect/reconnect and long playback sessions.
+- Track Better Lyrics upstream changes deliberately while keeping the renderer snapshot reproducible instead of following `master` implicitly.
 
 ## Product direction
 

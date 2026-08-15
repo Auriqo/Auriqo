@@ -40,7 +40,6 @@ import com.auriqo.music.db.MusicDatabase
 import com.auriqo.music.db.entities.PlaylistEntity
 import com.auriqo.music.db.entities.Song
 import com.auriqo.music.extensions.toMediaItem
-import com.auriqo.music.extensions.toggleRepeatMode
 import com.auriqo.music.models.toMediaMetadata
 import com.auriqo.music.utils.dataStore
 import com.auriqo.music.utils.get
@@ -81,8 +80,6 @@ constructor(
                 .add(MediaSessionConstants.CommandToggleLike)
                 .add(MediaSessionConstants.CommandToggleStartRadio)
                 .add(MediaSessionConstants.CommandToggleLibrary)
-                .add(MediaSessionConstants.CommandToggleShuffle)
-                .add(MediaSessionConstants.CommandToggleRepeatMode)
                 .build(),
             connectionResult.availablePlayerCommands,
         )
@@ -98,10 +95,6 @@ constructor(
             MediaSessionConstants.ACTION_TOGGLE_LIKE -> toggleLike()
             MediaSessionConstants.ACTION_TOGGLE_START_RADIO -> toggleStartRadio()
             MediaSessionConstants.ACTION_TOGGLE_LIBRARY -> toggleLibrary()
-            MediaSessionConstants.ACTION_TOGGLE_SHUFFLE -> session.player.shuffleModeEnabled =
-                !session.player.shuffleModeEnabled
-
-            MediaSessionConstants.ACTION_TOGGLE_REPEAT_MODE -> session.player.toggleRepeatMode()
         }
         return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
     }

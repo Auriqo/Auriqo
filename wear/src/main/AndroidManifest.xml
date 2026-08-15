@@ -18,7 +18,7 @@
     <application
         android:name=".AuriqoWearApplication"
         android:allowBackup="true"
-        android:icon="@drawable/ic_auriqa_wear"
+        android:icon="@drawable/ic_auriqo_wear"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault">
@@ -37,7 +37,7 @@
         <service
             android:name=".tile.AuriqoMediaTileService"
             android:exported="true"
-            android:icon="@drawable/ic_auriqa_wear"
+            android:icon="@drawable/ic_auriqo_wear"
             android:label="@string/tile_label"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER"
             tools:ignore="ExportedService">

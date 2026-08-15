@@ -335,7 +335,13 @@ fun UpdateScreen(navController: NavHostController) {
                                                 ContextCompat.startActivity(context, installIntent, null)
                                             }
                                         } else {
-                                            val urlToDownload = currentStatus.apkUrl ?: "https://github.com/Auriqo/Auriqo/releases/download/${currentStatus.version}/echomusic.apk"
+                                            val fallbackAsset = if (BuildConfig.FLAVOR_variant == "gms") {
+                                                "app-universal-gms-debug.apk"
+                                            } else {
+                                                "app-universal-foss-debug.apk"
+                                            }
+                                            val urlToDownload = currentStatus.apkUrl
+                                                ?: "https://github.com/Auriqo/Auriqo/releases/download/${currentStatus.version}/$fallbackAsset"
                                             
                                             val constraints = Constraints.Builder()
                                                 .setRequiredNetworkType(NetworkType.CONNECTED)

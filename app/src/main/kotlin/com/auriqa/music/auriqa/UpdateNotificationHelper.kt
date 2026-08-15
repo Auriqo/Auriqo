@@ -31,12 +31,8 @@ object UpdateNotificationHelper {
         }
 
         
-        val apkUrl = if (versionName.contains("nightly", ignoreCase = true)) {
-            "https://nightly.link/Auriqo/Auriqo/workflows/nightly.yml/main/echomusic-gms-nightly.zip"
-        } else {
-            "https://github.com/Auriqo/Auriqo/releases/download/$versionName/echomusic.apk"
-        }
-        val intent = Intent(Intent.ACTION_VIEW, apkUrl.toUri())
+        val releaseUrl = "https://github.com/Auriqo/Auriqo/releases/tag/$versionName"
+        val intent = Intent(Intent.ACTION_VIEW, releaseUrl.toUri())
 
         val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         val pending = PendingIntent.getActivity(context, NOTIFICATION_ID, intent, flags)

@@ -10,7 +10,7 @@ Install the following before opening the project:
 - Android SDK Platform 36 and matching Build-Tools.
 - Android NDK `27.0.12077973` for the native modules.
 - Git and a network connection for Gradle dependency resolution.
-- Node.js/npm only when working on `workers/youtube-attribution`.
+- Node.js/npm when working on `workers/youtube-attribution` or regenerating `betterlyrics/web`.
 
 The wrapper supplies Gradle 9.3.1. The checked-in version catalog uses Android Gradle Plugin 9.0.0 and Kotlin 2.3.10. Android Studio may be used as an editor, but the wrapper commands below are the source of truth.
 
@@ -70,12 +70,25 @@ Run the smallest relevant set while iterating, then the broader checks before re
 
 ```bash
 ./gradlew :app:testUniversalFossDebugUnitTest --no-daemon
+./gradlew :betterlyrics:testDebugUnitTest :unison:test --no-daemon
+./gradlew :wear:testDebugUnitTest --no-daemon
 ./gradlew :innertube:testDebugUnitTest --no-daemon
 ./gradlew :letras:test --no-daemon
 ./gradlew :app:lintUniversalFossDebug --no-daemon
 ```
 
 The repository also contains tests in `canvas` and `app`; Gradle task names can be inspected with `./gradlew tasks --all`. Do not hide a failing test by deleting it or changing global Gradle settings.
+
+When changing the Better Lyrics web source, regenerate the checked-in Android assets and verify the
+bridge/security tests:
+
+```bash
+cd betterlyrics/web
+npm ci
+npm run verify
+```
+
+See [docs/BETTER_LYRICS_ANDROID.md](docs/BETTER_LYRICS_ANDROID.md) for the source/generated boundary.
 
 For the Worker:
 
@@ -94,6 +107,17 @@ Optional providers are configured in the app, not by committing credentials:
 - AI translation: enter an API key and, when needed, a base URL under the app's AI settings. The key is user-provided and should be treated as a secret.
 - Spotify, Discord, YouTube and ListenBrainz: complete the relevant account flow or enter a token in the app. Do not paste tokens into source or issues.
 - Listen Together: use the configured WSS service, or a `ws://` server only on localhost or the common Android emulator loopback addresses. See the session notes in [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
+
+## Wear OS
+
+The companion module builds without a phone credential:
+
+```bash
+./gradlew :wear:testDebugUnitTest :wear:assembleDebug --no-daemon
+```
+
+Rich Auriqo Data Layer synchronization requires a GMS phone build. Build FOSS and GMS phone
+variants sequentially on machines with limited memory. See [docs/WEAR_OS.md](docs/WEAR_OS.md).
 
 ## Release-only configuration
 

@@ -22,7 +22,6 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import androidx.core.content.FileProvider
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toBitmap
 import androidx.palette.graphics.Palette
@@ -116,7 +115,7 @@ object ComposeToImage {
                             
                             
                             val overlayPaint = Paint().apply {
-                                color = 0x4D000000.toInt() 
+                                color = 0x4D000000
                             }
                             canvas.drawRect(blurRect, overlayPaint)
                         }
@@ -273,19 +272,17 @@ object ComposeToImage {
         }
         
         
-        val appName = context.getString(R.string.app_name)
-        val appNamePaint = TextPaint().apply {
-            color = secondaryTxtColor
-            textSize = 14f * scale
-            typeface = ResourcesCompat.getFont(context, R.font.cabinet_grotesk_bold)
-                ?: Typeface.DEFAULT_BOLD
-            isAntiAlias = true
-        }
-        
         val appNameX = padding + logoBoxSize + (8f * scale)
-        
-        val appNameY = footerY + logoBoxSize/2f - (appNamePaint.descent() + appNamePaint.ascent()) / 2f
-        canvas.drawText(appName, appNameX, appNameY, appNamePaint)
+        val wordmarkHeight = 12f * scale
+        val wordmarkWidth = wordmarkHeight * (2899f / 856f)
+        context.getDrawable(R.drawable.auriqo_wordmark)?.mutate()?.let { wordmark ->
+            wordmark.colorFilter = PorterDuffColorFilter(secondaryTxtColor, PorterDuff.Mode.SRC_IN)
+            wordmark.setBounds(0, 0, wordmarkWidth.roundToInt(), wordmarkHeight.roundToInt())
+            canvas.save()
+            canvas.translate(appNameX, footerY + (logoBoxSize - wordmarkHeight) / 2f)
+            wordmark.draw(canvas)
+            canvas.restore()
+        }
 
         
         
@@ -564,7 +561,7 @@ object ComposeToImage {
             val contentValues = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, "$fileName.png")
                 put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/echomusic")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Auriqo")
             }
             val uri = context.contentResolver.insert(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,

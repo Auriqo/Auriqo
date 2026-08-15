@@ -4,9 +4,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.wear.compose.material.Colors
 
 object AuriqoWearColors {
-    val Accent = Color(0xFFFFB20F)
-    val Surface = Color(0xFF0F0F0F)
-    val Muted = Color(0xFFB0AFA8)
+    val Accent = Color(0xFFD8F36A)
+    val AccentInk = Color(0xFF17302A)
+    val Surface = Color(0xFF080B0A)
+    val RaisedSurface = Color(0xFF171B18)
+    val Muted = Color(0xFFA6ADA7)
 
     val themeColors =
         Colors(
@@ -17,8 +19,8 @@ object AuriqoWearColors {
             background = Surface,
             surface = Surface,
             error = Color(0xFFB3261E),
-            onPrimary = Surface,
-            onSecondary = Surface,
+            onPrimary = AccentInk,
+            onSecondary = AccentInk,
             onBackground = Color.White,
             onSurface = Color.White,
             onSurfaceVariant = Muted,

@@ -49,7 +49,7 @@
         android:name=".App"
         android:allowBackup="true"
         android:appCategory="audio"
-        android:banner="@mipmap/tv_banner"
+        android:banner="@drawable/auriqo_tv_banner"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
         android:extractNativeLibs="true"
@@ -75,8 +75,10 @@
 
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="true"
             android:launchMode="singleTask"
+            android:supportsPictureInPicture="true"
             android:theme="@style/Theme.auriqa"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -222,9 +224,9 @@
             android:name=".MainActivityLegacy"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/legacy_icon"
+            android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
-            android:roundIcon="@mipmap/legacy_icon_round"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

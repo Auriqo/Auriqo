@@ -4,6 +4,29 @@ This file records user-visible and release-process changes. It does not replace 
 
 ## [Unreleased]
 
+No unreleased changes are recorded after the `v1.0.3-alpha` candidate.
+
+## [1.0.3-alpha] - 2026-08-15
+
+### Lyrics
+
+- Replaced the reconstructed lyrics animation with a faithful renderer port pinned to Better Lyrics `931f2582` and `@braccato/core` 1.1.0.
+- Added stable multi-provider candidates, in-screen source/offset controls, custom lyrics fonts, translation/romanization and same-activity PiP.
+- Added the verified Better Lyrics theme marketplace, bounded declarative shader runtime and reduced-motion behavior.
+- Added Unison metadata plus signed nickname, vote, report and submission actions with an encrypted, exportable device identity.
+- Hardened the local renderer bridge with origin-scoped messaging, monotonic playback snapshots, generation/sequence gates and crash fallback.
+
+### Playback and Wear OS
+
+- Updated Media3 to 1.10.1 and published repeat/shuffle as standard player commands while retaining like as an Auriqo custom command.
+- Reworked the Wear companion and Tile with Auriqo artwork, progress and transport/like/shuffle/repeat controls.
+- Added versioned GMS Data Layer state, startup snapshot loading, monotonic watch-side position and one-cycle compatibility for historical paths.
+
+### Brand and distribution
+
+- Replaced redistributable Cabinet Grotesk font binaries with fixed Cabinet-derived vector logo and wordmark outlines.
+- Added renderer, marketplace, Unison, Wear, privacy, security and provenance documentation for the public source/release boundary.
+
 ### Maintenance
 
 - Added a public FOSS CI path for compile, tests, lint, Worker typecheck and CodeQL.

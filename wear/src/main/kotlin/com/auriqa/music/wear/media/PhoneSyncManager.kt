@@ -1,17 +1,19 @@
 package com.auriqo.music.wear.media
 
 import android.content.Context
+import android.os.SystemClock
 import android.util.Log
 import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
+import com.google.android.gms.wearable.DataItem
 import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.Node
-import com.google.android.gms.wearable.NodeClient
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,8 +23,9 @@ import kotlinx.coroutines.launch
 private const val TAG = "AuriqoWear"
 
 object WearSyncPaths {
-    const val NOW_PLAYING = "/auriqa/now_playing"
-    const val COMMAND = "/auriqa/command"
+    const val NOW_PLAYING = "/auriqo/now_playing"
+    const val COMMAND = "/auriqo/command"
+    const val LEGACY_NOW_PLAYING = "/auriqa/now_playing"
 }
 
 private const val CMD_PLAY_PAUSE = "play_pause"
@@ -35,19 +38,38 @@ private const val CMD_REPEAT = "repeat"
 data class NowPlaying(
     val connected: Boolean = false,
     val error: String? = null,
+    val mediaId: String? = null,
     val title: String? = null,
     val artist: String? = null,
     val artworkUri: String? = null,
     val isPlaying: Boolean = false,
     val positionMs: Long = 0L,
     val durationMs: Long = 0L,
+    val playbackSpeed: Float = 1f,
     val shuffleEnabled: Boolean = false,
     val repeatMode: Int = 0,
     val canSkipNext: Boolean = false,
     val canSkipPrevious: Boolean = false,
-    val likeAction: String? = null,
-    val updatedAt: Long = 0L,
-)
+    val canLike: Boolean = false,
+    val isLiked: Boolean = false,
+    val receivedAtElapsedRealtimeMs: Long = 0L,
+    val sourceSession: String? = null,
+    val sourceBootCount: Int = -1,
+    val sourceSessionStartedElapsedMs: Long = 0L,
+    val sourceSequence: Long = 0L,
+    val sourceUpdatedAtEpochMs: Long = 0L,
+) {
+    fun positionAt(elapsedRealtimeMs: Long): Long {
+        val elapsed =
+            if (isPlaying && receivedAtElapsedRealtimeMs > 0L) {
+                ((elapsedRealtimeMs - receivedAtElapsedRealtimeMs).coerceAtLeast(0L) * playbackSpeed).toLong()
+            } else {
+                0L
+            }
+        val estimated = (positionMs + elapsed).coerceAtLeast(0L)
+        return if (durationMs > 0L) estimated.coerceAtMost(durationMs) else estimated
+    }
+}
 
 object PhoneSyncManager : DataClient.OnDataChangedListener {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -56,116 +78,225 @@ object PhoneSyncManager : DataClient.OnDataChangedListener {
     val nowPlaying: StateFlow<NowPlaying> = _nowPlaying.asStateFlow()
 
     private var nodes: List<Node> = emptyList()
-    private var staleJob: kotlinx.coroutines.Job? = null
 
     @Volatile
     private var initialized = false
 
     fun ensureConnected(context: Context) {
-        if (initialized) return
+        if (initialized) {
+            loadExistingState(context.applicationContext)
+            refreshNodes(context.applicationContext)
+            return
+        }
         synchronized(this) {
             if (initialized) return
             initialized = true
         }
-        val appContext = context.applicationContext
-        Log.i(TAG, "initializing Data Layer sync")
-        Wearable.getDataClient(appContext).addListener(this)
-        refreshNodes(appContext)
-        startStaleWatcher()
+        val applicationContext = context.applicationContext
+        Wearable.getDataClient(applicationContext).addListener(this)
+        loadExistingState(applicationContext)
+        refreshNodes(applicationContext)
+        startConnectionWatcher(applicationContext)
+    }
+
+    private fun loadExistingState(context: Context) {
+        Wearable.getDataClient(context).dataItems
+            .addOnSuccessListener { items ->
+                try {
+                    items
+                        .mapNotNull(::parseNowPlaying)
+                        .reduceOrNull(::newestNowPlaying)
+                        ?.let(::applyIncoming)
+                } finally {
+                    items.release()
+                }
+            }
+            .addOnFailureListener { error ->
+                Log.w(TAG, "could not read existing Data Layer state", error)
+            }
     }
 
     private fun refreshNodes(context: Context) {
         Wearable.getNodeClient(context).connectedNodes.addOnSuccessListener { result ->
             nodes = result
-            Log.i(TAG, "connected nodes: ${result.map { it.displayName }}")
             if (result.isEmpty()) {
                 _nowPlaying.value =
                     _nowPlaying.value.copy(
                         connected = false,
-                        error = "Sin nodos conectados (¿teléfono vinculado?)",
+                        error = "Teléfono no vinculado",
                     )
+            } else if (_nowPlaying.value.error == "Teléfono no vinculado") {
+                _nowPlaying.value = _nowPlaying.value.copy(error = null)
             }
         }
     }
 
-    private fun startStaleWatcher() {
-        staleJob?.cancel()
-        staleJob =
-            scope.launch {
-                while (isActive) {
-                    kotlinx.coroutines.delay(15_000)
-                    val state = _nowPlaying.value
-                    if (state.updatedAt > 0L &&
-                        System.currentTimeMillis() - state.updatedAt > 60_000
-                    ) {
-                        _nowPlaying.value =
-                            state.copy(connected = false, error = "Sin datos recientes del teléfono")
-                    }
+    private fun startConnectionWatcher(context: Context) {
+        scope.launch {
+            while (isActive) {
+                delay(15_000L)
+                refreshNodes(context)
+                val state = _nowPlaying.value
+                if (
+                    state.isPlaying &&
+                    state.receivedAtElapsedRealtimeMs > 0L &&
+                    SystemClock.elapsedRealtime() - state.receivedAtElapsedRealtimeMs > 60_000L
+                ) {
+                    _nowPlaying.value =
+                        state.copy(connected = false, error = "Sin datos recientes del teléfono")
                 }
             }
+        }
     }
 
     override fun onDataChanged(dataEvents: DataEventBuffer) {
         try {
-            for (event in dataEvents) {
-                if (event.type == DataEvent.TYPE_DELETED) continue
-                if (event.dataItem.uri.path != WearSyncPaths.NOW_PLAYING) continue
-                val item = DataMapItem.fromDataItem(event.dataItem).dataMap
-                _nowPlaying.value =
-                    NowPlaying(
-                        connected = true,
-                        error = null,
-                        title = item.getString("title"),
-                        artist = item.getString("artist"),
-                        artworkUri = item.getString("artwork_uri"),
-                        isPlaying = item.getBoolean("is_playing", false),
-                        shuffleEnabled = item.getBoolean("shuffle", false),
-                        repeatMode = item.getInt("repeat_mode", 0),
-                        canSkipNext = item.getBoolean("can_next", false),
-                        canSkipPrevious = item.getBoolean("can_prev", false),
-                        likeAction = "like",
-                        updatedAt = System.currentTimeMillis(),
-                    )
-                Log.i(
-                    TAG,
-                    "now playing update: ${_nowPlaying.value.title} playing=${_nowPlaying.value.isPlaying}",
-                )
-            }
+            dataEvents
+                .asSequence()
+                .filter { it.type != DataEvent.TYPE_DELETED }
+                .mapNotNull { event -> parseNowPlaying(event.dataItem) }
+                .reduceOrNull(::newestNowPlaying)
+                ?.let(::applyIncoming)
         } finally {
             dataEvents.release()
         }
     }
 
-    private fun sendCommand(context: Context, command: String) {
-        val messageClient = Wearable.getMessageClient(context.applicationContext)
-        if (nodes.isEmpty()) {
-            Log.w(TAG, "no nodes to send command to")
-            _nowPlaying.value =
-                _nowPlaying.value.copy(error = "Sin nodos conectados")
-            refreshNodes(context)
+    private fun parseNowPlaying(item: DataItem): NowPlaying? {
+        if (item.uri.path !in setOf(WearSyncPaths.NOW_PLAYING, WearSyncPaths.LEGACY_NOW_PLAYING)) return null
+        val data = DataMapItem.fromDataItem(item).dataMap
+        val title = data.getString("title")?.takeIf(String::isNotBlank) ?: return null
+        val receivedAt = SystemClock.elapsedRealtime()
+        return NowPlaying(
+            connected = true,
+            error = null,
+            mediaId = data.getString("media_id")?.takeIf(String::isNotBlank),
+            title = title,
+            artist = data.getString("artist"),
+            artworkUri = data.getString("artwork_uri")?.takeIf(String::isNotBlank),
+            isPlaying = data.getBoolean("is_playing", false),
+            positionMs = data.getLong("position_ms", 0L).coerceAtLeast(0L),
+            durationMs = data.getLong("duration_ms", 0L).coerceAtLeast(0L),
+            playbackSpeed = data.getFloat("playback_speed", 1f).takeIf { it > 0f } ?: 1f,
+            shuffleEnabled = data.getBoolean("shuffle", false),
+            repeatMode = data.getInt("repeat_mode", 0),
+            canSkipNext = data.getBoolean("can_next", false),
+            canSkipPrevious = data.getBoolean("can_prev", false),
+            canLike = data.containsKey("liked"),
+            isLiked = data.getBoolean("liked", false),
+            receivedAtElapsedRealtimeMs = receivedAt,
+            sourceSession = data.getString("source_session")?.takeIf(String::isNotBlank),
+            sourceBootCount = data.getInt("source_boot_count", -1),
+            sourceSessionStartedElapsedMs = data
+                .getLong("source_session_started_elapsed_ms", 0L)
+                .coerceAtLeast(0L),
+            sourceSequence = data.getLong("state_sequence", 0L).coerceAtLeast(0L),
+            sourceUpdatedAtEpochMs = data.getLong("updated_at", 0L),
+        )
+    }
+
+    private fun applyIncoming(next: NowPlaying) {
+        val current = _nowPlaying.value
+        if (!shouldApplyIncoming(current, next)) return
+        _nowPlaying.value = next
+        Log.d(TAG, "now playing state updated; playing=${next.isPlaying}")
+    }
+
+    private fun sendCommand(
+        context: Context,
+        command: String,
+        optimistic: (NowPlaying, Long) -> NowPlaying = { state, _ -> state },
+    ) {
+        val now = SystemClock.elapsedRealtime()
+        _nowPlaying.value = optimistic(_nowPlaying.value, now).copy(error = null)
+        val applicationContext = context.applicationContext
+        val currentNodes = nodes
+        if (currentNodes.isEmpty()) {
+            Wearable.getNodeClient(applicationContext).connectedNodes.addOnSuccessListener { connected ->
+                nodes = connected
+                if (connected.isEmpty()) {
+                    _nowPlaying.value = _nowPlaying.value.copy(connected = false, error = "Teléfono no vinculado")
+                } else {
+                    dispatchCommand(applicationContext, connected, command)
+                }
+            }
             return
         }
-        nodes.forEach { node ->
+        dispatchCommand(applicationContext, currentNodes, command)
+    }
+
+    private fun dispatchCommand(context: Context, targets: List<Node>, command: String) {
+        val messageClient = Wearable.getMessageClient(context)
+        targets.forEach { node ->
             messageClient
                 .sendMessage(node.id, WearSyncPaths.COMMAND, command.toByteArray(Charsets.UTF_8))
-                .addOnSuccessListener {
-                    Log.i(TAG, "command sent: $command to ${node.displayName}")
-                }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "command failed: $command", e)
+                .addOnFailureListener { error ->
+                    Log.e(TAG, "command failed: $command", error)
+                    _nowPlaying.value = _nowPlaying.value.copy(error = "No se pudo enviar el control")
                 }
         }
     }
 
-    fun togglePlayPause(context: Context) = sendCommand(context, CMD_PLAY_PAUSE)
+    fun togglePlayPause(context: Context) =
+        sendCommand(context, CMD_PLAY_PAUSE) { state, now ->
+            state.copy(
+                isPlaying = !state.isPlaying,
+                positionMs = state.positionAt(now),
+                receivedAtElapsedRealtimeMs = now,
+            )
+        }
 
     fun skipToNext(context: Context) = sendCommand(context, CMD_NEXT)
 
     fun skipToPrevious(context: Context) = sendCommand(context, CMD_PREV)
 
-    fun toggleLike(context: Context) = sendCommand(context, CMD_LIKE)
+    fun toggleLike(context: Context) =
+        sendCommand(context, CMD_LIKE) { state, _ -> state.copy(isLiked = !state.isLiked) }
 
-    fun toggleShuffle(context: Context) = sendCommand(context, CMD_SHUFFLE)
+    fun toggleShuffle(context: Context) =
+        sendCommand(context, CMD_SHUFFLE) { state, _ -> state.copy(shuffleEnabled = !state.shuffleEnabled) }
 
-    fun toggleRepeatMode(context: Context) = sendCommand(context, CMD_REPEAT)
+    fun toggleRepeatMode(context: Context) =
+        sendCommand(context, CMD_REPEAT) { state, _ ->
+            state.copy(
+                repeatMode =
+                    when (state.repeatMode) {
+                        0 -> 2
+                        2 -> 1
+                        else -> 0
+                    },
+            )
+        }
 }
+
+internal fun shouldApplyIncoming(current: NowPlaying, next: NowPlaying): Boolean {
+    val nextSession = next.sourceSession
+    val currentSession = current.sourceSession
+    if (nextSession != null) {
+        if (currentSession == null) return true
+        if (next.sourceBootCount >= 0 && current.sourceBootCount >= 0) {
+            if (next.sourceBootCount != current.sourceBootCount) {
+                return next.sourceBootCount > current.sourceBootCount
+            }
+            if (next.sourceSessionStartedElapsedMs != current.sourceSessionStartedElapsedMs) {
+                return next.sourceSessionStartedElapsedMs > current.sourceSessionStartedElapsedMs
+            }
+        } else if (
+            next.sourceSessionStartedElapsedMs > current.sourceSessionStartedElapsedMs &&
+            next.sourceSessionStartedElapsedMs > 0L
+        ) {
+            return true
+        }
+        if (nextSession != currentSession) {
+            return next.sourceUpdatedAtEpochMs > 0L &&
+                current.sourceUpdatedAtEpochMs <= next.sourceUpdatedAtEpochMs
+        }
+        return next.sourceSequence > current.sourceSequence
+    }
+    if (currentSession != null) return false
+    return next.sourceUpdatedAtEpochMs <= 0L ||
+        current.sourceUpdatedAtEpochMs <= next.sourceUpdatedAtEpochMs
+}
+
+private fun newestNowPlaying(current: NowPlaying, candidate: NowPlaying): NowPlaying =
+    if (shouldApplyIncoming(current, candidate)) candidate else current

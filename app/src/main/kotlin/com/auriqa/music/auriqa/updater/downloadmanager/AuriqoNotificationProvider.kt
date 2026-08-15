@@ -32,15 +32,18 @@ class AuriqoNotificationProvider(
         return this
     }
 
+    override fun getNotificationChannelInfo(): MediaNotification.Provider.NotificationChannelInfo =
+        defaultProvider.notificationChannelInfo
+
     override fun createNotification(
         mediaSession: MediaSession,
-        customLayout: ImmutableList<CommandButton>,
+        mediaButtonPreferences: ImmutableList<CommandButton>,
         actionFactory: MediaNotification.ActionFactory,
         onNotificationChangedCallback: MediaNotification.Provider.Callback,
     ): MediaNotification {
         val mediaNotification = defaultProvider.createNotification(
             mediaSession,
-            customLayout,
+            mediaButtonPreferences,
             actionFactory,
             onNotificationChangedCallback
         )

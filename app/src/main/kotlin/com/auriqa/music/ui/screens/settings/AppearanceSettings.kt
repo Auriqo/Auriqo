@@ -1010,7 +1010,7 @@ highlightKey: String? = null) {
                 add(
                     Material3SettingsItem(
     isHighlighted = (highlightKey == stringResource(R.string.legacy_icon)),
-                        icon = painterResource(R.drawable.legacy_icon_raster),
+                        icon = painterResource(R.drawable.auriqo_logo_badge),
                         tintIcon = false,
                         title = { Text(stringResource(R.string.legacy_icon)) },
                         description = { Text(stringResource(R.string.legacy_icon_desc)) },

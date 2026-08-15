@@ -22,6 +22,8 @@ Useful checks before a pull request:
 ```bash
 ./gradlew :app:compileUniversalFossDebugKotlin --no-daemon
 ./gradlew :app:testUniversalFossDebugUnitTest --no-daemon
+./gradlew :betterlyrics:testDebugUnitTest :unison:test --no-daemon
+./gradlew :wear:testDebugUnitTest --no-daemon
 ./gradlew :innertube:testDebugUnitTest --no-daemon
 ./gradlew :letras:test --no-daemon
 ./gradlew :app:lintUniversalFossDebug --no-daemon
@@ -41,10 +43,12 @@ Do not delete local Gradle caches to make a build pass. If a test cannot run, re
 
 - `app/`: Android application, UI, playback, settings and integrations.
 - `innertube/`: YouTube/YouTube Music client models and requests.
-- `betterlyrics/`, `lrclib/`, `paxsenixlyrics/`, `kugou/`, `simpmusic/`, `youlyplus/`, `letras/`: lyrics integrations.
+- `betterlyrics/`: provider client, pinned web renderer, bridge models, marketplace and renderer tests.
+- `unison/`: anonymous lyrics reads and signed community actions.
+- `lrclib/`, `paxsenixlyrics/`, `kugou/`, `simpmusic/`, `youlyplus/`, `letras/`: additional lyrics integrations.
 - `workers/youtube-attribution/`: optional Cloudflare Worker used for playlist attribution.
-- `wear/`: Wear OS module.
-- `third_party/` and `app/src/main/res/font/`: bundled fonts and notices.
+- `wear/`: Wear OS companion and Tile; the phone Data Layer publisher is under `app/src/gms`.
+- `third_party/` and `app/src/main/res/font/`: redistributable bundled fonts and notices. Do not add a font whose license forbids source redistribution.
 
 Keep provider-specific code isolated. When adding a service, document its endpoint, authentication, data sent, failure behavior and license/provenance in the relevant documentation.
 
@@ -63,6 +67,10 @@ Do not rewrite shared history, move tags, or force-push branches used by other c
 ## Keep local files local
 
 Do not commit local configuration (`local.properties`, Firebase or environment files), credentials, signing material, device logs or generated APKs. If a log or screenshot helps explain a problem, remove account tokens and personal details first. The tracked persistent debug keystore is for local debug builds only and must never sign a release.
+
+The source tree contains public client identifiers needed by the YouTube/InnerTube protocol. They
+are not a place to add a private API key. Any new compiled identifier needs an explicit security
+review and, when controlled by a maintainer, provider-side application restrictions.
 
 ## Pull requests
 

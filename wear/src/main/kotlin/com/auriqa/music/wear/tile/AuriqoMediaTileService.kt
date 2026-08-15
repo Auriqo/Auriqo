@@ -15,6 +15,7 @@ import androidx.wear.tiles.TileBuilders
 import androidx.wear.tiles.TileService
 import com.auriqo.music.wear.media.PhoneSyncManager
 import com.auriqo.music.wear.media.NowPlaying
+import com.auriqo.music.wear.R
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +27,15 @@ import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
 
 private const val ARTWORK_RESOURCE_ID = "artwork"
-private const val RESOURCES_VERSION = "1"
+private const val LOGO_RESOURCE_ID = "auriqo_logo"
+private const val PLAY_RESOURCE_ID = "play"
+private const val PAUSE_RESOURCE_ID = "pause"
+private const val PREVIOUS_RESOURCE_ID = "previous"
+private const val NEXT_RESOURCE_ID = "next"
+private const val HEART_RESOURCE_ID = "heart"
+private const val SHUFFLE_RESOURCE_ID = "shuffle"
+private const val REPEAT_RESOURCE_ID = "repeat"
+private const val RESOURCES_VERSION = "2"
 
 private const val ACTION_PLAY_PAUSE = "play_pause"
 private const val ACTION_NEXT = "next"
@@ -60,17 +69,27 @@ class AuriqoMediaTileService : TileService() {
     override fun onTileResourcesRequest(
         requestParams: RequestBuilders.ResourcesRequest,
     ): ListenableFuture<ResourceBuilders.Resources> {
+        val resources =
+            ResourceBuilders.Resources.Builder()
+                .addAndroidDrawable(LOGO_RESOURCE_ID, R.drawable.ic_auriqo_wear)
+                .addAndroidDrawable(PLAY_RESOURCE_ID, R.drawable.ic_play)
+                .addAndroidDrawable(PAUSE_RESOURCE_ID, R.drawable.ic_pause)
+                .addAndroidDrawable(PREVIOUS_RESOURCE_ID, R.drawable.ic_previous)
+                .addAndroidDrawable(NEXT_RESOURCE_ID, R.drawable.ic_next)
+                .addAndroidDrawable(HEART_RESOURCE_ID, R.drawable.ic_heart)
+                .addAndroidDrawable(SHUFFLE_RESOURCE_ID, R.drawable.ic_shuffle)
+                .addAndroidDrawable(REPEAT_RESOURCE_ID, R.drawable.ic_repeat)
         val state = PhoneSyncManager.nowPlaying.value
         val artworkUrl = state.artworkUri
         if (artworkUrl.isNullOrBlank()) {
-            return Futures.immediateFuture(ResourceBuilders.Resources.Builder().build())
+            return Futures.immediateFuture(resources.build())
         }
 
         val bitmap = ArtworkFetcher.getCached(artworkUrl)
-            ?: return Futures.immediateFuture(ResourceBuilders.Resources.Builder().build())
+            ?: return Futures.immediateFuture(resources.build())
 
         return Futures.immediateFuture(
-            ResourceBuilders.Resources.Builder()
+            resources
                 .addIdToImageMapping(ARTWORK_RESOURCE_ID, bitmap.toImageResource())
                 .build(),
         )
@@ -161,10 +180,10 @@ class AuriqoMediaTileService : TileService() {
     }
 
     private fun header(): LayoutElementBuilders.LayoutElement =
-        LayoutElementBuilders.Text.Builder()
-            .setText(textProp("☀ AURIQO"))
-            .setFontStyle(fontStyle(sizeSp = 11f, color = COLOR_ACCENT))
-            .setMaxLines(int32Prop(1))
+        LayoutElementBuilders.Image.Builder()
+            .setResourceId(textProp(LOGO_RESOURCE_ID))
+            .setWidth(DimensionBuilders.dp(18f))
+            .setHeight(DimensionBuilders.dp(18f))
             .build()
 
     private fun nowPlayingSection(state: NowPlaying): LayoutElementBuilders.LayoutElement {
@@ -206,21 +225,21 @@ class AuriqoMediaTileService : TileService() {
         val row = LayoutElementBuilders.Row.Builder()
 
         if (state.canSkipPrevious) {
-            row.addContent(iconButton("⏮", ACTION_PREV))
+            row.addContent(iconButton(PREVIOUS_RESOURCE_ID, ACTION_PREV))
         }
-        row.addContent(iconButton(if (state.isPlaying) "⏸" else "▶", ACTION_PLAY_PAUSE, primary = true))
+        row.addContent(iconButton(if (state.isPlaying) PAUSE_RESOURCE_ID else PLAY_RESOURCE_ID, ACTION_PLAY_PAUSE, primary = true))
         if (state.canSkipNext) {
-            row.addContent(iconButton("⏭", ACTION_NEXT))
+            row.addContent(iconButton(NEXT_RESOURCE_ID, ACTION_NEXT))
         }
 
-        if (state.likeAction != null) {
+        if (state.canLike) {
             row.addContent(LayoutElementBuilders.Spacer.Builder().setWidth(DimensionBuilders.dp(12f)).build())
-            row.addContent(iconButton("♡", ACTION_LIKE))
+            row.addContent(iconButton(HEART_RESOURCE_ID, ACTION_LIKE, active = state.isLiked))
         }
 
         row.addContent(LayoutElementBuilders.Spacer.Builder().setWidth(DimensionBuilders.dp(12f)).build())
-        row.addContent(iconButton("⇄", ACTION_SHUFFLE, active = state.shuffleEnabled))
-        row.addContent(iconButton("↻", ACTION_REPEAT, active = state.repeatMode != 0))
+        row.addContent(iconButton(SHUFFLE_RESOURCE_ID, ACTION_SHUFFLE, active = state.shuffleEnabled))
+        row.addContent(iconButton(REPEAT_RESOURCE_ID, ACTION_REPEAT, active = state.repeatMode != 0))
 
         return row.build()
     }
@@ -248,7 +267,7 @@ class AuriqoMediaTileService : TileService() {
             .build()
 
     private fun iconButton(
-        glyph: String,
+        imageResourceId: String,
         action: String,
         primary: Boolean = false,
         active: Boolean = false,
@@ -256,11 +275,16 @@ class AuriqoMediaTileService : TileService() {
         val buttonColor = if (primary || active) COLOR_ACCENT else COLOR_BUTTON
         val glyphColor = if (primary || active) COLOR_BACKGROUND else COLOR_TEXT
 
-        val text =
-            LayoutElementBuilders.Text.Builder()
-                .setText(textProp(glyph))
-                .setFontStyle(fontStyle(sizeSp = 13f, color = glyphColor))
-                .setMaxLines(int32Prop(1))
+        val icon =
+            LayoutElementBuilders.Image.Builder()
+                .setResourceId(textProp(imageResourceId))
+                .setWidth(DimensionBuilders.dp(if (primary) 18f else 15f))
+                .setHeight(DimensionBuilders.dp(if (primary) 18f else 15f))
+                .setColorFilter(
+                    LayoutElementBuilders.ColorFilter.Builder()
+                        .setTint(glyphColor)
+                        .build(),
+                )
                 .build()
 
         return LayoutElementBuilders.Box.Builder()
@@ -281,9 +305,24 @@ class AuriqoMediaTileService : TileService() {
                     )
                     .build(),
             )
-            .addContent(text)
+            .addContent(icon)
             .build()
     }
+
+    private fun ResourceBuilders.Resources.Builder.addAndroidDrawable(
+        id: String,
+        drawableResId: Int,
+    ): ResourceBuilders.Resources.Builder =
+        addIdToImageMapping(
+            id,
+            ResourceBuilders.ImageResource.Builder()
+                .setAndroidResourceByResId(
+                    ResourceBuilders.AndroidImageResourceByResId.Builder()
+                        .setResourceId(drawableResId)
+                        .build(),
+                )
+                .build(),
+        )
 
     private fun Bitmap.toImageResource(): ResourceBuilders.ImageResource {
         val bytes = ByteArray(byteCount)

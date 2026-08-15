@@ -741,7 +741,7 @@ highlightKey: String? = null) {
                 ))
                 add(Material3SettingsItem(
     isHighlighted = (highlightKey == stringResource(R.string.echo_equalizer)),
-                    icon = painterResource(R.drawable.echoequlizer),
+                    icon = painterResource(R.drawable.auriqo_equalizer),
                     title = { Text(stringResource(R.string.echo_equalizer)) },
                     description = { Text(stringResource(R.string.echo_equalizer_desc)) },
                     onClick = { navController.navigate("settings/equalizer") }

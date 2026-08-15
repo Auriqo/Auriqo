@@ -100,8 +100,6 @@ import com.auriqo.music.constants.LastFMSessionKey
 import com.auriqo.music.constants.LastFMUseNowPlaying
 import com.auriqo.music.constants.LastFMUseSendLikes
 import com.auriqo.music.constants.MediaSessionConstants.CommandToggleLike
-import com.auriqo.music.constants.MediaSessionConstants.CommandToggleRepeatMode
-import com.auriqo.music.constants.MediaSessionConstants.CommandToggleShuffle
 import com.auriqo.music.constants.MediaSessionConstants.CommandToggleStartRadio
 import com.auriqo.music.constants.PauseListenHistoryKey
 import com.auriqo.music.constants.PauseOnMute
@@ -376,6 +374,10 @@ class MusicService :
             .flatMapLatest { mediaMetadata ->
                 database.song(mediaMetadata?.id)
             }.stateIn(scope, SharingStarted.Lazily, null)
+    val currentSongLiked =
+        currentSong
+            .map { it?.song?.liked == true }
+            .stateIn(scope, SharingStarted.Eagerly, false)
     private val currentFormat =
         currentMediaMetadata.flatMapLatest { mediaMetadata ->
             database.format(mediaMetadata?.id)
@@ -663,6 +665,7 @@ class MusicService :
         if (dataStore.get(RememberShuffleAndRepeatKey, true)) {
             player.shuffleModeEnabled = dataStore.get(ShuffleModeKey, false)
         }
+        updateNotification()
 
         
         val sessionToken = SessionToken(this, ComponentName(this, MusicService::class.java))
@@ -1345,59 +1348,66 @@ class MusicService :
     }
 
     private fun updateNotification() {
-        mediaSession.setCustomLayout(
+        val liked = currentSong.value?.song?.liked == true
+        val nextRepeatMode =
+            when (player.repeatMode) {
+                REPEAT_MODE_OFF -> REPEAT_MODE_ALL
+                REPEAT_MODE_ALL -> REPEAT_MODE_ONE
+                REPEAT_MODE_ONE -> REPEAT_MODE_OFF
+                else -> REPEAT_MODE_OFF
+            }
+        val buttons =
             listOf(
-                CommandButton
-                    .Builder()
-                    .setDisplayName(
-                        getString(
-                            if (currentSong.value?.song?.liked ==
-                                true
-                            ) {
-                                R.string.action_remove_like
-                            } else {
-                                R.string.action_like
-                            },
-                        ),
-                    )
-                    .setIconResId(if (currentSong.value?.song?.liked == true) R.drawable.ic_heart else R.drawable.ic_heart_outline)
+                CommandButton.Builder(
+                    if (liked) CommandButton.ICON_HEART_FILLED else CommandButton.ICON_HEART_UNFILLED,
+                )
+                    .setDisplayName(getString(if (liked) R.string.action_remove_like else R.string.action_like))
+                    .setCustomIconResId(if (liked) R.drawable.ic_heart else R.drawable.ic_heart_outline)
                     .setSessionCommand(CommandToggleLike)
                     .setEnabled(currentSong.value != null)
                     .build(),
-                CommandButton
-                    .Builder()
+                CommandButton.Builder(
+                    if (player.shuffleModeEnabled) CommandButton.ICON_SHUFFLE_ON else CommandButton.ICON_SHUFFLE_OFF,
+                )
+                    .setDisplayName(
+                        getString(if (player.shuffleModeEnabled) R.string.action_shuffle_off else R.string.action_shuffle_on),
+                    )
+                    .setCustomIconResId(if (player.shuffleModeEnabled) R.drawable.shuffle_on else R.drawable.shuffle)
+                    .setPlayerCommand(Player.COMMAND_SET_SHUFFLE_MODE)
+                    .build(),
+                CommandButton.Builder(
+                    when (player.repeatMode) {
+                        REPEAT_MODE_ONE -> CommandButton.ICON_REPEAT_ONE
+                        REPEAT_MODE_ALL -> CommandButton.ICON_REPEAT_ALL
+                        else -> CommandButton.ICON_REPEAT_OFF
+                    },
+                )
                     .setDisplayName(
                         getString(
                             when (player.repeatMode) {
-                                REPEAT_MODE_OFF -> R.string.repeat_mode_off
                                 REPEAT_MODE_ONE -> R.string.repeat_mode_one
                                 REPEAT_MODE_ALL -> R.string.repeat_mode_all
-                                else -> throw IllegalStateException()
+                                else -> R.string.repeat_mode_off
                             },
                         ),
-                    ).setIconResId(
+                    )
+                    .setCustomIconResId(
                         when (player.repeatMode) {
-                            REPEAT_MODE_OFF -> R.drawable.repeat
                             REPEAT_MODE_ONE -> R.drawable.repeat_one_on
                             REPEAT_MODE_ALL -> R.drawable.repeat_on
-                            else -> throw IllegalStateException()
+                            else -> R.drawable.repeat
                         },
-                    ).setSessionCommand(CommandToggleRepeatMode)
+                    )
+                    .setPlayerCommand(Player.COMMAND_SET_REPEAT_MODE, nextRepeatMode)
                     .build(),
-                CommandButton
-                    .Builder()
-                    .setDisplayName(getString(if (player.shuffleModeEnabled) R.string.action_shuffle_off else R.string.action_shuffle_on))
-                    .setIconResId(if (player.shuffleModeEnabled) R.drawable.shuffle_on else R.drawable.shuffle)
-                    .setSessionCommand(CommandToggleShuffle)
-                    .build(),
-                CommandButton.Builder()
+                CommandButton.Builder(CommandButton.ICON_RADIO)
                     .setDisplayName(getString(R.string.start_radio))
-                    .setIconResId(R.drawable.radio)
+                    .setCustomIconResId(R.drawable.radio)
                     .setSessionCommand(CommandToggleStartRadio)
                     .setEnabled(currentSong.value != null)
                     .build(),
-            ),
-        )
+            )
+        mediaSession.setMediaButtonPreferences(buttons)
     }
 
     private suspend fun recoverSong(
@@ -3486,7 +3496,7 @@ class MusicService :
 
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, "https://share.echomusic.fun/watch?v=$songId")
+            putExtra(Intent.EXTRA_TEXT, "https://www.youtube.com/watch?v=$songId")
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         startActivity(Intent.createChooser(shareIntent, null).apply {

@@ -16,11 +16,12 @@ The following font binaries are tracked under `app/src/main/res/font/`. The SHA-
 
 ### Cabinet Grotesk
 
-- Files: `cabinet_grotesk_regular.ttf`, `cabinet_grotesk_bold.ttf` and `cabinet_grotesk.xml`.
+- Fixed artwork: `branding/auriqo-logo.svg`, `branding/auriqo-wordmark.svg` and matching Android/Wear vector drawables.
 - Source: [Cabinet Grotesk on Fontshare](https://www.fontshare.com/fonts/cabinet-grotesk).
 - License reference: [Fontshare ITF Free Font License](https://fontshare.com/licenses/itf-ffl).
-- Current TTF SHA-256: regular - `982a97b68034bf65b53518aba720823c7cc501660c8c8085cfc66dfb5d168a13`; bold - `f2e2f7b99f1c17715567a84046e6ae2c13bbb24bb76847644df903f4b361f38d`.
-- This is not part of Auriqo's GPLv3 code license. Fontshare's terms allow use in apps but also restrict redistribution and modification of the font software. Because the public repository contains the binaries, the maintainer must retain evidence that this distribution is permitted or replace the font before publishing an official artifact.
+- Source binary used for the fixed outlines: Cabinet Grotesk Bold, SHA-256 `f2e2f7b99f1c17715567a84046e6ae2c13bbb24bb76847644df903f4b361f38d`.
+- Fontshare permits use to create logos, vector drawings and static images, while its ITF FFL restricts redistribution of the Font Software. Auriqo therefore tracks only fixed glyph outlines and does not track or package the Cabinet TTF/OTF files.
+- The outlined Auriqo wordmark is product artwork, not an installable font and not a general Cabinet glyph set. Contributors who need to regenerate it must obtain Cabinet directly from Fontshare and comply with its license.
 
 ### Removed unused font binaries
 
@@ -33,6 +34,13 @@ The unused `google_sans_flex.ttf` and `sans_flex.ttf` files were removed from th
 The `betterlyrics` module contains the Kotlin client and TTML parser used by Auriqo. The Android implementation was introduced in commit `5721f005` and is currently under `betterlyrics/src/main/kotlin/com/auriqa/music/betterlyrics/`. The repository history does not contain a file-level mapping to the upstream browser extension, so the Kotlin code is not described as a byte-for-byte vendored copy.
 
 The upstream [Better Lyrics repository](https://github.com/better-lyrics/better-lyrics) is GPLv3-licensed and requests attribution. Auriqo documents the relationship and keeps the code under the repository's GPLv3-compatible project licensing. If the maintainer has contrary authorship or permission information, update this notice before a stable release.
+
+The embedded web renderer is now pinned to Better Lyrics commit
+`931f25829f6cfd81d0042ca36b4308a0cd38d467` and uses `@braccato/core@1.1.0` plus
+`@braccato/types@1.0.0`, both of which declare MIT. The exact npm tarball hash, file boundary and
+reproduction command are documented in
+[docs/BETTER_LYRICS_SNAPSHOT.md](docs/BETTER_LYRICS_SNAPSHOT.md). The generated Android assets
+carry the upstream renderer license and a hash manifest.
 
 ### Other adapted or referenced code
 
@@ -59,4 +67,4 @@ YouTube/Google, Spotify, Discord, Last.fm, ListenBrainz, Shazam-compatible endpo
 
 ## Maintainer release gate
 
-Before an official artifact, resolve the Cabinet Grotesk distribution question and attach the complete dependency license inventory. Keep the BetterLyrics and adapted-code attribution above in every release review.
+Before an official artifact, attach the complete dependency license inventory. Keep the Cabinet artwork record, BetterLyrics attribution and adapted-code notices above in every release review.

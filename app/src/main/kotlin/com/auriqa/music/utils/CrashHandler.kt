@@ -67,7 +67,7 @@ class CrashHandler private constructor(
         }.toString()
 
         return buildString {
-            appendLine("echomusic Crash Report")
+            appendLine("Auriqo Crash Report")
             appendLine("=".repeat(50))
             appendLine()
             appendLine("Manufacturer: ${Build.MANUFACTURER}")

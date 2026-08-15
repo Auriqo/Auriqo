@@ -34,7 +34,7 @@ Do not add a tag-triggered publishing step to the public FOSS workflow. If relea
 ## Acceptance criteria
 
 - FOSS compile, assemble, tests and lint pass without private credentials.
-- No API key, OAuth client secret, cookie, webhook or signing material is reachable in the build output.
+- No private API credential, OAuth client secret, cookie, webhook or release signing material is reachable in the build output. The two source-level YouTube/InnerTube client identifiers are explicitly allowlisted as public, extractable protocol identifiers and reviewed separately.
 - Release signing uses a protected external keystore and never the tracked persistent debug keystore.
 - Artifact name, variant, commit and SHA-256 are recorded in manually reviewed release notes.
 - Configuration sync is reviewed as a pull request.
