@@ -39,6 +39,7 @@ private const val CMD_PREV = "prev"
 private const val CMD_LIKE = "like"
 private const val CMD_SHUFFLE = "shuffle"
 private const val CMD_REPEAT = "repeat"
+private const val CMD_SEEK_PREFIX = "seek:"
 
 private data class SyncSnapshot(
     val mediaId: String? = null,
@@ -106,6 +107,9 @@ class GmsWearSyncManager(
                     while (isActive) {
                         delay(if (observedPlayer?.isPlaying == true) 15_000L else 45_000L)
                         updateSnapshot()
+                        snapshot.value.let { state ->
+                            if (state.title.isNullOrBlank()) clearNowPlaying() else putNowPlaying(state)
+                        }
                     }
                 }
             }
@@ -198,13 +202,17 @@ class GmsWearSyncManager(
         val player = service.playerFlow.value ?: return
         val command = String(messageEvent.data, Charsets.UTF_8)
         runCatching {
-            when (command) {
-                CMD_PLAY_PAUSE -> if (player.isPlaying) player.pause() else player.play()
-                CMD_NEXT -> if (player.hasNextMediaItem()) player.seekToNextMediaItem()
-                CMD_PREV -> if (player.hasPreviousMediaItem()) player.seekToPreviousMediaItem()
-                CMD_LIKE -> service.toggleLike()
-                CMD_SHUFFLE -> player.shuffleModeEnabled = !player.shuffleModeEnabled
-                CMD_REPEAT -> player.toggleRepeatMode()
+            when {
+                command == CMD_PLAY_PAUSE -> if (player.isPlaying) player.pause() else player.play()
+                command == CMD_NEXT -> if (player.hasNextMediaItem()) player.seekToNextMediaItem()
+                command == CMD_PREV -> if (player.hasPreviousMediaItem()) player.seekToPreviousMediaItem()
+                command == CMD_LIKE -> service.toggleLike()
+                command == CMD_SHUFFLE -> player.shuffleModeEnabled = !player.shuffleModeEnabled
+                command == CMD_REPEAT -> player.toggleRepeatMode()
+                command.startsWith(CMD_SEEK_PREFIX) ->
+                    command.removePrefix(CMD_SEEK_PREFIX).toLongOrNull()?.let { position ->
+                        player.seekTo(position.coerceAtLeast(0L))
+                    }
                 else -> return
             }
         }

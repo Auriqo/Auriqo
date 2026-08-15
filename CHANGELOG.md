@@ -4,7 +4,17 @@ This file records user-visible and release-process changes. It does not replace 
 
 ## [Unreleased]
 
-No unreleased changes are recorded after the `v1.0.3-alpha.1` candidate.
+### Wear OS
+
+- Added a background Data Layer listener and a local Wear `MediaSession` proxy, so Auriqo's
+  metadata and custom actions are available from the system media surface without opening the
+  companion Activity.
+- Added a Wear media notification/session activity, artwork loading for system controls and
+  forwarding for seek, play/pause, previous/next, like, shuffle and repeat.
+- Reworked the Now Playing screen for the circular display: compact artwork/progress hierarchy,
+  complete secondary controls and Wear-sized touch targets.
+- Added periodic GMS Data Layer heartbeats while playing and aligned the Tile palette with the
+  Auriqo Wear surface.
 
 ## [1.0.3-alpha.1] - 2026-08-15
 

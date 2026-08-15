@@ -35,7 +35,7 @@ private const val NEXT_RESOURCE_ID = "next"
 private const val HEART_RESOURCE_ID = "heart"
 private const val SHUFFLE_RESOURCE_ID = "shuffle"
 private const val REPEAT_RESOURCE_ID = "repeat"
-private const val RESOURCES_VERSION = "2"
+private const val RESOURCES_VERSION = "3"
 
 private const val ACTION_PLAY_PAUSE = "play_pause"
 private const val ACTION_NEXT = "next"
@@ -44,11 +44,11 @@ private const val ACTION_LIKE = "like"
 private const val ACTION_SHUFFLE = "shuffle"
 private const val ACTION_REPEAT = "repeat"
 
-private val COLOR_BACKGROUND = ColorBuilders.argb(0xFF0F0F0F.toInt())
-private val COLOR_ACCENT = ColorBuilders.argb(0xFFFFB20F.toInt())
+private val COLOR_BACKGROUND = ColorBuilders.argb(0xFF080B0A.toInt())
+private val COLOR_ACCENT = ColorBuilders.argb(0xFFD8F36A.toInt())
 private val COLOR_TEXT = ColorBuilders.argb(0xFFFFFFFF.toInt())
-private val COLOR_TEXT_MUTED = ColorBuilders.argb(0xFFB0AFA8.toInt())
-private val COLOR_BUTTON = ColorBuilders.argb(0xFF2A2A28.toInt())
+private val COLOR_TEXT_MUTED = ColorBuilders.argb(0xFFA6ADA7.toInt())
+private val COLOR_BUTTON = ColorBuilders.argb(0xFF171B18.toInt())
 
 class AuriqoMediaTileService : TileService() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)

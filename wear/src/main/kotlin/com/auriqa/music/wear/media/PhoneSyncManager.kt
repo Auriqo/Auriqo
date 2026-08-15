@@ -34,6 +34,7 @@ private const val CMD_PREV = "prev"
 private const val CMD_LIKE = "like"
 private const val CMD_SHUFFLE = "shuffle"
 private const val CMD_REPEAT = "repeat"
+private const val CMD_SEEK_PREFIX = "seek:"
 
 data class NowPlaying(
     val connected: Boolean = false,
@@ -246,6 +247,16 @@ object PhoneSyncManager : DataClient.OnDataChangedListener {
             )
         }
 
+    fun play(context: Context) {
+        if (_nowPlaying.value.isPlaying) return
+        togglePlayPause(context)
+    }
+
+    fun pause(context: Context) {
+        if (!_nowPlaying.value.isPlaying) return
+        togglePlayPause(context)
+    }
+
     fun skipToNext(context: Context) = sendCommand(context, CMD_NEXT)
 
     fun skipToPrevious(context: Context) = sendCommand(context, CMD_PREV)
@@ -267,6 +278,34 @@ object PhoneSyncManager : DataClient.OnDataChangedListener {
                     },
             )
         }
+
+    fun setShuffleMode(context: Context, enabled: Boolean) {
+        if (_nowPlaying.value.shuffleEnabled != enabled) toggleShuffle(context)
+    }
+
+    fun setRepeatMode(context: Context, mode: Int) {
+        val target = mode.coerceIn(0, 2)
+        var current = _nowPlaying.value.repeatMode
+        repeat(3) {
+            if (current == target) return
+            toggleRepeatMode(context)
+            current = when (current) {
+                0 -> 2
+                2 -> 1
+                else -> 0
+            }
+        }
+    }
+
+    fun seekTo(context: Context, positionMs: Long) {
+        val position = positionMs.coerceAtLeast(0L)
+        sendCommand(context, "$CMD_SEEK_PREFIX$position") { state, now ->
+            state.copy(
+                positionMs = if (state.durationMs > 0L) position.coerceAtMost(state.durationMs) else position,
+                receivedAtElapsedRealtimeMs = now,
+            )
+        }
+    }
 }
 
 internal fun shouldApplyIncoming(current: NowPlaying, next: NowPlaying): Boolean {

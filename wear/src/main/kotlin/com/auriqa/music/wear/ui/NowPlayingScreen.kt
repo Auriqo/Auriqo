@@ -69,20 +69,14 @@ fun NowPlayingScreen(modifier: Modifier = Modifier) {
     }
 
     Box(
-        modifier =
-            modifier
-                .background(AuriqoWearColors.Surface),
+        modifier = modifier.background(AuriqoWearColors.Surface),
     ) {
         state.artworkUri?.let { artwork ->
             AsyncImage(
                 model = artwork,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .blur(28.dp)
-                        .alpha(0.22f),
+                modifier = Modifier.fillMaxSize().blur(34.dp).alpha(0.13f),
             )
         }
         Box(
@@ -90,8 +84,8 @@ fun NowPlayingScreen(modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        0f to Color(0xB8080B0A),
-                        0.45f to Color(0xD9080B0A),
+                        0f to Color(0xB5080B0A),
+                        0.42f to Color(0xE6080B0A),
                         1f to AuriqoWearColors.Surface,
                     ),
                 ),
@@ -116,50 +110,20 @@ private fun ConnectedPlayer(
     context: Context,
 ) {
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(start = 18.dp, end = 18.dp, top = 25.dp, bottom = 9.dp),
+        modifier = Modifier.fillMaxSize().padding(start = 13.dp, end = 13.dp, top = 15.dp, bottom = 0.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween,
     ) {
         AuriqoStatus(connected = true)
+        Spacer(Modifier.height(1.dp))
 
         ArtworkProgress(
             artworkUri = state.artworkUri,
             progress = if (state.durationMs > 0L) displayPosition.toFloat() / state.durationMs else 0f,
         )
+        Spacer(Modifier.height(1.dp))
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = state.title.orEmpty(),
-                color = Color.White,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Text(
-                text = state.artist.orEmpty(),
-                color = AuriqoWearColors.Muted,
-                fontSize = 10.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            if (state.durationMs > 0L) {
-                Text(
-                    text = "${formatTime(displayPosition)}  /  ${formatTime(state.durationMs)}",
-                    color = AuriqoWearColors.Muted.copy(alpha = 0.82f),
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.Medium,
-                )
-            }
-        }
-
+        TrackIdentity(state = state, position = displayPosition)
+        Spacer(Modifier.height(1.dp))
         TransportControls(state = state, context = context)
         SecondaryControls(state = state, context = context)
     }
@@ -167,14 +131,25 @@ private fun ConnectedPlayer(
 
 @Composable
 private fun AuriqoStatus(connected: Boolean) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Icon(
             painter = painterResource(R.drawable.ic_auriqo_wear),
             contentDescription = "Auriqo",
             tint = Color.Unspecified,
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier.size(15.dp),
         )
-        Spacer(Modifier.width(6.dp))
+        Spacer(Modifier.width(5.dp))
+        Text(
+            text = "AURIQO",
+            color = Color.White.copy(alpha = 0.88f),
+            fontSize = 8.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.35.sp,
+        )
+        Spacer(Modifier.weight(1f))
         Box(
             Modifier
                 .size(5.dp)
@@ -185,20 +160,20 @@ private fun AuriqoStatus(connected: Boolean) {
         Text(
             text = if (connected) "TELÉFONO" else "SIN ENLACE",
             color = AuriqoWearColors.Muted,
-            fontSize = 8.sp,
+            fontSize = 7.sp,
             fontWeight = FontWeight.Bold,
-            letterSpacing = 0.9.sp,
+            letterSpacing = 0.8.sp,
         )
     }
 }
 
 @Composable
 private fun ArtworkProgress(artworkUri: String?, progress: Float) {
-    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(86.dp)) {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(68.dp)) {
         Canvas(Modifier.fillMaxSize()) {
-            val stroke = 2.5.dp.toPx()
+            val stroke = 2.2.dp.toPx()
             drawArc(
-                color = Color.White.copy(alpha = 0.12f),
+                color = Color.White.copy(alpha = 0.14f),
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
@@ -213,11 +188,7 @@ private fun ArtworkProgress(artworkUri: String?, progress: Float) {
             )
         }
         Box(
-            modifier =
-                Modifier
-                    .size(76.dp)
-                    .clip(RoundedCornerShape(21.dp))
-                    .background(AuriqoWearColors.RaisedSurface),
+            modifier = Modifier.size(60.dp).clip(RoundedCornerShape(18.dp)).background(AuriqoWearColors.RaisedSurface),
             contentAlignment = Alignment.Center,
         ) {
             if (artworkUri.isNullOrBlank()) {
@@ -225,7 +196,7 @@ private fun ArtworkProgress(artworkUri: String?, progress: Float) {
                     painter = painterResource(R.drawable.ic_auriqo_wear),
                     contentDescription = null,
                     tint = Color.Unspecified,
-                    modifier = Modifier.size(38.dp),
+                    modifier = Modifier.size(29.dp),
                 )
             } else {
                 AsyncImage(
@@ -240,6 +211,81 @@ private fun ArtworkProgress(artworkUri: String?, progress: Float) {
 }
 
 @Composable
+private fun TrackIdentity(state: NowPlaying, position: Long) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = state.title.orEmpty(),
+            color = Color.White,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Text(
+            text = state.artist.orEmpty(),
+            color = AuriqoWearColors.Muted,
+            fontSize = 9.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        if (state.durationMs > 0L) {
+            Spacer(Modifier.height(2.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(0.7f),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = formatTime(position),
+                    color = AuriqoWearColors.Muted,
+                    fontSize = 7.sp,
+                    fontWeight = FontWeight.Medium,
+                )
+                Spacer(Modifier.width(5.dp))
+                ProgressRail(
+                    progress = position.toFloat() / state.durationMs,
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.width(5.dp))
+                Text(
+                    text = formatTime(state.durationMs),
+                    color = AuriqoWearColors.Muted,
+                    fontSize = 7.sp,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProgressRail(progress: Float, modifier: Modifier = Modifier) {
+    Canvas(modifier.height(3.dp)) {
+        val y = size.height / 2f
+        drawLine(
+            color = Color.White.copy(alpha = 0.16f),
+            start = androidx.compose.ui.geometry.Offset(0f, y),
+            end = androidx.compose.ui.geometry.Offset(size.width, y),
+            strokeWidth = size.height,
+            cap = StrokeCap.Round,
+        )
+        drawLine(
+            color = AuriqoWearColors.Accent,
+            start = androidx.compose.ui.geometry.Offset(0f, y),
+            end = androidx.compose.ui.geometry.Offset(size.width * progress.coerceIn(0f, 1f), y),
+            strokeWidth = size.height,
+            cap = StrokeCap.Round,
+        )
+    }
+}
+
+@Composable
 private fun TransportControls(state: NowPlaying, context: Context) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -250,23 +296,23 @@ private fun TransportControls(state: NowPlaying, context: Context) {
             iconRes = R.drawable.ic_previous,
             description = "Canción anterior",
             enabled = state.canSkipPrevious,
-            size = 40.dp,
+            size = 46.dp,
             onClick = { PhoneSyncManager.skipToPrevious(context) },
         )
-        Spacer(Modifier.width(9.dp))
+        Spacer(Modifier.width(4.dp))
         ControlButton(
             iconRes = if (state.isPlaying) R.drawable.ic_pause else R.drawable.ic_play,
             description = if (state.isPlaying) "Pausar" else "Reproducir",
             primary = true,
-            size = 52.dp,
+            size = 54.dp,
             onClick = { PhoneSyncManager.togglePlayPause(context) },
         )
-        Spacer(Modifier.width(9.dp))
+        Spacer(Modifier.width(4.dp))
         ControlButton(
             iconRes = R.drawable.ic_next,
             description = "Canción siguiente",
             enabled = state.canSkipNext,
-            size = 40.dp,
+            size = 46.dp,
             onClick = { PhoneSyncManager.skipToNext(context) },
         )
     }
@@ -284,24 +330,22 @@ private fun SecondaryControls(state: NowPlaying, context: Context) {
             description = if (state.isLiked) "Quitar Me gusta" else "Me gusta",
             enabled = state.canLike,
             active = state.isLiked,
-            size = 36.dp,
+            size = 48.dp,
             onClick = { PhoneSyncManager.toggleLike(context) },
         )
-        Spacer(Modifier.width(7.dp))
         ControlButton(
             iconRes = R.drawable.ic_shuffle,
             description = if (state.shuffleEnabled) "Desactivar aleatorio" else "Activar aleatorio",
             active = state.shuffleEnabled,
-            size = 36.dp,
+            size = 48.dp,
             onClick = { PhoneSyncManager.toggleShuffle(context) },
         )
-        Spacer(Modifier.width(7.dp))
         ControlButton(
             iconRes = R.drawable.ic_repeat,
             description = "Cambiar repetición",
             active = state.repeatMode != 0,
             badge = if (state.repeatMode == 1) "1" else null,
-            size = 36.dp,
+            size = 48.dp,
             onClick = { PhoneSyncManager.toggleRepeatMode(context) },
         )
     }
@@ -319,39 +363,46 @@ private fun ControlButton(
     badge: String? = null,
 ) {
     val highlighted = primary || active
+    val visualSize = if (primary) size else 34.dp
     val background = if (highlighted) AuriqoWearColors.Accent else AuriqoWearColors.RaisedSurface
     val foreground = if (highlighted) AuriqoWearColors.AccentInk else Color.White
+
     Box(
-        modifier =
-            Modifier
-                .size(size)
-                .alpha(if (enabled) 1f else 0.34f)
+        modifier = Modifier
+            .size(size)
+            .alpha(if (enabled) 1f else 0.32f)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .semantics {
+                contentDescription = description
+                role = Role.Button
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(visualSize)
                 .clip(CircleShape)
                 .background(background)
                 .then(
-                    if (highlighted) Modifier else Modifier.border(1.dp, Color.White.copy(alpha = 0.1f), CircleShape),
-                )
-                .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-                .semantics {
-                    contentDescription = description
-                    role = Role.Button
-                },
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            painter = painterResource(iconRes),
-            contentDescription = null,
-            tint = foreground,
-            modifier = Modifier.size(if (primary) 25.dp else 18.dp),
-        )
-        badge?.let {
-            Text(
-                text = it,
-                color = foreground,
-                fontSize = 7.sp,
-                fontWeight = FontWeight.Black,
-                modifier = Modifier.padding(start = 13.dp, bottom = 11.dp),
+                    if (highlighted) Modifier else Modifier.border(1.dp, Color.White.copy(alpha = 0.12f), CircleShape),
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription = null,
+                tint = foreground,
+                modifier = Modifier.size(if (primary) 25.dp else 16.dp),
             )
+            badge?.let {
+                Text(
+                    text = it,
+                    color = foreground,
+                    fontSize = 7.sp,
+                    fontWeight = FontWeight.Black,
+                    modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp, end = 5.dp),
+                )
+            }
         }
     }
 }
@@ -359,7 +410,7 @@ private fun ControlButton(
 @Composable
 private fun DisconnectedPlayer(state: NowPlaying, context: Context) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp, vertical = 26.dp),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 25.dp, vertical = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -367,40 +418,46 @@ private fun DisconnectedPlayer(state: NowPlaying, context: Context) {
             painter = painterResource(R.drawable.ic_auriqo_wear),
             contentDescription = "Auriqo",
             tint = Color.Unspecified,
-            modifier = Modifier.size(58.dp),
+            modifier = Modifier.size(52.dp),
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(10.dp))
         Text(
-            text = "Abrí Auriqo en el teléfono",
+            text = "SIN SESIÓN",
             color = Color.White,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.sp,
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = "Reproducí algo en Auriqo",
+            color = AuriqoWearColors.Muted,
+            fontSize = 10.sp,
             textAlign = TextAlign.Center,
         )
         state.error?.let { error ->
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(3.dp))
             Text(
                 text = error,
-                color = AuriqoWearColors.Muted,
-                fontSize = 9.sp,
+                color = AuriqoWearColors.Muted.copy(alpha = 0.8f),
+                fontSize = 8.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
             )
         }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(10.dp))
         Box(
-            modifier =
-                Modifier
-                    .clip(CircleShape)
-                    .background(AuriqoWearColors.Accent)
-                    .clickable(role = Role.Button) { PhoneSyncManager.ensureConnected(context) }
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(AuriqoWearColors.Accent)
+                .clickable(role = Role.Button) { PhoneSyncManager.ensureConnected(context) }
+                .padding(horizontal = 15.dp, vertical = 8.dp),
         ) {
             Text(
                 text = "RECONECTAR",
                 color = AuriqoWearColors.AccentInk,
-                fontSize = 9.sp,
+                fontSize = 8.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 0.8.sp,
             )
