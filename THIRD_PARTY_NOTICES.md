@@ -1,28 +1,58 @@
-# Third-party font notices
+# Third-party notices
 
-Auriqo bundles a small set of font binaries under `app/src/main/res/font/`. They are distributed unchanged from their upstream sources.
+This file records third-party assets and source integrations that have been identified in the repository. It is not yet a machine-generated exhaustive license report for every Gradle dependency. Before an official release, generate and review a dependency license inventory for every application and Worker artifact.
 
-## BBH Bartle
+## Fonts
 
-- Copyright: 2025 The BBH Project Authors
-- Source: [Studio DRAMA/BBH](https://github.com/Studio-DRAMA/BBH)
-- License: SIL Open Font License 1.1
-- The complete license text is in [third_party/fonts/OFL-1.1.txt](third_party/fonts/OFL-1.1.txt).
+The following font binaries are tracked under `app/src/main/res/font/`. The repository does not currently commit a download manifest or upstream checksum, so the exact provenance of each binary must be re-verified before publication.
 
-## Google Sans Flex
+### BBH Bartle
 
-Google Fonts lists Google Sans Flex as an open-source family. The bundled binaries are unchanged and are included only as application assets.
+- Files: `bbh_bartle_regular.ttf` and `bbh_bartle.xml`.
+- Upstream project: [Studio-DRAMA/BBH](https://github.com/Studio-DRAMA/BBH).
+- Declared license: SIL Open Font License 1.1, with a copy at [third_party/fonts/OFL-1.1.txt](third_party/fonts/OFL-1.1.txt).
+- Verify the copyright notice and the exact binary source against the upstream repository before the next release.
 
-- Source/specimen: [Google Sans Flex on Google Fonts](https://fonts.google.com/specimen/Google+Sans+Flex)
-- Official catalog metadata: [Google Fonts metadata](https://fonts.google.com/metadata/fonts)
-- Designer: Google
+### Cabinet Grotesk
 
-The app's downloadable-font catalog also uses Google Fonts' public metadata and CSS endpoints. Each downloaded family remains subject to its own upstream license.
+- Files: `cabinet_grotesk_regular.ttf`, `cabinet_grotesk_bold.ttf` and `cabinet_grotesk.xml`.
+- Source/licensing reference: [Cabinet Grotesk on Fontshare](https://www.fontshare.com/fonts/cabinet-grotesk) and [Fontshare's license information](https://fontshare.com/licenses/itf-ffl).
+- The project currently treats these files as distributed under the Fontshare free-font terms. Preserve the source/receipt or an upstream checksum in maintainer records; the repository does not currently contain that provenance record.
 
-## Cabinet Grotesk
+### Google Sans Flex and Sans Flex
 
-Cabinet Grotesk is bundled as the fixed Auriqo wordmark face. The font files are downloaded unchanged from Fontshare.
+- Files: `google_sans_flex.ttf` and `sans_flex.ttf`.
+- Catalog reference: [Google Fonts](https://fonts.google.com/).
+- License/provenance status: pending exact verification for the bundled binaries. Google Fonts metadata and a public discussion identify an OFL label for Google Sans Flex, but the source and binary history are not complete in this repository. Do not add a Google trademark or designer attribution as a substitute for a license record.
 
-- Source: [Cabinet Grotesk on Fontshare](https://www.fontshare.com/fonts/cabinet-grotesk)
-- License information: [Fontshare font licenses](https://fontshare.com/licenses/itf-ffl)
-- The font is distributed by Fontshare under its free-font license terms for personal and commercial use.
+## Source integrations
+
+### BetterLyrics
+
+The `betterlyrics` module contains the Kotlin client and TTML parser used by Auriqo. Project history records its integration in commit `5721f005` ("Better Lyrics integrated"). The exact file-level origin and author permission for the current Kotlin code are not fully recorded in the repository, so maintainer confirmation is required before an official publication.
+
+The upstream [Better Lyrics repository](https://github.com/better-lyrics/better-lyrics) is GPL-3.0-licensed and requests attribution. The upstream browser extension and this Android module are not assumed to be byte-for-byte identical. Keep the upstream license and a clear adaptation notice with the module once provenance is confirmed.
+
+### Other adapted or referenced code
+
+The repository contains comments and history referring to projects such as ViMusic, Metrolist, VIVI Music, SimpMusic and NewPipe Extractor. These references may represent inspiration, adapted code or a local copy depending on the file. The file-level attribution and license matrix is maintained separately in [docs/PROVENANCE.md](docs/PROVENANCE.md) and remains a release gate where the source is not explicit.
+
+## Gradle and npm dependencies
+
+The Android build uses dependencies from Google Maven, Maven Central, JitPack and an additional mirror configured in Gradle. The Worker uses npm packages recorded in `workers/youtube-attribution/package-lock.json`. A complete release audit must:
+
+1. resolve the exact dependency graph for each published variant;
+2. collect each component's license and required notices from authoritative metadata;
+3. check transitive native binaries and generated resources;
+4. verify that packaging exclusions in the Android build do not remove a required notice; and
+5. attach the resulting report to the release review.
+
+This repository does not claim that a dependency is permissively licensed merely because its package is available from a public registry.
+
+## Services are not bundled dependencies
+
+YouTube/Google, Spotify, Discord, Last.fm, ListenBrainz, Shazam-compatible endpoints, lyrics providers, AI providers, Cloudflare and Firebase are remote services, not licenses granted by this repository. Their terms, trademarks, availability and retention policies remain the responsibility of the user and the service operator. See [PRIVACY_POLICY.md](PRIVACY_POLICY.md) and [docs/LYRICS_PROVIDERS.md](docs/LYRICS_PROVIDERS.md).
+
+## Maintainer release gate
+
+Do not publish an official artifact while the BetterLyrics file-level attribution, Google Sans Flex binary provenance or complete dependency license inventory is still marked pending. Update this file and [docs/PROVENANCE.md](docs/PROVENANCE.md) with verifiable evidence, not assumptions.

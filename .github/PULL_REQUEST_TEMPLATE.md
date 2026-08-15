@@ -1,37 +1,34 @@
-## 📋 Pull Request Description
-Brief description of the changes made in this PR.
+## Summary
 
-## 🔄 Type of Change
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update
-- [ ] Code refactoring
-- [ ] Performance improvement
-- [ ] Other: _______________
+<!-- Explain the user or maintenance reason for this focused change. -->
 
-## 🎯 Related Issues
-Fixes #(issue number)
-Closes #(issue number)
+## Scope
 
-## 📱 Testing
-- [ ] I have tested these changes locally
-- [ ] I have tested on different devices/Android versions
-- [ ] I have tested both FOSS and GMS build variants
-- [ ] I have verified the app builds successfully
+- Affected modules/variants:
+- User-visible or data-flow change:
+- Compatibility impact on package ID, preferences or deep links:
 
-## 📸 Screenshots
-If applicable, add screenshots to show the changes.
+## Validation
 
-## 📋 Checklist
-- [ ] My code follows the project's style guidelines
-- [ ] I have performed a self-review of my code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] Any dependent changes have been merged and published
+- [ ] `git diff --check`
+- [ ] Relevant unit/module tests run (list commands below)
+- [ ] FOSS compile/build considered or run
+- [ ] Lint considered or run
+- [ ] Worker typecheck run, if applicable
+- [ ] No credentials, cookies, private logs, personal screenshots or generated APKs are included
+- [ ] Documentation/provenance updated when behavior or third-party code changed
 
-## 🔍 Additional Notes
-Any additional information about the PR.
+Commands/results:
+
+```text
+<!-- Add commands and concise results. Redact secrets. -->
+```
+
+## Security and privacy review
+
+<!-- Describe new permissions, exported components, WebViews, endpoints, tokens, logs, backups or network data. Write "None" when not applicable. -->
+
+## Release impact
+
+- [ ] This is not a release/tag/release-upload change.
+- [ ] If release-related, I followed `RELEASE_INFO.md` and explained maintainer approvals needed.

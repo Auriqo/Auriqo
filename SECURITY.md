@@ -1,60 +1,46 @@
-# Security Policy
+# Security policy
 
-## Supported Versions
+## Reporting a vulnerability
 
-Security fixes are handled on the `main` branch and, when practical, on the
-latest published prerelease.
+Please do not open a public issue for a security vulnerability. Use GitHub's private vulnerability reporting for the [Auriqo repository](https://github.com/Auriqo/Auriqo/security/advisories/new). If private reporting is unavailable, contact the maintainers through the repository's security contact and include only the minimum reproducible detail.
 
-| Version or channel | Support |
-| --- | --- |
-| `main` | :white_check_mark: |
-| Latest `v1.0.2-alpha` prerelease | Best effort |
-| Older builds | :x: |
+Please include:
 
-## Reporting a Vulnerability
+- the affected commit, tag or build variant;
+- the component and Android version, if relevant;
+- reproduction steps that do not expose real accounts or credentials;
+- impact and any suggested mitigation.
 
-Please do not open a public issue for a security vulnerability.
+Redact cookies, OAuth tokens, API keys, webhook URLs, device identifiers, private logs and personal data. If a secret was committed, say which file and commit contain it without pasting the value; rotate it through the service owner.
 
-1. Use GitHub's [private vulnerability reporting](https://github.com/Auriqo/Auriqo/security/advisories/new).
-2. Include the affected version or commit, steps to reproduce, impact, and any
-   suggested mitigation.
-3. If private reporting is unavailable, contact the maintainers privately
-   through the [Auriqo repository](https://github.com/Auriqo/Auriqo).
+## Scope
 
-Reports are reviewed confidentially and acknowledged as soon as possible.
+The primary scope is the Android application and the `workers/youtube-attribution` Worker in this repository. Third-party services, upstream provider infrastructure, package registries, Android itself and the user's device are outside Auriqo's direct control; report their vulnerabilities to the relevant owner as well.
 
-## Sensitive Information
+Security fixes are evaluated against the latest `main` and the latest published pre-release. There is no guaranteed response or remediation SLA. Release decisions remain maintainer-controlled.
 
-Never commit or publish:
+## Security-sensitive design notes
 
-- `local.properties`
-- `app/google-services.json`
-- `gradle.properties` when it contains signing or service credentials
-- `*.keystore`, `*.jks`, `*.pem`, or signing passwords
-- `secrets.properties`
-- `**/assets/po_token.html`
-- API keys, OAuth tokens, cookies, or personal access tokens
+- The app handles user-supplied YouTube cookies, OAuth access/refresh tokens, AI keys, scrobbling tokens and proxy credentials. The current implementation stores these values in app-private DataStore/preferences and does not provide encrypted-at-rest storage for every credential.
+- Android backup is currently enabled for parts of the app data. The settings DataStore contains account and integration tokens; backup exclusion or encrypted-storage migration is an open hardening decision because changing it can affect restore behavior.
+- The network security configuration currently permits cleartext traffic to support local Listen Together servers. Use HTTPS/WSS for remote endpoints. Narrowing this policy needs a compatibility design for arbitrary trusted LAN servers.
+- The optional attribution Worker forwards playlist requests to YouTube/Google. Its authentication and CORS settings are deployment-sensitive; see [docs/WORKERS.md](docs/WORKERS.md).
+- Debug logging must not include cookies, bearer tokens, PoTokens, Botguard responses, full provider responses or user identifiers. Release builds are not a substitute for safe debug logging.
+- `app/persistent-debug.keystore` is deterministic debug-only signing material used for local upgrades. It is not a release credential and must never sign an official artifact.
 
-The tracked `app/persistent-debug.keystore` is a deterministic debug-only
-keystore. It must never be used to sign a release build.
+These notes describe residual risks in the current tree; they are not claims that the app is secure against all threats.
 
-Some internal package names and legacy service identifiers remain for
-backward compatibility. They are not credentials; report any actual secret
-or token instead of treating a historical identifier as sensitive data.
+## Secret handling
 
-## Dependency and Build Hygiene
+The following must remain local and untracked:
 
-- Keep dependencies and GitHub Actions updated.
-- Review generated diffs before committing.
-- Run the relevant FOSS or GMS build before publishing an APK.
-- Do not upload local build outputs, crash logs, or device data.
+- `local.properties`, `app/google-services.json` and environment files;
+- release keystores, PEM/certificate material and signing properties;
+- API keys, OAuth client secrets, cookies, bearer tokens and CI webhook secrets;
+- device logs, crash dumps and generated APKs.
 
-## Privacy
+The FOSS build is intended to compile without private credentials. A public APK cannot keep a client secret: any value compiled into `BuildConfig` can be extracted. The CI/release implications are documented in [docs/CI_RELEASE_REVIEW.md](docs/CI_RELEASE_REVIEW.md).
 
-For information about app data handling, see
-[PRIVACY_POLICY.md](PRIVACY_POLICY.md). For third-party licenses and bundled
-font notices, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+## Disclosure process
 
-## Contact
-
-Security contact: [private vulnerability reporting on GitHub](https://github.com/Auriqo/Auriqo/security/advisories/new).
+After triage, maintainers may request a coordinated disclosure window, prepare a fix, credit the reporter when requested, and publish a concise advisory. Do not publish exploit details before maintainers confirm that affected releases and users have a mitigation.

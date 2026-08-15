@@ -1,145 +1,85 @@
-# Privacy Policy for Auriqo App
+# Auriqo privacy and data-flow notes
 
-## Introduction
+Last reviewed: 2026-08-14
 
-Auriqo ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application (the "App").
+This document describes what the current open-source Android code can send or store. It is technical documentation, not a claim that a third-party provider has a particular retention policy or that a legal regime applies. Review the terms and privacy policy of every provider you enable.
 
-## Information We Collect
+## Data stored on the device
 
-### 1. Personal Information
-- **Account Information**: When you log in to Spotify or YouTube, we may collect your username and basic profile information
-- **Usage Data**: We collect information about how you use the App, including:
-  - Songs played, paused, and skipped
-  - Playlists created and modified
-  - Search queries
-  - App settings and preferences
-  - Screen views and user interactions
+Auriqo stores ordinary application state such as playback position, queues, library metadata, downloaded media references, appearance settings and provider preferences in app-private storage. The current settings DataStore also contains sensitive values when the user enables an integration, including some of the following:
 
-### 2. Device Information
-- **Device Details**: Device model, operating system version, and unique device identifiers
-- **App Performance**: Crash reports and performance metrics to improve app stability
-- **Network Information**: IP address and network type for analytics purposes
+- YouTube/InnerTube cookies and account metadata;
+- Spotify access data;
+- Discord access and refresh tokens;
+- ListenBrainz and Last.fm session/token values;
+- YouTube playlist-attribution access tokens;
+- AI provider keys and custom endpoint settings;
+- Listen Together session values and proxy credentials.
 
-### 3. Music Data
-- **Local Music Library**: Access to your device's music files for playback
-- **Streaming Data**: Information about songs streamed from YouTube Music and Spotify
-- **Playlist Data**: Your created playlists and song collections
+These values are not committed to the repository. The current implementation does not encrypt every DataStore/shared-preference value with Android Keystore. Android backup is enabled for parts of the app data and the settings file is not currently excluded, so a device backup or transfer may contain settings and credentials. Treat a backup as sensitive. This is an open hardening item documented in [SECURITY.md](SECURITY.md).
 
-## How We Use Your Information
+Uninstalling the app or clearing its app data is the practical way to remove app-private storage. Use each provider's logout/revocation controls as well; deleting local state does not revoke a token that a provider has already issued.
 
-### 1. App Functionality
-- Provide music streaming and playback services
-- Manage your playlists and music library
-- Sync your preferences across devices
-- Enable search and discovery features
+## Network data flows
 
-### 2. Analytics and Improvement
-- **Google Analytics Firebase**: We use Firebase Analytics to understand app usage patterns and improve user experience
-- **Crash Reporting**: We collect crash reports to identify and fix bugs
-- **Performance Monitoring**: We monitor app performance to ensure smooth operation
+Requests are feature-driven. Auriqo does not send every category below on every launch.
 
-### 3. Personalization
-- Recommend music based on your listening habits
-- Customize the app interface according to your preferences
-- Remember your settings and preferences
+| Feature | Data that may leave the device | Destination in the current code |
+| --- | --- | --- |
+| Playback, search, home and account playlists | Search terms, media and playlist identifiers, playback requests, and user-provided YouTube cookies or OAuth data | YouTube/YouTube Music and Google endpoints through the InnerTube/Data API clients |
+| Synchronized lyrics | Song title, artist, album, duration and, for some providers, a media/video identifier | BetterLyrics, LRCLIB, Paxsenix, KuGou, SimpMusic, YouLyPlus and Letras.com; see [docs/LYRICS_PROVIDERS.md](docs/LYRICS_PROVIDERS.md) |
+| AI translation, generation or recommendations | User-entered API key in the request authorization, lyrics and song metadata, and the configured model/base URL | The AI provider selected in the app, with OpenRouter as the default endpoint in the current UI |
+| Playlist attribution | Playlist ID and, when the user supplies it, an OAuth bearer token | The optional Auriqo Worker, which forwards the request to YouTube/Google; see [docs/WORKERS.md](docs/WORKERS.md) |
+| Spotify import | OAuth authorization data and playlist identifiers/metadata | Spotify authorization and Web API endpoints |
+| Discord Rich Presence | OAuth data and playback/activity metadata | Discord endpoints |
+| Scrobbling | Track, artist and album metadata plus the relevant token/session | Last.fm and/or ListenBrainz when enabled |
+| Music recognition | A generated audio signature and recognition request data | Shazam-compatible endpoints used by the recognition module |
+| Listen Together | Room/session code, playback state and track metadata | The configured Listen Together server; the default code contains both remote and local-session compatibility paths |
+| Artwork, canvas and provider status | Media identifiers and ordinary HTTP metadata | The selected canvas/artwork and provider endpoints |
+| Optional Firebase integration | Data defined by the Firebase project configuration, if `app/google-services.json` is supplied in a GMS checkout | The maintainer's Firebase project; no Firebase configuration is stored in this repository |
 
-## Data Sharing and Disclosure
+Network operators and service providers can also receive ordinary connection data such as an IP address, timestamps, user agent and request metadata. Auriqo does not control their collection or retention.
 
-### 1. Third-Party Services
-- **YouTube Music**: We integrate with YouTube Music for streaming content
-- **Spotify**: We integrate with Spotify for music streaming and lyrics
-- **Google Analytics**: We share anonymized usage data with Google Analytics Firebase
+## Android permissions and components
 
-### 2. No Sale of Personal Data
-We do not sell, trade, or rent your personal information to third parties for marketing purposes.
+The manifest requests permissions for the features that are currently present:
 
-### 3. Legal Requirements
-We may disclose your information if required by law or to protect our rights and safety.
+- Internet and network state for playback, search, lyrics, account and optional integrations.
+- Notifications, wake locks and foreground media/data-sync services for playback, downloads and visible task status.
+- Microphone access only for music recognition, when the user starts that feature; the recognizer services are not exported.
+- Audio-library access for local media, and Bluetooth access for connected audio devices.
+- `WRITE_SETTINGS` for the user-invoked ringtone/system-audio workflow.
+- `REQUEST_INSTALL_PACKAGES` for the updater in the GMS manifest path; the FOSS manifest removes this permission.
+- Boot completion for playback/task restoration behavior.
 
-## Data Storage and Security
+The main activity, media session, media-button receiver, widgets, quick-settings tile and OAuth/deep-link callback are exported because Android or other apps need to invoke those contracts. The FileProvider and internal workers/services are not exported. Deep-link handling retains historical hosts and URI schemes for install compatibility; those identifiers are not a claim that the old web properties are maintained.
 
-### 1. Local Storage
-- Your music playlists and preferences are stored locally on your device
-- We use secure local storage to protect your data
+## Cookies, WebViews and tokens
 
-### 2. Cloud Storage
-- Some data may be synced to cloud services (Spotify, YouTube) as per their privacy policies
-- We use industry-standard security measures to protect your data
+The PoToken WebView loads local bundled JavaScript with a YouTube base URL and makes HTTPS requests to YouTube's Botguard endpoints. The current WebView does not need a user's YouTube cookie for that flow. The app's account flow can separately store a user-provided YouTube cookie for InnerTube requests.
 
-### 3. Data Retention
-- We retain analytics data for up to 2 years
-- Local app data is retained until you uninstall the app or clear app data
+The app currently uses debug logging in development builds. Sensitive values must not be logged; recent hardening removed cookie, token, PoToken, Botguard response and full provider-response logging from the audited paths. Users should still avoid sharing logs from authenticated devices.
 
-## Your Rights and Choices
+## Listen Together and cleartext traffic
 
-### 1. Data Access
-- You can view your data through the app settings
-- You can export your playlists and preferences
+The Android network security configuration permits cleartext traffic to preserve compatibility with local Listen Together servers. This means an `http://` endpoint configured or reached by a feature is not protected by TLS. Use the production WSS endpoint or a trusted local network only. Narrowing the policy is a pending compatibility decision; it should not be interpreted as a security guarantee.
 
-### 2. Data Deletion
-- Uninstalling the app will remove all local data
-- You can clear app data through device settings
-- Contact us to request deletion of any stored data
+## Third-party retention and deletion
 
-### 3. Privacy Controls
-- You can disable analytics in app settings
-- You can control which services you connect to
-- You can manage permissions through your device settings
+The repository's Worker implementation does not write playlist requests to a database. That does not eliminate transient platform, access, error or infrastructure logs. The retention behavior of YouTube/Google, lyrics providers, AI services, Firebase, Spotify, Discord, Last.fm, ListenBrainz, Shazam and hosting providers is governed by those services, not by this repository.
 
-## Third-Party Services
+To reduce future data sharing:
 
-### 1. YouTube Music
-- **Privacy Policy**: [YouTube Privacy Policy](https://policies.google.com/privacy)
-- **Data Collection**: YouTube may collect data about your music preferences and usage
+1. Disable the relevant provider or integration in Auriqo.
+2. Log out or remove the token in the relevant settings screen.
+3. Revoke third-party OAuth grants at the provider.
+4. Clear Auriqo app data or uninstall it when local removal is required.
+5. Request deletion from the provider when its own policy provides that mechanism.
 
-### 2. Spotify
-- **Privacy Policy**: [Spotify Privacy Policy](https://www.spotify.com/legal/privacy-policy/)
-- **Data Collection**: Spotify may collect data about your listening habits
+## Children and sensitive content
 
-### 3. Google Analytics Firebase
-- **Privacy Policy**: [Google Privacy Policy](https://policies.google.com/privacy)
-- **Data Collection**: Google collects anonymized usage analytics
+Auriqo is a general-purpose application. Do not use it to submit another person's credentials, private media metadata or sensitive personal information to a third-party service without authorization.
 
-## Children's Privacy
+## Changes and contact
 
-Our App is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13.
-
-## International Users
-
-If you are using our App from outside the United States, please note that your information may be transferred to, stored, and processed in the United States where our servers are located.
-
-## Changes to This Privacy Policy
-
-We may update this Privacy Policy from time to time. We will notify you of any changes by:
-- Posting the new Privacy Policy in the App
-- Updating the "Last Updated" date
-- Sending you a notification if significant changes are made
-
-## Contact Us
-
-If you have any questions about this Privacy Policy or our data practices, please contact us:
-
-- **GitHub**: [https://github.com/Auriqo/Auriqo](https://github.com/Auriqo/Auriqo)
-- **Issues**: [https://github.com/Auriqo/Auriqo/issues](https://github.com/Auriqo/Auriqo/issues)
-- **Discussions**: [https://github.com/Auriqo/Auriqo/discussions](https://github.com/Auriqo/Auriqo/discussions)
-
-## Data Protection Compliance
-
-This Privacy Policy complies with:
-- **GDPR** (General Data Protection Regulation) for EU users
-- **CCPA** (California Consumer Privacy Act) for California users
-- **PIPEDA** (Personal Information Protection and Electronic Documents Act) for Canadian users
-
-## Summary
-
-- We collect minimal personal information necessary for app functionality
-- We use Google Analytics Firebase for app improvement
-- We integrate with YouTube Music and Spotify for music streaming
-- We do not sell your personal data
-- You have control over your data and privacy settings
-- We are committed to protecting your privacy and being transparent about our practices
-
----
-
-**By using Auriqo, you agree to the collection and use of information in accordance with this Privacy Policy.**
-
+Changes to data flows should update this document and the provider/Worker documentation in the same pull request. For security issues, use [SECURITY.md](SECURITY.md); do not publish tokens or private logs in an issue.
