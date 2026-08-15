@@ -1,246 +1,99 @@
-name: Android Build & Sign
+name: FOSS Android CI
 
 on:
   push:
     branches: [main]
-    tags:
-      - 'v*'
+  pull_request:
+    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build:
+  android:
+    name: FOSS Android build, tests and lint
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
+    timeout-minutes: 45
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v6
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
+          distribution: temurin
           java-version: '21'
-          distribution: 'temurin'
 
       - name: Cache Gradle
-        uses: actions/cache@v5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-gms-universal-${{ hashFiles('**/*.gradle*') }}
+          key: ${{ runner.os }}-gradle-foss-${{ hashFiles('**/*.gradle*', 'gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-gms-universal-
+            ${{ runner.os }}-gradle-foss-
             ${{ runner.os }}-gradle-
 
-      - name: Create local.properties
-        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+      - name: Configure Android SDK path
+        shell: bash
+        run: printf 'sdk.dir=%s\n' "$ANDROID_SDK_ROOT" > local.properties
 
-      - name: Create google-services.json
-        if: env.HAS_GOOGLE_SERVICES == 'true'
-        env:
-          HAS_GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES_JSON != '' }}
-          GOOGLE_SERVICES_CONTENT: ${{ secrets.GOOGLE_SERVICES_JSON }}
+      - name: Configure Gradle resources
+        shell: bash
         run: |
-          printf "%s" "$GOOGLE_SERVICES_CONTENT" > app/google-services.json
+          mkdir -p "$HOME/.gradle"
+          cat > "$HOME/.gradle/gradle.properties" <<'EOF'
+          org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
+          kotlin.compiler.execution.strategy=in-process
+          org.gradle.workers.max=2
+          EOF
 
-      - name: Set up Signing Keystore
-        env:
-          HAS_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE_BASE64 != '' }}
-          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+      - name: Verify repository formatting
+        run: git diff --check
+
+      - name: Build and test the FOSS reference variant
+        shell: bash
         run: |
-          mkdir -p app/keystore ~/.android
-          if [ -n "$RELEASE_KEYSTORE_BASE64" ]; then
-            echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > app/keystore/release.keystore
-          else
-            keytool -genkey -v -keystore app/keystore/release.keystore \
-              -alias auriqa -keyalg RSA -keysize 2048 -validity 10000 \
-              -storepass auriqoci -keypass auriqoci \
-              -dname "CN=Auriqo CI, OU=Dev, O=Auriqo, L=Unknown, ST=Unknown, C=XX" \
-              -noprompt 2>/dev/null
-            echo "Generated temporary CI keystore"
-          fi
-          keytool -genkey -v -keystore ~/.android/debug.keystore \
-            -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass android -keypass android \
-            -dname "CN=Android Debug, OU=Dev, O=Android, L=Unknown, ST=Unknown, C=US" \
-            -noprompt 2>/dev/null
-          echo "Generated debug keystore"
+          chmod +x gradlew
+          ./gradlew \
+            :app:compileUniversalFossDebugKotlin \
+            :app:testUniversalFossDebugUnitTest \
+            :innertube:testDebugUnitTest \
+            :letras:test \
+            :canvas:test \
+            :app:lintUniversalFossDebug \
+            :app:assembleUniversalFossDebug \
+            --no-daemon
 
-      - name: Build and Sign Release APK (Push to main / Dispatch / Tag)
-        env:
-          STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
-          LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
-          GH_CLIENT_ID: ${{ secrets.GH_CLIENT_ID }}
-          GH_CLIENT_SECRET: ${{ secrets.GH_CLIENT_SECRET }}
-        run: |
-          export STORE_PASSWORD="${STORE_PASSWORD:-auriqoci}"
-          export KEY_ALIAS="${KEY_ALIAS:-auriqa}"
-          export KEY_PASSWORD="${KEY_PASSWORD:-auriqoci}"
-          ./gradlew assembleUniversalGmsDebug :wear:assembleDebug
-
-      - name: Rename and Organize APKs
-        run: |
-          VERSION_NAME=$(grep "versionName =" app/build.gradle.kts | head -n 1 | awk -F '"' '{print $2}')
-          echo "App Version: $VERSION_NAME"
-          mkdir -p app/build/outputs/apk/release-artifacts
-          find app/build/outputs/apk/ -name "*.apk" ! -path "*/release-artifacts/*" | while read -r apk_path; do
-              target_name="Auriqo-${VERSION_NAME}-Universal.apk"
-              cp "$apk_path" "app/build/outputs/apk/release-artifacts/$target_name"
-              echo "Copied $apk_path -> app/build/outputs/apk/release-artifacts/$target_name"
-          done
-          if [ -f wear/build/outputs/apk/debug/wear-debug.apk ]; then
-              cp wear/build/outputs/apk/debug/wear-debug.apk app/build/outputs/apk/release-artifacts/Auriqo-Wear-${VERSION_NAME}.apk
-              echo "Copied wear APK -> app/build/outputs/apk/release-artifacts/Auriqo-Wear-${VERSION_NAME}.apk"
-          fi
-
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
+  worker:
+    name: Attribution Worker typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: workers/youtube-attribution
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          name: Auriqo-Universal
-          path: app/build/outputs/apk/release-artifacts/*.apk
+          persist-credentials: false
 
-      - name: Parse Release Info
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        run: |
-          # 1. Read first line and strip the "# " to get the Title
-          TITLE=$(head -n 1 RELEASE_INFO.md | sed 's/^# //')
-          echo "RELEASE_TITLE=$TITLE" >> $GITHUB_ENV
-          
-          # 2. Read from line 3 onwards to get the Description body
-          tail -n +3 RELEASE_INFO.md > release-body.md
-
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
+      - name: Set up Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          name: ${{ env.RELEASE_TITLE }}
-          body_path: release-body.md
-          files: app/build/outputs/apk/release-artifacts/*.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          node-version: '22.x'
+          cache: npm
+          cache-dependency-path: workers/youtube-attribution/package-lock.json
 
-      - name: Send Telegram Notification
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          RELEASE_TITLE: ${{ env.RELEASE_TITLE }}
-        run: |
-          # Read release body
-          BODY=$(cat release-body.md)
-          
-          # Escape HTML characters for Telegram and truncate if too long
-          SAFE_BODY=$(echo "$BODY" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
-          if [ ${#SAFE_BODY} -gt 3000 ]; then
-            SAFE_BODY="${SAFE_BODY:0:3000}..."$'\n\n'"[Changelog truncated due to length. See GitHub Release for full details.]"
-          fi
-          
-          # Construct HTML formatted message (Telegram supports HTML tags)
-          printf -v MESSAGE "🆕 <b>New Release: %s</b>\n\n📋 <b>Changelog:</b>\n<blockquote>%s</blockquote>\n\n⚠️ <b>Note:</b>\n<i>If you encounter an 'App not installed' error during installation, please uninstall the previous version before installing this update.</i>" "${RELEASE_TITLE}" "${SAFE_BODY}"
+      - name: Install Worker dependencies
+        run: npm ci --ignore-scripts
 
-          if ! echo "$BODY" | grep -q "Support the Project"; then
-            printf -v MESSAGE "%s\n\n🤝 <b>Support Auriqo</b>\nIf you'd like to support ongoing development, you can do so here:\n☕ <a href=\"https://github.com/Auriqo/Auriqo\">Buy Me a Coffee</a>\n⭐ <a href=\"https://github.com/Auriqo/Auriqo\">GitHub Sponsors</a>\n🌐 <a href=\"https://berrueta.uy\">Support Page</a>\n\n<i>Thank you for your continued support.</i>" "$MESSAGE"
-          fi
-
-          # Create JSON payload securely using jq
-          jq -n \
-            --arg chat_id "$TELEGRAM_CHAT_ID" \
-            --arg text "$MESSAGE" \
-            --arg parse_mode "HTML" \
-            '{
-              chat_id: $chat_id,
-              text: $text,
-              parse_mode: $parse_mode,
-              disable_web_page_preview: true
-            }' > telegram-payload.json
-
-          # Send message using Telegram Bot API
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -H "Content-Type: application/json" \
-            -d @telegram-payload.json
-
-      - name: Send Discord Release Notification
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          DISCORD_RELEASE_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK || secrets.DISCORD_WEBHOOK }}
-          RELEASE_TITLE: ${{ env.RELEASE_TITLE }}
-        run: |
-          # Read release body
-          BODY=$(cat release-body.md)
-          
-          # Construct ping text
-          PING_TEXT="@everyone New Release Available - **$RELEASE_TITLE**"
-          
-          # Create Discord Embed JSON securely using jq
-          jq -n \
-            --arg ping "$PING_TEXT" \
-            --arg desc "$BODY" \
-            '{
-              content: $ping,
-              embeds: [{
-                title: "Release Changelog",
-                description: $desc,
-                color: 16738660,
-                footer: { text: "Auriqo Automation System" }
-              }]
-            }' > discord-release-payload.json
-
-          # Post to Discord Webhook if configured
-          if [ -n "$DISCORD_RELEASE_WEBHOOK" ]; then
-            curl -H "Content-Type: application/json" -d @discord-release-payload.json "$DISCORD_RELEASE_WEBHOOK"
-          else
-            echo "DISCORD_RELEASE_WEBHOOK is not set, skipping notification."
-          fi
-
-      - name: Send Discord Notification
-        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          RELEASE_TITLE: ${{ env.RELEASE_TITLE }}
-        run: |
-          # Read release body
-          BODY=$(cat release-body.md)
-          
-          # Fetch version name
-          VERSION_NAME=$(grep "versionName =" app/build.gradle.kts | head -n 1 | awk -F '"' '{print $2}')
-          
-          # Set title and download link parameters
-          TARGET_TITLE="New Beta Build - v$VERSION_NAME"
-          DOWNLOAD_LINK="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          LINK_LABEL="Click here to download APK ZIP from GitHub Actions Run Page"
-          
-          # Construct pings and warning messages
-          PING_TEXT="<@&1498758915536584714> New Build Available"
-          WARNING_TEXT="Note: If you're getting an update notification, there's no need to update since you're already using the latest version. Simply disable Automatic Update Check and Update Notifications in the update settings."
-          
-          # Create Discord Embed JSON securely using jq
-          jq -n \
-            --arg ping "$PING_TEXT" \
-            --arg warn "$WARNING_TEXT" \
-            --arg title "$TARGET_TITLE" \
-            --arg desc "$BODY" \
-            --arg link "$DOWNLOAD_LINK" \
-            --arg label "$LINK_LABEL" \
-            '{
-              content: $ping,
-              embeds: [{
-                title: $title,
-                description: ($desc + "\n\n" + $warn),
-                color: 7303122,
-                fields: [
-                  { name: "Download APK", value: ("[" + $label + "](" + $link + ")"), inline: false }
-                ],
-                footer: { text: "Auriqo Automation System" }
-              }]
-            }' > discord-payload.json
-
-          # Post to Discord Webhook
-          curl -H "Content-Type: application/json" -d @discord-payload.json "$DISCORD_WEBHOOK"
+      - name: Typecheck Worker
+        run: npm run typecheck
