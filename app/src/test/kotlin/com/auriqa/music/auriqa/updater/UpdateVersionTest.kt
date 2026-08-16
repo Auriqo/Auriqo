@@ -10,6 +10,7 @@ class UpdateVersionTest {
     @Test
     fun semanticVersionsCompareWithPrereleaseSupport() {
         assertTrue(isNewerVersion("v1.0.1", "1.0.0"))
+        assertTrue(isNewerVersion("v1.0.3", "1.0.3-alpha.2"))
         assertTrue(isNewerVersion("1.0.0", "1.0.0-beta"))
         assertFalse(isNewerVersion("1.0.0-beta", "1.0.0"))
         assertFalse(isNewerVersion("1.0.0", "1.0.0"))

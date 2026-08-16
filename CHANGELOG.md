@@ -4,6 +4,14 @@ This file records user-visible and release-process changes. It does not replace 
 
 ## [Unreleased]
 
+### Brand and release preparation
+
+- Changed the fixed Compose wordmark from `Auriqo` to `auriqo`, using the verified lowercase
+  Cabinet Grotesk outline and metrics while keeping the accessible app name unchanged.
+- Aligned phone and Wear metadata on the `1.0.3` stable candidate with `versionCode 2`.
+- Required phone and Wear release builds to use the same protected production signing
+  configuration; the public persistent debug key remains test-only.
+
 ### Wear OS
 
 - Added a background Data Layer listener and a local Wear `MediaSession` proxy, so Auriqo's
