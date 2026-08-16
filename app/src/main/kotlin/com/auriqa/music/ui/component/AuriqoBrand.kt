@@ -29,7 +29,7 @@ import com.auriqo.music.R
 private val AuriqoLime = Color(0xFFD8F36A)
 
 /**
- * Stable wordmark used wherever the app identifies itself in the interface.
+ * Stable lowercase wordmark used wherever the app identifies itself in the interface.
  *
  * It is fixed vector artwork extracted from the Cabinet Grotesk outlines, so it does not read
  * [MaterialTheme.typography] and cannot be changed by the custom-font preference.
@@ -46,7 +46,7 @@ fun AuriqoWordmark(
         contentDescription = stringResource(R.string.app_name),
         tint = color,
         modifier = modifier
-            .width(em * 2.899f)
+            .width(em * 2.750f)
             .height(em * 0.856f),
     )
 }
