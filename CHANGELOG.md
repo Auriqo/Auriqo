@@ -25,6 +25,9 @@ This file records user-visible and release-process changes. It does not replace 
   preserving the circular-display layout.
 - Expanded the Wear companion Material You treatment with tonal containers, adaptive round/square
   screen metrics, dynamic progress thumb/track colors and responsive control sizes.
+- Tightened Wear UI/UX: Now Playing has an explicit Library affordance, visible like/shuffle/repeat
+  actions, icon-based navigation, progress semantics and contextual rotary behavior for scrolling
+  Home/browse screens while keeping volume on Now Playing.
 
 ## [1.0.3-alpha.1] - 2026-08-15
 

@@ -20,10 +20,12 @@ The `wear` module provides the branded Auriqo player and Tile. The companion Act
 as a small music surface rather than a single remote-control screen:
 
 - `Now Playing`: title/artist, progress and plain transport controls, with the Auriqo mark as the
-  deliberate entry point for like, shuffle and repeat.
+  persistent identity signal. Like, shuffle and repeat are visible first-level actions rather than
+  hidden behind the mark.
 - The physical rotary bezel adjusts media volume on the phone (or the Cast receiver when casting).
   It does not seek. Seeking is deliberately reserved for dragging the thin progress rail, so the
-  two interactions cannot fight each other.
+  two interactions cannot fight each other. In Home and browse screens the rotary focus moves to
+  scrolling, because volume is no longer the user's active task there.
 - `Home`: the library entry point and current-track handoff.
 - `Tracks`, `Albums`, `Artists`, `Playlists` and `Queue`: scrollable, actionable lists. Tapping an
   item asks the phone to build that item (or collection) into the active player queue.
@@ -35,9 +37,10 @@ use the Auriqo fallback palette. The Tile resolves the same system palette witho
 Companion screens derive their top/bottom padding, horizontal safe area, card radius, artwork size
 and control size from the device configuration, including whether the screen is round. Round
 watches get a protected circular safe area; square watches keep tighter rectangular margins instead
-of inheriting round-display padding. Vector controls and the Cabinet-derived Auriqo mark replace
-emoji and the generic system-player layout. Secondary playback modes remain available behind the
-mark instead of being removed from the product.
+of inheriting round-display padding. Compact screens use a single-line title in Now Playing so
+transport and mode actions remain reachable without visual clipping. Vector controls, explicit
+library/back affordances and the Cabinet-derived Auriqo mark replace emoji, text chevrons and the
+generic system-player layout.
 
 The Wear scheme follows the watch's system dynamic colors. Matching a user-selected custom phone
 seed exactly would require sending the phone's resolved color tokens over the Data Layer; that is a
