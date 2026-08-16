@@ -79,7 +79,7 @@ class UpdateDownloadWorker(
                 if (connection.responseCode != HttpURLConnection.HTTP_OK) {
                     DownloadNotificationManager.showDownloadFailed(
                         version,
-                        context.getString(R.string.server_error, connection.responseCode),
+                        context.getString(R.string.server_error, connection.responseCode.toString()),
                     )
                     return@withContext if (connection.responseCode >= 500) {
                         Result.retry()

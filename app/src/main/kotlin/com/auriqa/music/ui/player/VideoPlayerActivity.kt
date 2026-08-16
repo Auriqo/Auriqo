@@ -1,12 +1,10 @@
 package com.auriqo.music.ui.player
 
+import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import android.view.ScaleGestureDetector
-import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -61,6 +59,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -119,20 +120,7 @@ class VideoPlayerActivity : ComponentActivity() {
         }
 
         window.decorView.post {
-            window.insetsController?.let { controller ->
-                controller.hide(WindowInsets.Type.systemBars())
-                controller.systemBarsBehavior =
-                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                )
+            setSystemBarsHidden(hidden = true)
         }
     }
 
@@ -174,6 +162,19 @@ private fun formatTime(milliseconds: Long): String {
     }
 }
 
+private fun Activity.setSystemBarsHidden(hidden: Boolean) {
+    WindowCompat.setDecorFitsSystemWindows(window, !hidden)
+    WindowCompat.getInsetsController(window, window.decorView).apply {
+        if (hidden) {
+            hide(WindowInsetsCompat.Type.systemBars())
+            systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        } else {
+            show(WindowInsetsCompat.Type.systemBars())
+        }
+    }
+}
+
 @Composable
 private fun VideoPlayerContent(
     videoId: String,
@@ -194,22 +195,12 @@ private fun VideoPlayerContent(
         if (fullscreen) {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             activity.window.decorView.post {
-                activity.window.insetsController?.let {
-                    it.hide(WindowInsets.Type.systemBars())
-                    it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                }
-                @Suppress("DEPRECATION")
-                activity.window.decorView.systemUiVisibility = (
-                    View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    )
+                activity.setSystemBarsHidden(hidden = true)
             }
         } else {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             activity.window.decorView.post {
-                activity.window.insetsController?.show(WindowInsets.Type.systemBars())
-                @Suppress("DEPRECATION")
-                activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+                activity.setSystemBarsHidden(hidden = false)
             }
         }
     }

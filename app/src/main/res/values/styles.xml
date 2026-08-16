@@ -13,7 +13,7 @@
     </style>
 
     <!-- Widget Theme with Material 3 colors fallback for API < 31 -->
-    <style name="Theme.Widget.auriqa" parent="@android:style/Theme.DeviceDefault.DayNight">
+    <style name="Theme.Widget.auriqa" parent="@android:style/Theme.DeviceDefault">
         <item name="android:colorBackground">#E6E1E5</item>
     </style>
 
