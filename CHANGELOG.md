@@ -2,6 +2,14 @@
 
 This file records user-visible and release-process changes. It does not replace GitHub release notes, and the existing `v1.0.2-alpha` release remains unchanged.
 
+## [Unreleased]
+
+### Build
+
+- Debug builds now install as a separate app: package `com.auriqo.music.debug`, version suffix
+  `-debug` and label "Auriqo Debug", so a debug APK can coexist with the production-signed release
+  on the same device instead of replacing it.
+
 ## [1.0.4] - 2026-08-20
 
 ### Playback

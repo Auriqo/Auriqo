@@ -17,7 +17,7 @@ The public CI validates the credential-free FOSS debug variant. It does not sign
 
 ## Build variants
 
-- `UniversalFossDebug`: reference contributor build; no Google Play Services Cast integration.
+- `UniversalFossDebug`: reference contributor build; no Google Play Services Cast integration. Debug builds install under the separate package `com.auriqo.music.debug` (label "Auriqo Debug") so they can coexist with a production-signed release on the same device.
 - `UniversalGmsDebug`: debug build with Google Play Services integrations such as Cast.
 - `UniversalFossRelease` and `UniversalGmsRelease`: maintainer-only signed builds using protected release material.
 - `wear:Debug`: Wear OS companion/Tile test build; rich synchronization requires `UniversalGmsDebug` on the paired phone.
