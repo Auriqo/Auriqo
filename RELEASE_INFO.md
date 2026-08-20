@@ -2,18 +2,16 @@
 
 ## Current status
 
-Auriqo is preparing `v1.0.3` as its first production-signed stable candidate. Phone and Wear
-declare `versionCode 2` and `versionName 1.0.3`. The currently published test line remains the
-debug-signed `v1.0.3-alpha` series; its initial immutable artifact record is
-[docs/releases/v1.0.3-alpha.md](docs/releases/v1.0.3-alpha.md). Existing tags and releases must not
-be replaced, retagged or overwritten.
+Auriqo published `v1.0.4` as its first production-signed stable release. Phone and Wear declare
+`versionCode 3` and `versionName 1.0.4`. The immutable artifact record is
+[docs/releases/v1.0.4.md](docs/releases/v1.0.4.md). Existing tags and releases must not be
+replaced, retagged or overwritten.
 
-Stable publication is blocked until the maintainer supplies and backs up a protected production
-signing key. The persistent debug key is public and cannot be promoted to an official signing
-identity. Consequently, installations from the current debug-signed releases cannot migrate in
-place to the protected production certificate: they require a one-time uninstall before installing
-the first official build. After that transition, stable releases update normally when package,
-certificate and increasing `versionCode` match.
+Stable builds are signed with a protected production key (`keystore/release.keystore`). The
+persistent debug key is public and is not an official signing identity. Installations from the
+previous debug-signed releases cannot migrate in place to the production certificate: they
+required a one-time uninstall before installing the first official build. After that transition,
+stable releases update normally when package, certificate and increasing `versionCode` match.
 
 The public CI validates the credential-free FOSS debug variant. It does not sign or publish official artifacts.
 
@@ -31,7 +29,7 @@ Before creating a tag or publishing an APK:
 
 1. Confirm that `main` is clean, reviewable and at the intended commit.
 2. Reconcile `versionCode`, `versionName`, tag, changelog and release notes for an official release. An explicitly labelled debug alpha may instead disclose the mismatch in its immutable release record.
-   The `v1.0.3` candidate uses `versionCode 2` and `versionName 1.0.3` on phone and Wear.
+   The `v1.0.4` release uses `versionCode 3` and `versionName 1.0.4` on phone and Wear.
 3. Review [SECURITY.md](SECURITY.md), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), [docs/PROVENANCE.md](docs/PROVENANCE.md) and [docs/CI_RELEASE_REVIEW.md](docs/CI_RELEASE_REVIEW.md).
 4. Run FOSS compile, Better Lyrics web verification, module/unit tests, Wear tests, lint and the final secret scan without private credentials.
 5. Build official artifacts with a protected, non-repository signing key. A debug alpha may use `app/persistent-debug.keystore` only under the artifact policy below.
