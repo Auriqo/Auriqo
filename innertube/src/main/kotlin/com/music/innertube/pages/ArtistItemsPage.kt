@@ -8,6 +8,7 @@ import com.music.innertube.models.MusicTwoRowItemRenderer
 import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.YTItem
+import com.music.innertube.models.extractViewCountText
 import com.music.innertube.models.oddElements
 import com.music.innertube.models.splitBySeparator
 import com.music.innertube.utils.parseTime
@@ -75,6 +76,9 @@ data class ArtistItemsPage(
                     it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
                 } != null,
                 endpoint = renderer.overlay?.musicItemThumbnailOverlayRenderer?.content?.musicPlayButtonRenderer?.playNavigationEndpoint?.watchEndpoint,
+                viewCountText = renderer.flexColumns.getOrNull(1)
+                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs
+                    ?.extractViewCountText(),
                 libraryAddToken = libraryTokens.addToken,
                 libraryRemoveToken = libraryTokens.removeToken
             )
@@ -109,7 +113,8 @@ data class ArtistItemsPage(
                     duration = null,
                     musicVideoType = renderer.musicVideoType,
                     thumbnail = renderer.thumbnailRenderer.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
-                    endpoint = renderer.navigationEndpoint.watchEndpoint
+                    endpoint = renderer.navigationEndpoint.watchEndpoint,
+                    viewCountText = renderer.subtitle?.runs?.extractViewCountText()
                 )
                 renderer.isPlaylist -> PlaylistItem(
                     id = renderer.navigationEndpoint.browseEndpoint?.browseId?.removePrefix("VL") ?: return null,

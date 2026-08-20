@@ -53,6 +53,26 @@ fun List<Run>.splitBySeparator(): List<List<Run>> {
     return res
 }
 
+/**
+ * Best-effort extraction of the localized "view count" text from a song's subtitle runs,
+ * e.g. "1.2M views", "45K views", "12 mil vistas". Returns null when the subtitle does not
+ * contain a view-count token (playlists and albums typically omit it).
+ */
+fun List<Run>.extractViewCountText(): String? {
+    val viewPattern = Regex(
+        """\b\d[\d\s.,]*\s*(?:[KkMmBbTt]|mil|k|m|b)?\s*(?:views?|vistas?|vues|reproducciones?|visualizaciones?)\b""",
+        RegexOption.IGNORE_CASE
+    )
+    val joined = joinToString(separator = " ") { it.text }
+    return viewPattern.find(joined)?.value?.trim()?.let {
+        it.replace(Regex("""\s+"""), " ")
+    } ?: splitBySeparator().firstNotNullOfOrNull { segment ->
+        segment.joinToString(" ") { it.text }
+            .trim()
+            .takeIf { token -> viewPattern.containsMatchIn(token) }
+    }
+}
+
 fun List<List<Run>>.clean(): List<List<Run>> =
     if (getOrNull(0)?.getOrNull(0)?.navigationEndpoint != null ||
         (getOrNull(0)?.getOrNull(0)?.text?.contains(regex = Regex("[&,]"))) != false

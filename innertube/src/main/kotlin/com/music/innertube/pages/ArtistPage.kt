@@ -14,6 +14,7 @@ import com.music.innertube.models.Run
 import com.music.innertube.models.SectionListRenderer
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.YTItem
+import com.music.innertube.models.extractViewCountText
 import com.music.innertube.models.getItems
 import com.music.innertube.models.oddElements
 import com.music.innertube.models.splitBySeparator
@@ -120,6 +121,9 @@ data class ArtistPage(
                 } != null,
                 endpoint = renderer.overlay?.musicItemThumbnailOverlayRenderer?.content
                     ?.musicPlayButtonRenderer?.playNavigationEndpoint?.watchEndpoint,
+                viewCountText = renderer.flexColumns.getOrNull(1)
+                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs
+                    ?.extractViewCountText(),
                 libraryAddToken = libraryTokens.addToken,
                 libraryRemoveToken = libraryTokens.removeToken
             )
@@ -151,7 +155,8 @@ data class ArtistPage(
                         thumbnail = renderer.thumbnailRenderer.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
                         explicit = renderer.subtitleBadges?.find {
                             it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
-                        } != null
+                        } != null,
+                        viewCountText = renderer.subtitle?.runs?.extractViewCountText()
                     )
                 }
 

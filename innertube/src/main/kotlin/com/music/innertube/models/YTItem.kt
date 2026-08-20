@@ -37,6 +37,7 @@ data class SongItem(
     val libraryRemoveToken: String? = null,
     val historyRemoveToken: String? = null,
     val playlistContributor: Artist? = null,
+    val viewCountText: String? = null,
 ) : YTItem() {
     val isVideoSong: Boolean
         get() = musicVideoType != null && musicVideoType != MUSIC_VIDEO_TYPE_ATV

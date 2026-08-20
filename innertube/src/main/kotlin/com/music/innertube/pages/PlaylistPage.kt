@@ -10,6 +10,7 @@ import com.music.innertube.models.MusicResponsiveListItemRenderer
 import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.Run
 import com.music.innertube.models.SongItem
+import com.music.innertube.models.extractViewCountText
 import com.music.innertube.models.oddElements
 import com.music.innertube.models.splitBySeparator
 import com.music.innertube.utils.parseTime
@@ -104,6 +105,9 @@ data class PlaylistPage(
                     ?.musicResponsiveListItemFlexColumnRenderer
                     ?.text?.runs?.firstOrNull()
                     ?.navigationEndpoint?.watchEndpoint?.playlistSetVideoId,
+                viewCountText = renderer.flexColumns.getOrNull(1)
+                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs
+                    ?.extractViewCountText(),
                 libraryAddToken = libraryTokens.addToken,
                 libraryRemoveToken = libraryTokens.removeToken,
                 playlistContributor = contributor,

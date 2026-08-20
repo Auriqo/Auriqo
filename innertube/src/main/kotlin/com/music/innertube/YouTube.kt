@@ -24,6 +24,7 @@ import com.music.innertube.models.YouTubeClient.Companion.WEB
 import com.music.innertube.models.YouTubeClient.Companion.WEB_REMIX
 import com.music.innertube.models.YouTubeLocale
 import com.music.innertube.models.extractCountText
+import com.music.innertube.models.extractViewCountText
 import com.music.innertube.models.getContinuation
 import com.music.innertube.models.getItems
 import com.music.innertube.models.oddElements
@@ -1079,7 +1080,8 @@ object YouTube {
                         musicVideoType = renderer.musicVideoType,
                         explicit = renderer.subtitleBadges?.any {
                             it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
-                        } == true
+                        } == true,
+                        viewCountText = renderer.subtitle?.runs?.extractViewCountText()
                     )
                 }
                 renderer.isAlbum -> {
@@ -1087,7 +1089,7 @@ object YouTube {
                         browseId = renderer.navigationEndpoint.browseEndpoint?.browseId ?: return null,
                         playlistId = renderer.thumbnailOverlay?.musicItemThumbnailOverlayRenderer?.content
                             ?.musicPlayButtonRenderer?.playNavigationEndpoint
-                            ?.watchPlaylistEndpoint?.playlistId ?: return null,
+                            ?.anyWatchEndpoint?.playlistId ?: return null,
                         title = renderer.title.runs?.firstOrNull()?.text ?: return null,
                         artists = renderer.subtitle?.runs?.oddElements()?.drop(1)?.mapNotNull {
                             it.navigationEndpoint?.browseEndpoint?.browseId?.let { id ->

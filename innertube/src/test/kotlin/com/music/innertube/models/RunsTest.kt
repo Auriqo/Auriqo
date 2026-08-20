@@ -35,6 +35,31 @@ class RunsTest {
         assertNull(runs(CHANNEL_SUBSCRIBER_COUNT).extractCountText())
     }
 
+    @Test
+    fun extractViewCountReadsEnglishSuffix() {
+        assertEquals("1.2M views", runs("Artist", " • ", "1.2M views").runs.orEmpty().extractViewCountText())
+    }
+
+    @Test
+    fun extractViewCountReadsCompactSuffix() {
+        assertEquals("45K views", runs("Artist", " • ", "45K views").runs.orEmpty().extractViewCountText())
+    }
+
+    @Test
+    fun extractViewCountReadsSpanishSuffix() {
+        assertEquals("12 mil vistas", runs("Artist", " • ", "12 mil vistas").runs.orEmpty().extractViewCountText())
+    }
+
+    @Test
+    fun extractViewCountReturnsNullWithoutViews() {
+        assertNull(runs("Artist", " • ", "Album").runs.orEmpty().extractViewCountText())
+    }
+
+    @Test
+    fun extractViewCountReturnsNullForEmptyRuns() {
+        assertNull(emptyList<Run>().extractViewCountText())
+    }
+
     private fun runs(vararg texts: String) =
         Runs(texts.map { Run(text = it, navigationEndpoint = null) })
 

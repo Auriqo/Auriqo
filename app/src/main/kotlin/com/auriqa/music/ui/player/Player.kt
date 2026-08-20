@@ -209,6 +209,9 @@ import com.auriqo.music.ui.theme.PlayerColorExtractor
 import com.auriqo.music.ui.theme.PlayerSliderColors
 import com.auriqo.music.ui.utils.ShowMediaInfo
 import com.auriqo.music.ui.utils.ShowOffsetDialog
+import com.auriqo.music.ui.utils.shortNumberFormatter
+import com.music.innertube.YouTube
+import com.music.innertube.models.MediaInfo
 import com.auriqo.music.utils.makeTimeString
 import com.auriqo.music.utils.isLocalMediaId
 import com.auriqo.music.utils.rememberEnumPreference
@@ -417,6 +420,12 @@ fun BottomSheetPlayer(
     val playbackState by playerConnection.playbackState.collectAsState()
     val currentFormatEntity by database.format(mediaMetadata?.id).collectAsState(initial = null)
     val currentSong by playerConnection.currentSong.collectAsState(initial = null)
+    var currentMediaInfo by remember(mediaMetadata?.id) { mutableStateOf<MediaInfo?>(null) }
+    LaunchedEffect(mediaMetadata?.id) {
+        currentMediaInfo = null
+        val id = mediaMetadata?.id?.takeIf { !it.isLocalMediaId() } ?: return@LaunchedEffect
+        currentMediaInfo = YouTube.getMediaInfo(id).getOrNull()
+    }
     val automix by playerConnection.service.automixItems.collectAsState()
     val repeatMode by playerConnection.repeatMode.collectAsState()
     val canSkipPrevious by playerConnection.canSkipPrevious.collectAsState()
@@ -1706,9 +1715,55 @@ fun BottomSheetPlayer(
                                                         context.getString(R.string.copied_artist),
                                                         Toast.LENGTH_SHORT
                                                     )
-                                                    .show()
+                                                        .show()
                                             }
                                         )
+                                )
+                            }
+                        }
+                    }
+                }
+
+                val mediaInfoViews = currentMediaInfo?.viewCount
+                val mediaInfoLikes = currentMediaInfo?.like
+                if (mediaInfoViews != null || mediaInfoLikes != null) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 4.dp)
+                    ) {
+                        mediaInfoViews?.let { views ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(R.drawable.view_count),
+                                    contentDescription = null,
+                                    tint = TextBackgroundColor.copy(alpha = 0.7f),
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = shortNumberFormatter(views),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = TextBackgroundColor.copy(alpha = 0.7f),
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
+                        mediaInfoLikes?.let { likes ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(R.drawable.favorite_border),
+                                    contentDescription = null,
+                                    tint = TextBackgroundColor.copy(alpha = 0.7f),
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = shortNumberFormatter(likes),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = TextBackgroundColor.copy(alpha = 0.7f),
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
                         }

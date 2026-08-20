@@ -8,6 +8,7 @@ import com.music.innertube.models.MusicResponsiveListItemRenderer
 import com.music.innertube.models.PlaylistItem
 import com.music.innertube.models.SongItem
 import com.music.innertube.models.YTItem
+import com.music.innertube.models.extractViewCountText
 import com.music.innertube.models.oddElements
 import com.music.innertube.models.splitBySeparator
 import com.music.innertube.utils.parseTime
@@ -76,6 +77,9 @@ object SearchPage {
                         renderer.badges?.find {
                             it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
                         } != null,
+                    viewCountText = renderer.flexColumns.getOrNull(1)
+                        ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs
+                        ?.extractViewCountText(),
                     libraryAddToken = libraryTokens.addToken,
                     libraryRemoveToken = libraryTokens.removeToken
                 )

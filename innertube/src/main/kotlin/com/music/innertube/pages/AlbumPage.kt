@@ -6,6 +6,7 @@ import com.music.innertube.models.Artist
 import com.music.innertube.models.MusicResponsiveHeaderRenderer
 import com.music.innertube.models.MusicResponsiveListItemRenderer
 import com.music.innertube.models.SongItem
+import com.music.innertube.models.extractViewCountText
 import com.music.innertube.models.getItems
 import com.music.innertube.models.oddElements
 import com.music.innertube.models.response.BrowseResponse
@@ -122,6 +123,9 @@ data class AlbumPage(
                 explicit = renderer.badges?.find {
                     it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
                 } != null,
+                viewCountText = renderer.flexColumns.getOrNull(1)
+                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs
+                    ?.extractViewCountText(),
                 libraryAddToken = libraryTokens.addToken,
                 libraryRemoveToken = libraryTokens.removeToken
             )
