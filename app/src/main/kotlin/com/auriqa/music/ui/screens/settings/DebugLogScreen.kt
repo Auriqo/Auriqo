@@ -1,6 +1,10 @@
 package com.auriqo.music.ui.screens.settings
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -12,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Refresh
@@ -19,6 +24,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +38,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DebugLogScreen(navController: NavController) {
+    val context = LocalContext.current
     val debugLogTree = remember { DebugLogTree.getInstance() }
     val logs by debugLogTree?.logs?.collectAsState() ?: remember { mutableStateOf(emptyList()) }
     var minLogLevel by remember { mutableIntStateOf(Log.DEBUG) }
@@ -64,6 +71,17 @@ fun DebugLogScreen(navController: NavController) {
                     }
                 },
                 actions = {
+                    IconButton(onClick = {
+                        val text = filteredLogs.joinToString("\n") { entry ->
+                            "${entry.formattedTime} ${entry.levelStr} ${entry.tag ?: "?"}: ${entry.message}" +
+                                (entry.throwable?.let { "\n${it.stackTraceToString()}" } ?: "")
+                        }
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        clipboard.setPrimaryClip(ClipData.newPlainText("Debug Logs", text))
+                        Toast.makeText(context, "Copied ${filteredLogs.size} log entries", Toast.LENGTH_SHORT).show()
+                    }) {
+                        Icon(Icons.Rounded.ContentCopy, contentDescription = "Copy logs")
+                    }
                     IconButton(onClick = { showFilterMenu = !showFilterMenu }) {
                         Icon(Icons.Rounded.FilterList, contentDescription = "Filter")
                     }
