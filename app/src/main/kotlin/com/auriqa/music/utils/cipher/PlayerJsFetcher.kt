@@ -22,7 +22,7 @@ object PlayerJsFetcher {
         .build()
 
     
-    private val PLAYER_HASH_REGEX = Regex("""\\?/s\\?/player\\?/([a-zA-Z0-9_-]+)\\?/""")
+    private val PLAYER_HASH_REGEX = Regex("""[/\\]s[/\\]player[/\\]([a-zA-Z0-9_-]+)[/\\]""")
     private val cacheMutex = Mutex()
 
     private fun getCacheDir(): File = File(CipherDeobfuscator.appContext.filesDir, "cipher_cache")

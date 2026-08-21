@@ -319,6 +319,17 @@ highlightKey: String? = null) {
                     )
                 )
             }
+            if (BuildConfig.DEBUG && ("debug logs".contains(searchLower) || "debug".contains(searchLower))) {
+                add(
+                    Material3SettingsItem(
+                        isHighlighted = (highlightKey == "debug logs"),
+                        icon = painterResource(R.drawable.info),
+                        title = { Text("Debug Logs") },
+                        description = { Text("View live Timber logs") },
+                        onClick = { navController.navigate("settings/debug_logs") }
+                    )
+                )
+            }
         }
 
         val finalItemsList = if (searchQuery.isNotEmpty()) {

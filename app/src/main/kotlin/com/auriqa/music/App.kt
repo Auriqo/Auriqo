@@ -30,6 +30,7 @@ import com.auriqo.music.extensions.toEnum
 import com.auriqo.music.extensions.toInetSocketAddress
 import com.auriqo.music.utils.CrashHandler
 import com.auriqo.music.utils.cipher.CipherDeobfuscator
+import com.auriqo.music.utils.debug.DebugLogTree
 import com.auriqo.music.utils.dataStore
 import com.auriqo.music.utils.reportException
 import com.auriqo.music.echomusic.updater.scheduleUpdateChecks
@@ -103,6 +104,7 @@ class App : Application(), SingletonImageLoader.Factory {
         CipherDeobfuscator.initialize(this)
 
         if (BuildConfig.DEBUG) {
+            DebugLogTree.install()
             Timber.plant(Timber.DebugTree())
         }
 
