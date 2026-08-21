@@ -60,6 +60,32 @@ class RunsTest {
         assertNull(emptyList<Run>().extractViewCountText())
     }
 
+    @Test
+    fun extractViewCountScansAllResponsiveColumns() {
+        val renderer = MusicResponsiveListItemRenderer(
+            badges = null,
+            fixedColumns = null,
+            flexColumns = listOf(
+                column("Artist"),
+                column("Album"),
+                column("1.2M views"),
+            ),
+            thumbnail = null,
+            menu = null,
+            playlistItemData = null,
+            overlay = null,
+            navigationEndpoint = null,
+        )
+
+        assertEquals("1.2M views", renderer.extractViewCountText())
+    }
+
+    private fun column(text: String) = MusicResponsiveListItemRenderer.FlexColumn(
+        MusicResponsiveListItemRenderer.FlexColumn.MusicResponsiveListItemFlexColumnRenderer(
+            Runs(listOf(Run(text = text, navigationEndpoint = null)))
+        )
+    )
+
     private fun runs(vararg texts: String) =
         Runs(texts.map { Run(text = it, navigationEndpoint = null) })
 

@@ -2,9 +2,9 @@
 
 ## Current status
 
-Auriqo published `v1.0.4` as its first production-signed stable release. Phone and Wear declare
-`versionCode 3` and `versionName 1.0.4`. The immutable artifact record is
-[docs/releases/v1.0.4.md](docs/releases/v1.0.4.md). Existing tags and releases must not be
+Auriqo is preparing `v1.0.5` as the next production-signed stable release. Phone and Wear declare
+`versionCode 4` and `versionName 1.0.5`. The previous immutable artifact record is
+[docs/releases/v1.0.4.md](docs/releases/v1.0.4.md). Existing stable tags and releases must not be
 replaced, retagged or overwritten.
 
 Stable builds are signed with a protected production key (`keystore/release.keystore`). The
@@ -29,7 +29,7 @@ Before creating a tag or publishing an APK:
 
 1. Confirm that `main` is clean, reviewable and at the intended commit.
 2. Reconcile `versionCode`, `versionName`, tag, changelog and release notes for an official release. An explicitly labelled debug alpha may instead disclose the mismatch in its immutable release record.
-   The `v1.0.4` release uses `versionCode 3` and `versionName 1.0.4` on phone and Wear.
+   The `v1.0.5` release uses `versionCode 4` and `versionName 1.0.5` on phone and Wear.
 3. Review [SECURITY.md](SECURITY.md), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), [docs/PROVENANCE.md](docs/PROVENANCE.md) and [docs/CI_RELEASE_REVIEW.md](docs/CI_RELEASE_REVIEW.md).
 4. Run FOSS compile, Better Lyrics web verification, module/unit tests, Wear tests, lint and the final secret scan without private credentials.
 5. Build official artifacts with a protected, non-repository signing key. A debug alpha may use `app/persistent-debug.keystore` only under the artifact policy below.

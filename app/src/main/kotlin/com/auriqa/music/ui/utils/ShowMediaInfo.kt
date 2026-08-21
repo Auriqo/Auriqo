@@ -54,6 +54,7 @@ import com.auriqo.music.R
 import com.auriqo.music.db.entities.FormatEntity
 import com.auriqo.music.db.entities.Song
 import com.auriqo.music.ui.component.LocalBottomSheetPageState
+import com.auriqo.music.ui.component.MediaStatsRow
 import com.auriqo.music.ui.component.shimmer.ShimmerHost
 import com.auriqo.music.ui.component.shimmer.TextPlaceholder
 
@@ -187,16 +188,11 @@ fun ShowMediaInfo(videoId: String) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         val viewCount = info?.viewCount?.toInt()?.let { shortNumberFormatter(it) } ?: "N/A"
-                        InfoItem(
-                            label = stringResource(R.string.views),
-                            value = stringResource(R.string.song_info_views_count, viewCount),
-                            modifier = Modifier.weight(1f)
-                        )
                         val likeCount = info?.like?.toInt()?.let { shortNumberFormatter(it) } ?: "N/A"
-                        InfoItem(
-                            label = stringResource(R.string.likes),
-                            value = stringResource(R.string.song_info_likes_count, likeCount),
-                            modifier = Modifier.weight(1f)
+                        MediaStatsRow(
+                            views = viewCount,
+                            likes = likeCount,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
 

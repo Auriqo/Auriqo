@@ -21,7 +21,7 @@ fun currentGitRevision(): String = runCatching {
 fun quotedBuildConfigValue(value: String): String =
     "\"${value.replace("\\", "\\\\").replace("\"", "\\\"")}\""
 
-val appVersion = "1.0.4"
+val appVersion = "1.0.5"
 val releaseIdentifier = project.findProperty("releaseName")?.toString()
     ?.takeIf { it.isNotBlank() }
     ?: "local-$appVersion"
@@ -54,7 +54,7 @@ android {
         applicationId = "com.auriqo.music"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
+        versionCode = 4
         versionName = appVersion
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

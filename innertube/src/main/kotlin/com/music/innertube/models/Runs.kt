@@ -73,6 +73,14 @@ fun List<Run>.extractViewCountText(): String? {
     }
 }
 
+fun MusicResponsiveListItemRenderer.extractViewCountText(): String? =
+    flexColumns.asSequence()
+        .mapNotNull { column ->
+            column.musicResponsiveListItemFlexColumnRenderer.text?.runs
+        }
+        .mapNotNull { runs -> runs.extractViewCountText() }
+        .firstOrNull()
+
 fun List<List<Run>>.clean(): List<List<Run>> =
     if (getOrNull(0)?.getOrNull(0)?.navigationEndpoint != null ||
         (getOrNull(0)?.getOrNull(0)?.text?.contains(regex = Regex("[&,]"))) != false

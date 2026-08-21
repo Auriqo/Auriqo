@@ -1110,13 +1110,41 @@ fun YouTubeListItem(
     val content: @Composable () -> Unit = {
         ListItem(
             title = item.title,
-            subtitle = when (item) {
-                is SongItem -> joinByBullet(item.artists.joinToString { it.name }, makeTimeString(item.duration?.times(1000L)), item.viewCountText, additionalSubtitle)
-                is AlbumItem -> joinByBullet(item.artists?.joinToString { it.name }, item.year?.toString())
-                is ArtistItem -> null
-                is PlaylistItem -> joinByBullet(item.author?.name, item.songCountText)
+            subtitle = {
+                badges()
+                when (item) {
+                    is SongItem -> {
+                        Text(
+                            text = joinByBullet(
+                                item.artists.joinToString { it.name },
+                                makeTimeString(item.duration?.times(1000L)),
+                                additionalSubtitle,
+                            ),
+                            color = MaterialTheme.colorScheme.secondary,
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f),
+                        )
+                        MediaStatsRow(views = item.viewCountText)
+                    }
+                    is AlbumItem -> Text(
+                        text = joinByBullet(item.artists?.joinToString { it.name }, item.year?.toString()),
+                        color = MaterialTheme.colorScheme.secondary,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    is ArtistItem -> Unit
+                    is PlaylistItem -> Text(
+                        text = joinByBullet(item.author?.name, item.songCountText),
+                        color = MaterialTheme.colorScheme.secondary,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             },
-            badges = badges,
             thumbnailContent = {
                 ItemThumbnail(
                     thumbnailUrl = item.thumbnail,
@@ -1201,13 +1229,19 @@ fun YouTubeGridItem(
             is PlaylistItem -> joinByBullet(item.author?.name, item.songCountText)
         }
         if (subtitle != null) {
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.secondary,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+                if (item is SongItem) {
+                    MediaStatsRow(views = item.viewCountText)
+                }
+            }
         }
     },
     badges = badges,

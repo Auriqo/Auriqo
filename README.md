@@ -8,7 +8,9 @@ Auriqo is an independent project. It is not affiliated with, endorsed by or oper
 
 Auriqo is in active development and is still an alpha release. Core playback, local media, playlists and lyrics are available today, while integrations continue to evolve with the services they use. Provider APIs and media availability can change, so occasional breakage is expected while the project grows.
 
-The current pre-release line is `v1.0.3-alpha`; its exact artifacts and checksums are recorded in [docs/releases/v1.0.3-alpha.md](docs/releases/v1.0.3-alpha.md). These APKs are deliberately debug-signed test artifacts. The Android modules still declare `versionCode 1` and `versionName 1.0.0`; this metadata must be reconciled before an official stable release. The existing `v1.0.2-alpha` tag and release remain immutable.
+The current release line is `v1.0.5`; its exact artifacts and checksums are recorded in
+[docs/releases/v1.0.5.md](docs/releases/v1.0.5.md). Stable artifacts use the protected production
+signing key. Historical alpha, RC and debug artifacts are not supported release baselines.
 
 ## Current functionality
 

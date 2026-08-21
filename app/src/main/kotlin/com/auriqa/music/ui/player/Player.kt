@@ -196,6 +196,7 @@ import com.auriqo.music.ui.component.CastButton
 import com.auriqo.music.ui.component.LocalBottomSheetPageState
 import com.auriqo.music.ui.component.LocalMenuState
 import com.auriqo.music.ui.component.Lyrics
+import com.auriqo.music.ui.component.MediaStatsRow
 import com.auriqo.music.ui.component.PlayerSliderTrack
 import com.auriqo.music.ui.component.ResizableIconButton
 import com.auriqo.music.ui.component.SquigglySlider
@@ -1728,46 +1729,12 @@ fun BottomSheetPlayer(
                 val mediaInfoLikes = currentMediaInfo?.like
                 if (mediaInfoViews != null || mediaInfoLikes != null) {
                     Spacer(modifier = Modifier.height(2.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(top = 4.dp)
-                    ) {
-                        mediaInfoViews?.let { views ->
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painter = painterResource(R.drawable.view_count),
-                                    contentDescription = null,
-                                    tint = TextBackgroundColor.copy(alpha = 0.7f),
-                                    modifier = Modifier.size(14.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = shortNumberFormatter(views),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = TextBackgroundColor.copy(alpha = 0.7f),
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                        }
-                        mediaInfoLikes?.let { likes ->
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painter = painterResource(R.drawable.favorite_border),
-                                    contentDescription = null,
-                                    tint = TextBackgroundColor.copy(alpha = 0.7f),
-                                    modifier = Modifier.size(14.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = shortNumberFormatter(likes),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = TextBackgroundColor.copy(alpha = 0.7f),
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                        }
-                    }
+                    MediaStatsRow(
+                        views = mediaInfoViews?.let(::shortNumberFormatter),
+                        likes = mediaInfoLikes?.let(::shortNumberFormatter),
+                        color = TextBackgroundColor.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))

@@ -10,6 +10,21 @@ This file records user-visible and release-process changes. It does not replace 
   `-debug` and label "Auriqo Debug", so a debug APK can coexist with the production-signed release
   on the same device instead of replacing it.
 
+## [1.0.5] - 2026-08-21
+
+### Playback
+
+- Moved YouTube cipher and n-transform execution to native Rhino over the complete bundled player,
+  keeping WebView limited to PoToken acquisition.
+- Updated NewPipe Extractor to `0.26.2` and retained serialized extractor/cache state across restarts.
+
+### Interface
+
+- Reworked view and like counts into compact, accessible metric rows in the player and media details.
+- Surface view counts consistently in YouTube song lists and grids, including responses where YouTube
+  moves the count to a different metadata column.
+- About debug information now exposes the release identifier and complete source SHA.
+
 ## [1.0.4] - 2026-08-20
 
 ### Playback

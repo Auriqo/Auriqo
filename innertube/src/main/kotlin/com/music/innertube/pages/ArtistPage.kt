@@ -121,9 +121,7 @@ data class ArtistPage(
                 } != null,
                 endpoint = renderer.overlay?.musicItemThumbnailOverlayRenderer?.content
                     ?.musicPlayButtonRenderer?.playNavigationEndpoint?.watchEndpoint,
-                viewCountText = renderer.flexColumns.getOrNull(1)
-                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs
-                    ?.extractViewCountText(),
+                 viewCountText = renderer.extractViewCountText(),
                 libraryAddToken = libraryTokens.addToken,
                 libraryRemoveToken = libraryTokens.removeToken
             )

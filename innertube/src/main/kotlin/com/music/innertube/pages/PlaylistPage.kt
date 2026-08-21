@@ -105,9 +105,7 @@ data class PlaylistPage(
                     ?.musicResponsiveListItemFlexColumnRenderer
                     ?.text?.runs?.firstOrNull()
                     ?.navigationEndpoint?.watchEndpoint?.playlistSetVideoId,
-                viewCountText = renderer.flexColumns.getOrNull(1)
-                    ?.musicResponsiveListItemFlexColumnRenderer?.text?.runs
-                    ?.extractViewCountText(),
+                 viewCountText = renderer.extractViewCountText(),
                 libraryAddToken = libraryTokens.addToken,
                 libraryRemoveToken = libraryTokens.removeToken,
                 playlistContributor = contributor,
