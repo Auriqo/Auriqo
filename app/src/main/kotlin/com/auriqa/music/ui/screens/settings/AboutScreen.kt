@@ -299,6 +299,23 @@ private fun AboutAppCard() {
                     }
                 }
             }
+            if (BuildConfig.DEBUG) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Text(
+                        text = "release ${BuildConfig.RELEASE_IDENTIFIER}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = "sha ${BuildConfig.SOURCE_REVISION}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
     }
 }

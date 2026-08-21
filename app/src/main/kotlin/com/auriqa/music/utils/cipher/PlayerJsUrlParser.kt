@@ -1,12 +1,6 @@
 package com.auriqo.music.utils.cipher
 
-/**
- * Extracts the base player JavaScript URL from the two YouTube resources that expose it.
- *
- * YouTube escapes slashes in the iframe resource and can return either the `player_ias` or
- * `player_embed` variant from an embed page. Keeping this parsing separate from networking makes
- * changes in YouTube's HTML contract easy to test without an Android runtime.
- */
+/** Extracts the base player JavaScript URL from YouTube's iframe and embed resources. */
 internal object PlayerJsUrlParser {
     private const val YOUTUBE_BASE_URL = "https://www.youtube.com"
     private const val PLAYER_JS_URL_TEMPLATE =

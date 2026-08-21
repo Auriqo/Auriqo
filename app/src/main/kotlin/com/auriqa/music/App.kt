@@ -37,7 +37,6 @@ import com.auriqo.music.echomusic.updater.scheduleUpdateChecks
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import android.content.Intent
 import kotlinx.coroutines.flow.first
@@ -116,12 +115,6 @@ class App : Application(), SingletonImageLoader.Factory {
 
         applicationScope.launch {
             initializeSettings()
-            
-            // Warm the cipher WebView off the first-play critical path
-            launch(Dispatchers.IO) {
-                delay(1500)
-                CipherDeobfuscator.prewarm()
-            }
             
             observeSettingsChanges()
         }

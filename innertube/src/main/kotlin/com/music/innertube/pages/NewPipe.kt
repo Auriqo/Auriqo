@@ -25,6 +25,8 @@ import java.net.ProxySelector
 import java.net.SocketAddress
 import java.net.URI
 
+private val PLAYER_JAVASCRIPT_LOCK = Any()
+
 class NewPipeDownloaderImpl(
     proxy: Proxy?,
     proxyAuth: String? = null,
@@ -99,15 +101,16 @@ class NewPipeUtils(
         NewPipe.init(downloader)
     }
 
-    fun getSignatureTimestamp(videoId: String): Result<Int> =
+    fun getSignatureTimestamp(videoId: String): Result<Int> = synchronized(PLAYER_JAVASCRIPT_LOCK) {
         runCatching {
             YoutubeJavaScriptPlayerManager.getSignatureTimestamp(videoId)
         }
+    }
 
     fun getStreamUrl(
         format: PlayerResponse.StreamingData.Format,
         videoId: String,
-    ): String? =
+    ): String? = synchronized(PLAYER_JAVASCRIPT_LOCK) {
         try {
             val url =
                 format.url ?: format.signatureCipher?.let { signatureCipher ->
@@ -137,6 +140,7 @@ class NewPipeUtils(
             // Don't print stack trace - caller handles errors
             null
         }
+    }
 }
 
 object NewPipeExtractor {
@@ -144,7 +148,7 @@ object NewPipeExtractor {
     private var newPipeUtils: NewPipeUtils? = null
     private var isInitialized = false
 
-    fun init() {
+    fun init() = synchronized(PLAYER_JAVASCRIPT_LOCK) {
         if (!isInitialized) {
             newPipeDownloader = NewPipeDownloaderImpl(
                 proxy = YouTube.proxy,
@@ -159,6 +163,43 @@ object NewPipeExtractor {
         init()
         return newPipeUtils?.getSignatureTimestamp(videoId)
             ?: Result.failure(Exception("NewPipeUtils not initialized"))
+    }
+
+    /**
+     * Deobfuscates a YouTube signature with NewPipe's native Rhino runtime.
+     *
+     * This is deliberately exposed separately from [getStreamUrl] because the app's
+     * InnerTube clients return their own stream response and only need NewPipe's
+     * JavaScript implementation for the cipher parameters.
+     */
+    fun deobfuscateSignature(videoId: String, obfuscatedSignature: String): Result<String> {
+        init()
+        return synchronized(PLAYER_JAVASCRIPT_LOCK) {
+            runCatching {
+                YoutubeJavaScriptPlayerManager.deobfuscateSignature(videoId, obfuscatedSignature)
+            }
+        }
+    }
+
+    /**
+     * Applies YouTube's throttling-parameter (`n`) transform using the same native runtime.
+     */
+    fun transformNParam(videoId: String, url: String): Result<String> {
+        init()
+        return synchronized(PLAYER_JAVASCRIPT_LOCK) {
+            runCatching {
+                YoutubeJavaScriptPlayerManager.getUrlWithThrottlingParameterDeobfuscated(videoId, url)
+            }
+        }
+    }
+
+    /**
+     * Drops NewPipe's player JavaScript and transform caches after a CDN rejection.
+     */
+    fun clearPlayerJavaScriptCache() {
+        synchronized(PLAYER_JAVASCRIPT_LOCK) {
+            YoutubeJavaScriptPlayerManager.clearAllCaches()
+        }
     }
 
     fun getStreamUrl(

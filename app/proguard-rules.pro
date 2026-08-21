@@ -5,13 +5,7 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
-# WEB_REMIX Streaming - WebView JavaScript interfaces
--keepclassmembers class com.auriqo.music.utils.sabr.EjsNTransformSolver$SolverWebView {
-    @android.webkit.JavascriptInterface public *;
-}
--keepclassmembers class com.auriqo.music.utils.cipher.CipherWebView {
-    @android.webkit.JavascriptInterface public *;
-}
+# PoToken WebView JavaScript interface
 -keepclassmembers class com.auriqo.music.utils.potoken.PoTokenWebView {
     @android.webkit.JavascriptInterface public *;
 }

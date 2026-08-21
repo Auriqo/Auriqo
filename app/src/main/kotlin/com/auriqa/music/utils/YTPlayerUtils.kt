@@ -30,7 +30,6 @@ import com.auriqo.music.utils.YTPlayerUtils.STREAM_FALLBACK_CLIENTS
 import com.auriqo.music.utils.YTPlayerUtils.validateStatus
 import com.auriqo.music.utils.potoken.PoTokenGenerator
 import com.auriqo.music.utils.potoken.PoTokenResult
-import com.auriqo.music.utils.sabr.EjsNTransformSolver
 import com.auriqo.music.utils.PlaybackLogLevel
 import com.auriqo.music.utils.PlaybackLogManager
 import com.music.innertube.models.IpVersion
@@ -405,7 +404,7 @@ object YTPlayerUtils {
                 if (needsNTransform) {
                     try {
                         Timber.tag(logTag).d("Applying n-transform to stream URL for ${currentClient.clientName}")
-                            val transformed = EjsNTransformSolver.transformNParamInUrl(rawStreamUrl, videoId)
+                            val transformed = CipherDeobfuscator.transformNParamInUrl(rawStreamUrl, videoId)
                         if (transformed != rawStreamUrl) {
                             streamUrl = transformed
                             Timber.tag(logTag).d("N-transform applied successfully")
@@ -737,7 +736,6 @@ object YTPlayerUtils {
     suspend fun refreshAfterStreamRejection(videoId: String) {
         Timber.tag(logTag).d("Refreshing stream resolver state for videoId: $videoId")
         poTokenGenerator.invalidate()
-        EjsNTransformSolver.close()
         CipherDeobfuscator.onStreamRejected()
     }
 }

@@ -7,6 +7,27 @@ val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.inputStream())
 }
+
+fun currentGitRevision(): String = runCatching {
+    val process = ProcessBuilder("git", "rev-parse", "HEAD")
+        .directory(rootDir)
+        .redirectErrorStream(true)
+        .start()
+    val revision = process.inputStream.bufferedReader().use { it.readText().trim() }
+    process.waitFor()
+    revision.takeIf { it.matches(Regex("[0-9a-fA-F]{40}")) } ?: "unknown"
+}.getOrDefault("unknown")
+
+fun quotedBuildConfigValue(value: String): String =
+    "\"${value.replace("\\", "\\\\").replace("\"", "\\\"")}\""
+
+val appVersion = "1.0.4"
+val releaseIdentifier = project.findProperty("releaseName")?.toString()
+    ?.takeIf { it.isNotBlank() }
+    ?: "local-$appVersion"
+val sourceRevision = project.findProperty("gitSha")?.toString()
+    ?.takeIf { it.isNotBlank() }
+    ?: currentGitRevision()
 plugins {
     id("com.android.application")
     alias(libs.plugins.hilt)
@@ -34,7 +55,7 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = 3
-        versionName = "1.0.4"
+        versionName = appVersion
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -67,6 +88,10 @@ android {
         buildConfigField("long", "DISCORD_APPLICATION_ID_LONG", "${discordApplicationIdLong}L")
         buildConfigField("String", "DISCORD_REDIRECT_SCHEME", "\"$discordRedirectScheme\"")
         manifestPlaceholders["discordRedirectScheme"] = discordRedirectScheme
+
+        // Displayed only by the debug About screen so every test APK is traceable to its source.
+        buildConfigField("String", "RELEASE_IDENTIFIER", quotedBuildConfigValue(releaseIdentifier))
+        buildConfigField("String", "SOURCE_REVISION", quotedBuildConfigValue(sourceRevision))
     }
 
 
@@ -241,6 +266,8 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 dependencies {
+    implementation(libs.rhino)
+
     // Firebase - GMS flavor only (excluded from F-Droid / FOSS builds)
     "gmsImplementation"(platform("com.google.firebase:firebase-bom:33.1.0"))
     "gmsImplementation"("com.google.firebase:firebase-analytics")
