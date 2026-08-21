@@ -405,7 +405,7 @@ object YTPlayerUtils {
                 if (needsNTransform) {
                     try {
                         Timber.tag(logTag).d("Applying n-transform to stream URL for ${currentClient.clientName}")
-                        val transformed = EjsNTransformSolver.transformNParamInUrl(rawStreamUrl)
+                            val transformed = EjsNTransformSolver.transformNParamInUrl(rawStreamUrl, videoId)
                         if (transformed != rawStreamUrl) {
                             streamUrl = transformed
                             Timber.tag(logTag).d("N-transform applied successfully")
@@ -468,7 +468,7 @@ object YTPlayerUtils {
 
                         
                         try {
-                            val nTransformed = CipherDeobfuscator.transformNParamInUrl(rawStreamUrl)
+                            val nTransformed = CipherDeobfuscator.transformNParamInUrl(rawStreamUrl, videoId)
                             if (nTransformed != rawStreamUrl) {
                                 val fallbackStreamUrl =
                                     appendStreamingPoToken(nTransformed, streamingPoToken)
@@ -617,7 +617,7 @@ object YTPlayerUtils {
     private suspend fun getSignatureTimestampOrNull(videoId: String): SignatureTimestampResult {
         Timber.tag(logTag).d("Getting signature timestamp for videoId: $videoId")
         val cipherTimestamp = try {
-            CipherDeobfuscator.signatureTimestamp()
+            CipherDeobfuscator.signatureTimestamp(videoId)
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -741,5 +741,3 @@ object YTPlayerUtils {
         CipherDeobfuscator.onStreamRejected()
     }
 }
-
-

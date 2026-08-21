@@ -27,7 +27,7 @@ object EjsNTransformSolver {
     private var solverWebView: SolverWebView? = null
     private val solverMutex = Mutex()
 
-    suspend fun transformNParamInUrl(url: String): String = solverMutex.withLock {
+    suspend fun transformNParamInUrl(url: String, videoId: String? = null): String = solverMutex.withLock {
         val nMatch = Regex("[?&]n=([^&]+)").find(url)
         if (nMatch == null) {
             Timber.tag(TAG).d("No 'n' parameter in SABR URL")
@@ -37,7 +37,7 @@ object EjsNTransformSolver {
         Timber.tag(TAG).d("SABR n-param: $nValue")
 
         withContext(NonCancellable) {
-            val solver = getOrCreateSolver()
+            val solver = getOrCreateSolver(videoId)
             if (solver == null) {
                 return@withContext url
             }
@@ -61,13 +61,16 @@ object EjsNTransformSolver {
         }
     }
 
-    private suspend fun getOrCreateSolver(): SolverWebView? {
+    private suspend fun getOrCreateSolver(videoId: String? = null): SolverWebView? {
         solverWebView?.let { return it }
 
         return withContext(NonCancellable) {
             solverWebView?.let { return@withContext it }
 
-            val result = PlayerJsFetcher.getPlayerJs(forceRefresh = false)
+            val result = PlayerJsFetcher.getPlayerJs(
+                videoId = videoId,
+                forceRefresh = false,
+            )
             if (result == null) {
                 Timber.tag(TAG).e("Failed to get player JS for EJS solver")
                 return@withContext null

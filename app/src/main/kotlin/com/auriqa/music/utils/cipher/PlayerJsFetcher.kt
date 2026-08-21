@@ -14,7 +14,7 @@ import java.io.File
 object PlayerJsFetcher {
     private const val TAG = "echomusic_CipherFetcher"
     private const val IFRAME_API_URL = "https://www.youtube.com/iframe_api"
-    private const val PLAYER_JS_URL_TEMPLATE = "https://www.youtube.com/s/player/%s/player_ias.vflset/en_GB/base.js"
+    private const val EMBED_URL_TEMPLATE = "https://www.youtube.com/embed/%s"
     private const val CACHE_TTL_MS = 6 * 60 * 60 * 1000L 
 
     private val httpClient = OkHttpClient.Builder()
@@ -22,8 +22,13 @@ object PlayerJsFetcher {
         .build()
 
     
-    private val PLAYER_HASH_REGEX = Regex("""[/\\]s[/\\]player[/\\]([a-zA-Z0-9_-]+)[/\\]""")
     private val cacheMutex = Mutex()
+
+    private data class PlayerJsSource(
+        val hash: String,
+        val url: String,
+        val origin: String,
+    )
 
     private fun getCacheDir(): File = File(CipherDeobfuscator.appContext.filesDir, "cipher_cache")
 
@@ -31,7 +36,10 @@ object PlayerJsFetcher {
 
     private fun getHashFile(): File = File(getCacheDir(), "current_hash.txt")
 
-    suspend fun getPlayerJs(forceRefresh: Boolean = false): Pair<String, String>? = cacheMutex.withLock {
+    suspend fun getPlayerJs(
+        videoId: String? = null,
+        forceRefresh: Boolean = false,
+    ): Pair<String, String>? = cacheMutex.withLock {
         withContext(Dispatchers.IO) {
             try {
                 val cacheDir = getCacheDir()
@@ -47,25 +55,27 @@ object PlayerJsFetcher {
                 }
 
 
-                val hash = fetchPlayerHash()
-                if (hash == null) {
-                    Timber.tag(TAG).e("Failed to extract player hash from iframe_api")
+                val sources = fetchPlayerSources(videoId)
+                if (sources.isEmpty()) {
+                    Timber.tag(TAG).e("Could not discover a usable YouTube player JS URL")
                     return@withContext null
                 }
-                Timber.tag(TAG).d("Extracted player hash: $hash")
 
+                for (source in sources) {
+                    Timber.tag(TAG).d("Trying player JS from ${source.origin}: hash=${source.hash}")
+                    val playerJs = downloadPlayerJs(source.url)
+                    if (playerJs == null) {
+                        Timber.tag(TAG).w("Failed to download player JS from ${source.origin}")
+                        continue
+                    }
 
-                val playerJs = downloadPlayerJs(hash)
-                if (playerJs == null) {
-                    Timber.tag(TAG).e("Failed to download player JS for hash=$hash")
-                    return@withContext null
+                    Timber.tag(TAG).d("Downloaded player JS: ${playerJs.length} chars")
+                    writeToCache(source.hash, playerJs)
+                    return@withContext Pair(playerJs, source.hash)
                 }
-                Timber.tag(TAG).d("Downloaded player JS: ${playerJs.length} chars")
 
-
-                writeToCache(hash, playerJs)
-
-                Pair(playerJs, hash)
+                Timber.tag(TAG).e("Failed to download all discovered player JS candidates")
+                null
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -137,36 +147,64 @@ object PlayerJsFetcher {
         }
     }
 
-    private fun fetchPlayerHash(): String? {
-        val request = Request.Builder()
-            .url(IFRAME_API_URL)
-            .header("User-Agent", "Mozilla/5.0")
-            .build()
+    private fun fetchPlayerSources(videoId: String?): List<PlayerJsSource> {
+        val sources = mutableListOf<PlayerJsSource>()
 
-        val response = httpClient.newCall(request).execute()
-        if (!response.isSuccessful) {
-            Timber.tag(TAG).e("iframe_api HTTP ${response.code}")
-            return null
+        fetchText(IFRAME_API_URL)?.let { body ->
+            val url = PlayerJsUrlParser.fromIframeApi(body)
+            if (url != null) {
+                extractSource(url, "iframe_api")?.let(sources::add)
+            } else {
+                Timber.tag(TAG).w("iframe_api did not expose a base player URL")
+            }
         }
 
-        val body = response.body?.string() ?: return null
-        val match = PLAYER_HASH_REGEX.find(body)
-        return match?.groupValues?.get(1)
+        if (!videoId.isNullOrBlank()) {
+            val embedUrl = EMBED_URL_TEMPLATE.format(videoId)
+            fetchText(embedUrl)?.let { body ->
+                val url = PlayerJsUrlParser.fromEmbedPage(body)
+                if (url != null) {
+                    extractSource(url, "embed/$videoId")?.let(sources::add)
+                } else {
+                    Timber.tag(TAG).w("Embed page did not expose a base player URL for $videoId")
+                }
+            }
+        }
+
+        return sources.distinctBy { it.url }
     }
 
-    private fun downloadPlayerJs(hash: String): String? {
-        val url = PLAYER_JS_URL_TEMPLATE.format(hash)
+    private fun extractSource(url: String, origin: String): PlayerJsSource? {
+        val hash = Regex("""/s/player/([A-Za-z0-9_-]{8})/""")
+            .find(url)
+            ?.groupValues
+            ?.get(1)
+            ?: return null
+        return PlayerJsSource(hash, url, origin)
+    }
+
+    private fun fetchText(url: String): String? {
         val request = Request.Builder()
             .url(url)
             .header("User-Agent", "Mozilla/5.0")
             .build()
 
-        val response = httpClient.newCall(request).execute()
-        if (!response.isSuccessful) {
-            Timber.tag(TAG).e("player JS download HTTP ${response.code}")
-            return null
+        return try {
+            httpClient.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    Timber.tag(TAG).w("HTTP ${response.code} while fetching $url")
+                    return null
+                }
+                response.body?.string()
+            }
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "Request failed for $url: ${e.message}")
+            null
         }
+    }
 
-        return response.body?.string()
+    private fun downloadPlayerJs(url: String): String? {
+        val playerJs = fetchText(url)
+        return playerJs?.takeIf { it.isNotEmpty() }
     }
 }

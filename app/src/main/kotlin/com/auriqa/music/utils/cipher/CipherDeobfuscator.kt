@@ -30,8 +30,11 @@ object CipherDeobfuscator {
     private var currentPlayerHash: String? = null
     private var builtConfigEpoch = -1
 
-    suspend fun signatureTimestamp(): Int? = cipherWebViewMutex.withLock {
-        val (playerJs, hash) = PlayerJsFetcher.getPlayerJs(forceRefresh = false) ?: return@withLock null
+    suspend fun signatureTimestamp(videoId: String? = null): Int? = cipherWebViewMutex.withLock {
+        val (playerJs, hash) = PlayerJsFetcher.getPlayerJs(
+            videoId = videoId,
+            forceRefresh = false,
+        ) ?: return@withLock null
         FunctionNameExtractor.extractSignatureTimestamp(playerJs, hash)
     }
 
@@ -99,7 +102,7 @@ object CipherDeobfuscator {
 
         Timber.tag(TAG).d("Deobfuscating cipher for $videoId: sig=${obfuscatedSig.take(20)}..., sp=$sigParam")
 
-        val webView = getOrCreateWebView(forceRefresh = isRetry)
+        val webView = getOrCreateWebView(forceRefresh = isRetry, videoId = videoId)
             ?: return null
 
         
@@ -114,9 +117,9 @@ object CipherDeobfuscator {
     }
 
     
-    suspend fun transformNParamInUrl(url: String): String = cipherWebViewMutex.withLock {
+    suspend fun transformNParamInUrl(url: String, videoId: String? = null): String = cipherWebViewMutex.withLock {
         try {
-            transformNInternal(url)
+            transformNInternal(url, videoId)
         } catch (e: CancellationException) {
             throw e
         } catch (e: CipherRendererGoneException) {
@@ -128,7 +131,7 @@ object CipherDeobfuscator {
         }
     }
 
-    private suspend fun transformNInternal(url: String): String {
+    private suspend fun transformNInternal(url: String, videoId: String? = null): String {
         
         val nMatch = Regex("[?&]n=([^&]+)").find(url)
         if (nMatch == null) {
@@ -138,7 +141,7 @@ object CipherDeobfuscator {
         val nValue = Uri.decode(nMatch.groupValues[1])
         Timber.tag(TAG).d("N-param found: $nValue")
 
-        val webView = getOrCreateWebView(forceRefresh = false) ?: return url
+        val webView = getOrCreateWebView(forceRefresh = false, videoId = videoId) ?: return url
 
         if (!webView.nFunctionAvailable) {
             Timber.tag(TAG).e("N-transform function was not discovered at init time")
@@ -162,7 +165,10 @@ object CipherDeobfuscator {
         closeWebView()
     }
 
-    private suspend fun getOrCreateWebView(forceRefresh: Boolean): CipherWebView? {
+    private suspend fun getOrCreateWebView(
+        forceRefresh: Boolean,
+        videoId: String? = null,
+    ): CipherWebView? {
         if (cipherWebView?.isDead == true) {
             Timber.tag(TAG).w("Cached cipher WebView renderer is dead — discarding")
             closeWebView()
@@ -186,13 +192,16 @@ object CipherDeobfuscator {
         }
 
         
-        val result = PlayerJsFetcher.getPlayerJs(forceRefresh = forceRefresh)
+        val result = PlayerJsFetcher.getPlayerJs(
+            videoId = videoId,
+            forceRefresh = forceRefresh,
+        )
         if (result == null) {
             Timber.tag(TAG).e("Failed to get player JS")
             return null
         }
         val (playerJs, hash) = result
-        val playerHash = FunctionNameExtractor.extractPlayerHash(playerJs)
+        val playerHash = hash.ifBlank { FunctionNameExtractor.extractPlayerHash(playerJs) }
         var sigInfo = FunctionNameExtractor.extractSigFunctionInfo(playerJs)
         var nFuncInfo = FunctionNameExtractor.extractNFunctionInfo(playerJs)
 
