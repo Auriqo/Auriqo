@@ -200,6 +200,8 @@ skills-lock.json
 **/assets/*token*
 **/assets/*secret*
 **/assets/*key*
+# The PoToken bridge is static source code and must be packaged with the app.
+!app/src/main/assets/po_token.html
 
 # Personal development files
 *.personal
