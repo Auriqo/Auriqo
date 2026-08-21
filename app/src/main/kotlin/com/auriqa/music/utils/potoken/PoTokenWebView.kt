@@ -171,21 +171,12 @@ class PoTokenWebView private constructor(
 
                 
                 
-                Timber.tag(TAG).d("Evaluating createPoTokenMinter JavaScript...")
+                Timber.tag(TAG).d("Setting integrity token in JavaScript...")
                 webView.evaluateJavascript(
                     """try {
-                        console.log('[JS] Setting integrityToken and calling createPoTokenMinter...');
                         this.integrityToken = $integrityToken
-                        console.log('[JS] integrityToken set, now calling createPoTokenMinter...');
-                        createPoTokenMinter(webPoSignalOutput, integrityToken).then(function() {
-                            console.log('[JS] createPoTokenMinter .then() resolved!');
-                            $JS_INTERFACE.onMinterCreated()
-                        }).catch(function(error) {
-                            console.log('[JS] createPoTokenMinter .catch() error: ' + error);
-                            $JS_INTERFACE.onJsInitializationError(error + "\n" + (error.stack || ''))
-                        })
+                        $JS_INTERFACE.onMinterCreated()
                     } catch (error) {
-                        console.log('[JS] createPoTokenMinter SYNC error: ' + error);
                         $JS_INTERFACE.onJsInitializationError(error + "\n" + error.stack)
                     }""",
                     null
@@ -234,12 +225,9 @@ class PoTokenWebView private constructor(
                     """try {
                         identifier = "$identifier"
                         u8Identifier = ${stringToU8(identifier)}
-                        obtainPoToken(u8Identifier).then(function(poTokenU8) {
-                            poTokenU8String = poTokenU8.join(",")
-                            $JS_INTERFACE.onObtainPoTokenResult($reqId, identifier, poTokenU8String)
-                        }).catch(function(error) {
-                            $JS_INTERFACE.onObtainPoTokenError($reqId, identifier, error + "\n" + (error.stack || ''))
-                        })
+                        poTokenU8 = obtainPoToken(webPoSignalOutput, integrityToken, u8Identifier)
+                        poTokenU8String = poTokenU8.join(",")
+                        $JS_INTERFACE.onObtainPoTokenResult($reqId, identifier, poTokenU8String)
                     } catch (error) {
                         $JS_INTERFACE.onObtainPoTokenError($reqId, identifier, error + "\n" + error.stack)
                     }""",

@@ -1,6 +1,7 @@
 package com.auriqa.music.utils.potoken
 
 import java.io.File
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -14,7 +15,19 @@ class PoTokenAssetTest {
         val html = asset.readText()
 
         assertTrue(html.contains("function runBotGuard"))
-        assertTrue(html.contains("function obtainPoToken"))
+        assertTrue(html.contains("function obtainPoToken(webPoSignalOutput, integrityToken, identifier)"))
+        assertFalse(html.contains("createPoTokenMinter"))
         assertTrue(html.contains("</script>"))
+    }
+
+    @Test
+    fun kotlinBridge_usesSynchronousThreeArgumentPoTokenContract() {
+        val source = sequenceOf(
+            File("src/main/kotlin/com/auriqa/music/utils/potoken/PoTokenWebView.kt"),
+            File("app/src/main/kotlin/com/auriqa/music/utils/potoken/PoTokenWebView.kt"),
+        ).first { it.isFile }.readText()
+
+        assertFalse(source.contains("createPoTokenMinter"))
+        assertTrue(source.contains("obtainPoToken(webPoSignalOutput, integrityToken, u8Identifier)"))
     }
 }
