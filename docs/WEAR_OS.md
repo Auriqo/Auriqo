@@ -63,8 +63,8 @@ companion UI, but opening that UI is not required for playback controls to work.
 
 The phone and Wear APKs must use the same `applicationId` and signing certificate. Both Auriqo
 variants now use `com.auriqo.music` for the installed package; the Wear Kotlin namespace remains
-`com.auriqo.music.wear` only to keep its source-level classes organized. Builds made before
-`v1.0.3-alpha.1` used `com.auriqo.music.wear` and cannot participate in this Data Layer channel.
+`com.auriqo.music.wear` only to keep its source-level classes organized. Builds made before the
+package identity fix used `com.auriqo.music.wear` and cannot participate in this Data Layer channel.
 
 The version 2 payload includes media id, metadata, artwork, playing state, monotonic position,
 duration, speed, repeat, shuffle, like/capabilities, boot count, a phone-process session UUID and a

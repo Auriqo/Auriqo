@@ -2,7 +2,7 @@
 
 ## Current status
 
-Auriqo is preparing `v1.0.5` as the next production-signed stable release. Phone and Wear declare
+Auriqo `v1.0.5` is the current production-signed stable release. Phone and Wear declare
 `versionCode 4` and `versionName 1.0.5`. The previous immutable artifact record is
 [docs/releases/v1.0.4.md](docs/releases/v1.0.4.md). Existing stable tags and releases must not be
 replaced, retagged or overwritten.
@@ -44,7 +44,7 @@ of raising the memory requirement for every build:
 6. Calculate SHA-256 for every published artifact and include the values in the release notes.
 7. Test installation, upgrade from the previous supported build, startup, playback, account logout and affected optional providers.
 8. Review the final APK for credentials, debug logging, obsolete branding, renderer assets/licenses and unexpected permissions.
-9. Create the tag and release manually after approval. Do not mutate `v1.0.2-alpha`.
+9. Create the tag and release manually after approval.
 
 ## Artifact policy
 

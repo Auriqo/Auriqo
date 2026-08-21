@@ -8,7 +8,8 @@ Start here:
 - [SUPPORT.md](../SUPPORT.md): questions, bug reports and troubleshooting.
 - [ROADMAP.md](../ROADMAP.md): current direction and open areas.
 - [RELEASE_INFO.md](../RELEASE_INFO.md): variants and manual release checklist.
-- [v1.0.3-alpha](releases/v1.0.3-alpha.md): immutable artifact, checksum and verification record.
+- [v1.0.4](releases/v1.0.4.md): previous stable artifact record.
+- [v1.0.5](releases/v1.0.5.md): current stable artifact record.
 - [SECURITY.md](../SECURITY.md): private vulnerability reporting.
 - [PRIVACY_POLICY.md](../PRIVACY_POLICY.md): optional integrations and data flows.
 - [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md): bundled fonts, source integrations and dependency-license gates.

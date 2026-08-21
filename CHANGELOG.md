@@ -1,6 +1,6 @@
 # Changelog
 
-This file records user-visible and release-process changes. It does not replace GitHub release notes, and the existing `v1.0.2-alpha` release remains unchanged.
+This file records user-visible and release-process changes. It does not replace GitHub release notes.
 
 ## [Unreleased]
 
