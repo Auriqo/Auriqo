@@ -13,6 +13,7 @@ import java.util.Locale
 class DebugLogTree : Timber.Tree() {
 
     data class LogEntry(
+        val id: Long = nextId++,
         val timestamp: Long = System.currentTimeMillis(),
         val level: Int,
         val tag: String?,
@@ -73,6 +74,8 @@ class DebugLogTree : Timber.Tree() {
     }
 
     companion object {
+        @Volatile
+        private var nextId: Long = 0L
         private var instance: DebugLogTree? = null
 
         fun install(): DebugLogTree {

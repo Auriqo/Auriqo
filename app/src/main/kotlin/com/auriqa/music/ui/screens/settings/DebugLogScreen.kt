@@ -153,7 +153,7 @@ fun DebugLogScreen(navController: NavController) {
                     .padding(8.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                items(filteredLogs, key = { "${it.timestamp}-${it.message.hashCode()}" }) { entry ->
+                items(filteredLogs, key = { it.id }) { entry ->
                     LogEntryRow(entry)
                 }
             }
