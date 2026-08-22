@@ -1,0 +1,60 @@
+language: es
+
+tone_instructions: >-
+  Sé directo y técnico. Prioriza bugs, regresiones de compatibilidad, fallos de seguridad y
+  ausencia de tests. No propongas refactors cosméticos ni repitas reglas ya satisfechas.
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  review_status: true
+  path_filters:
+    - '!**/build/**'
+    - '!**/node_modules/**'
+    - '!**/*.apk'
+    - '!**/*.aab'
+    - '!**/*.keystore'
+    - '!**/*.jks'
+  path_instructions:
+    - path: '**/*.kt'
+      instructions: |
+        Revisa compatibilidad con Android, ciclo de vida, coroutines, estados de Compose y
+        accesibilidad. Conserva com.auriqa.music, preferencias, deep links y contratos de
+        variantes. Exige tests para parsers, playback, updater, persistencia y protocolos.
+    - path: 'app/src/foss/**'
+      instructions: |
+        Este código debe compilar sin Firebase, Google Play Services, credenciales privadas ni
+        firma release. Señala cualquier dependencia o import GMS que rompa el build FOSS.
+    - path: 'app/src/gms/**'
+      instructions: |
+        Comprueba que el comportamiento GMS no contamine FOSS. Para Cast, Firebase o Wear revisa
+        permisos, estados desconectados, errores de red y compatibilidad con instalaciones previas.
+    - path: '**/*Wear*.kt'
+      instructions: |
+        Revisa el protocolo teléfono-Wear, versionado de payloads, boot/session/sequence ordering,
+        reconexión y mensajes obsoletos. Pide cambios coordinados entre publisher y consumer.
+    - path: 'innertube/**'
+      instructions: |
+        Trata respuestas de YouTube como contratos inestables. Revisa parsing defensivo, estados
+        vacíos, cambios de player, no logging de tokens/cookies y tests de regresión.
+    - path: 'betterlyrics/**'
+      instructions: |
+        El checkout actual contiene Kotlin client/parser, no una fuente web npm. No inventes una
+        regeneración. Revisa parsing TTML, fallos de proveedores, licencias y tests del módulo.
+    - path: 'workers/**'
+      instructions: |
+        Revisa validación de entrada, autenticación, CORS, manejo de secretos, timeouts, respuestas
+        parciales y typecheck. Nunca aceptes credenciales en el repositorio.
+    - path: '.github/workflows/**'
+      instructions: |
+        Exige actions fijadas a SHA, permisos mínimos, ausencia de secretos en logs y builds
+        reproducibles. El build no debe ejecutarse por push a main; debe conservar PR y manual.
+    - path: '**/*.md'
+      instructions: |
+        Comprueba que comandos, rutas, variantes, versiones y enlaces existan en el checkout.
+        Señala documentación centrada solo en privacidad cuando falte uso, arquitectura,
+        troubleshooting o contribución.
+
+chat:
+  auto_reply: true
