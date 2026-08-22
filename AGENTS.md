@@ -387,12 +387,25 @@ result on the current `main` before merging.
 
 ## 16. Git Workflow
 
+Always work on a dedicated branch. This applies to features, fixes, dependency updates,
+documentation, CI configuration, release preparation and one-line changes. Never edit, commit or
+push directly to `main`, even when the change appears trivial. `main` is an integration branch.
+
 Use a focused branch based on current `main`:
 
 ```bash
 git switch main
 git pull --ff-only origin main
 git switch -c fix/short-description
+```
+
+Before editing, verify that the branch is not `main`:
+
+```bash
+test "$(git branch --show-current)" != "main" || {
+  printf '%s\n' 'Create a task branch before editing.' >&2
+  exit 1
+}
 ```
 
 Use Conventional Commit subjects such as:
@@ -414,7 +427,8 @@ git diff --stat
 git log --oneline -10
 ```
 
-Stage only intended paths. Do not amend a commit unless explicitly requested. Do not use
+Stage only intended paths. Open a pull request from the task branch and merge through the normal
+review/CI path. Do not bypass that path with a direct `main` push. Do not amend a commit unless explicitly requested. Do not use
 `git reset --hard`, `git checkout --`, force-push, interactive history rewrites or tag movement.
 Do not delete another contributor's branch, PR, tag or release without explicit authorization.
 
