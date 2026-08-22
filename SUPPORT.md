@@ -1,13 +1,15 @@
 # Support
 
-Auriqo is a community project maintained in public. Start with the documentation and search existing issues before opening a new one.
+Auriqo is a community project maintained in public. Start with the [user guide](docs/USER_GUIDE.md),
+[troubleshooting guide](docs/TROUBLESHOOTING.md) and search existing issues before opening a new one.
 
 ## Where to ask
 
-- Build or setup help: read [SETUP.md](SETUP.md), then open a Question issue with your OS, JDK, Android SDK and the exact command that failed.
+- Build or setup help: read [SETUP.md](SETUP.md) and [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md),
+  then open a Question issue with your OS, JDK, Android SDK and the exact command that failed.
 - A reproducible app problem: use the Bug Report template and include the app version, build variant, Android version, device and steps to reproduce.
 - A new idea: use the Feature Request template. Explain the user problem and the behavior you would like to see.
-- Provider outages or changed lyrics/playback behavior: mention the provider and whether the problem affects a local-only feature or an optional integration.
+- Provider outages or changed lyrics/playback behavior: mention the provider and whether the problem affects a local-only feature or an optional integration. Check the relevant provider guide first.
 - A suspected vulnerability or exposed credential: follow [SECURITY.md](SECURITY.md) and do not post it publicly.
 
 ## Useful information

@@ -6,7 +6,9 @@ Auriqo is an independent project. It is not affiliated with, endorsed by or oper
 
 ## Project status
 
-Auriqo is in active development and is still an alpha release. Core playback, local media, playlists and lyrics are available today, while integrations continue to evolve with the services they use. Provider APIs and media availability can change, so occasional breakage is expected while the project grows.
+Auriqo is in active development with a stable `v1.0.5` release line. Core playback, local media,
+playlists and lyrics are available today, while integrations continue to evolve with the services
+they use. Provider APIs and media availability can change, so occasional breakage is expected.
 
 The current release line is `v1.0.5`; its exact artifacts and checksums are recorded in
 [docs/releases/v1.0.5.md](docs/releases/v1.0.5.md). Stable artifacts use the protected production
@@ -128,6 +130,9 @@ Auriqo can connect to external services for lyrics, playlist access, scrobbling,
 
 ## Documentation
 
+- User guide: [docs/USER_GUIDE.md](docs/USER_GUIDE.md).
+- Architecture and module map: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- Troubleshooting: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 - Setup and build help: [SETUP.md](SETUP.md) and [SUPPORT.md](SUPPORT.md).
 - Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md).
 - Project direction: [ROADMAP.md](ROADMAP.md).

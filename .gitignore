@@ -188,6 +188,7 @@ gradle-app.setting
 *_SUMMARY.md
 *_DEBUG.md
 *_GUIDE.md
+!docs/USER_GUIDE.md
 run_on_emulator.sh
 build_and_sign_apk.sh
 

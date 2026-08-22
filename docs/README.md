@@ -7,6 +7,9 @@ Start here:
 - [CONTRIBUTING.md](../CONTRIBUTING.md): contribution and review expectations.
 - [SUPPORT.md](../SUPPORT.md): questions, bug reports and troubleshooting.
 - [ROADMAP.md](../ROADMAP.md): current direction and open areas.
+- [USER_GUIDE.md](USER_GUIDE.md): installation, playback, lyrics, integrations and Wear.
+- [ARCHITECTURE.md](ARCHITECTURE.md): modules, playback flow and variant boundaries.
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md): user and contributor diagnosis paths.
 - [RELEASE_INFO.md](../RELEASE_INFO.md): variants and manual release checklist.
 - [v1.0.4](releases/v1.0.4.md): previous stable artifact record.
 - [v1.0.5](releases/v1.0.5.md): current stable artifact record.
