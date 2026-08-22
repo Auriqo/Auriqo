@@ -14,12 +14,11 @@ The Auriqo-specific application package, branding, UI composition, build configu
 - Current paths: `betterlyrics/src/main/kotlin/com/auriqa/music/betterlyrics/BetterLyrics.kt`, `TTMLParser.kt` and `models/Track.kt`.
 - The upstream [Better Lyrics project](https://github.com/better-lyrics/better-lyrics) is GPLv3-licensed and requests attribution.
 - The upstream project is a TypeScript browser extension; the current Auriqo files are Kotlin and the repository history has no exact file-level copy mapping. Keep the attribution and have the maintainer confirm the contributor's authorship record before a stable release.
-- The faithful renderer port is pinned to upstream commit `931f25829f6cfd81d0042ca36b4308a0cd38d467`
-  and `@braccato/core@1.1.0`. Its exact boundary, hashes and regeneration procedure are recorded in
-  [BETTER_LYRICS_SNAPSHOT.md](BETTER_LYRICS_SNAPSHOT.md).
-- Generated web assets are derived from the checked-in `betterlyrics/web` source and the exact npm
-  lockfile. Browser background scripts, request sniffing and YouTube Music DOM adapters are not
-  bundled.
+- Historical project notes mention a browser renderer port, but the current checkout contains no
+  `betterlyrics/web` source, npm lockfile or generated web asset tree. The maintained Better Lyrics
+  boundary here is the Kotlin client and TTML parser listed above. Do not treat the historical
+  renderer versions as a current reproducible build input until the source and verification record
+  are restored.
 
 ### KuGou lyrics client
 

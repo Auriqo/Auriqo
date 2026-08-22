@@ -102,7 +102,9 @@ Useful local checks include:
 ./gradlew :app:lintUniversalFossDebug --no-daemon
 ```
 
-Renderer-source changes also require `npm ci && npm run verify` from `betterlyrics/web`.
+The current checkout contains the Kotlin Better Lyrics client and TTML parser, but no tracked web
+renderer source or npm project. Run the Better Lyrics Kotlin tests when changing that module. A web
+renderer regeneration workflow must be documented before new renderer source is added.
 
 Run the worker type check separately when changing `workers/youtube-attribution`:
 
@@ -123,7 +125,7 @@ The application identifier remains `com.auriqa.music` for compatibility with exi
 Auriqo can connect to external services for lyrics, playlist access, scrobbling, recognition, Discord Rich Presence and Listen Together. These integrations are optional and are used when you choose the corresponding feature. The current data flows are summarized in [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
 - Lyrics providers and BetterLyrics: [docs/LYRICS_PROVIDERS.md](docs/LYRICS_PROVIDERS.md).
-- Better Lyrics renderer, marketplace, security and Unison: [docs/BETTER_LYRICS_ANDROID.md](docs/BETTER_LYRICS_ANDROID.md).
+- Better Lyrics providers and provenance: [docs/LYRICS_PROVIDERS.md](docs/LYRICS_PROVIDERS.md) and [docs/PROVENANCE.md](docs/PROVENANCE.md).
 - Wear OS surfaces and variant boundary: [docs/WEAR_OS.md](docs/WEAR_OS.md).
 - The playlist-attribution Worker: [docs/WORKERS.md](docs/WORKERS.md).
 - Provenance and open license questions: [docs/PROVENANCE.md](docs/PROVENANCE.md) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

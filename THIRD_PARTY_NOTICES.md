@@ -35,12 +35,11 @@ The `betterlyrics` module contains the Kotlin client and TTML parser used by Aur
 
 The upstream [Better Lyrics repository](https://github.com/better-lyrics/better-lyrics) is GPLv3-licensed and requests attribution. Auriqo documents the relationship and keeps the code under the repository's GPLv3-compatible project licensing. If the maintainer has contrary authorship or permission information, update this notice before a stable release.
 
-The embedded web renderer is now pinned to Better Lyrics commit
-`931f25829f6cfd81d0042ca36b4308a0cd38d467` and uses `@braccato/core@1.1.0` plus
-`@braccato/types@1.0.0`, both of which declare MIT. The exact npm tarball hash, file boundary and
-reproduction command are documented in
-[docs/BETTER_LYRICS_SNAPSHOT.md](docs/BETTER_LYRICS_SNAPSHOT.md). The generated Android assets
-carry the upstream renderer license and a hash manifest.
+Historical notes refer to a pinned browser renderer and npm packages, but the current checkout has
+no `betterlyrics/web` source, npm lockfile or generated web asset tree. The current shipped
+Better Lyrics boundary is the Kotlin client and TTML parser above. Do not claim that the historical
+renderer or its npm packages are part of a release until their source boundary, hashes and license
+record are restored and verified.
 
 ### Other adapted or referenced code
 

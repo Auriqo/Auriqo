@@ -10,7 +10,8 @@ Install the following before opening the project:
 - Android SDK Platform 36 and matching Build-Tools.
 - Android NDK `27.0.12077973` for the native modules.
 - Git and a network connection for Gradle dependency resolution.
-- Node.js/npm when working on `workers/youtube-attribution` or regenerating `betterlyrics/web`.
+- Node.js/npm when working on `workers/youtube-attribution`. The current checkout has no tracked
+  Better Lyrics web source or npm project.
 
 The wrapper supplies Gradle 9.3.1. The checked-in version catalog uses Android Gradle Plugin 9.0.0 and Kotlin 2.3.10. Android Studio may be used as an editor, but the wrapper commands below are the source of truth.
 
@@ -79,16 +80,16 @@ Run the smallest relevant set while iterating, then the broader checks before re
 
 The repository also contains tests in `canvas` and `app`; Gradle task names can be inspected with `./gradlew tasks --all`. Do not hide a failing test by deleting it or changing global Gradle settings.
 
-When changing the Better Lyrics web source, regenerate the checked-in Android assets and verify the
-bridge/security tests:
+Better Lyrics currently contains Kotlin client/parser code only. Run its Android tests when changing
+that module:
 
 ```bash
-cd betterlyrics/web
-npm ci
-npm run verify
+./gradlew :betterlyrics:testDebugUnitTest :unison:test --no-daemon
 ```
 
-See [docs/BETTER_LYRICS_ANDROID.md](docs/BETTER_LYRICS_ANDROID.md) for the source/generated boundary.
+There is no `betterlyrics/web/package.json`, web lockfile or generated renderer source in this
+checkout. Do not add an npm regeneration command until that source boundary is restored and
+documented.
 
 For the Worker:
 

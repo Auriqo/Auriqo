@@ -8,7 +8,8 @@ source of truth for toolchain and dependency versions.
 - `app/`: Android application, Compose UI, playback service, settings, library workflows and
   optional integrations.
 - `innertube/`: YouTube and YouTube Music request models, parsers and page clients.
-- `betterlyrics/`: pinned web renderer, Android bridge, renderer models and marketplace support.
+- `betterlyrics/`: Kotlin Better Lyrics client, models and TTML parser. The current checkout does
+  not contain the historical browser-renderer source or generated web asset tree.
 - `unison/`: lyrics identity and signed community actions.
 - `lrclib/`, `paxsenixlyrics/`, `kugou/`, `simpmusic/`, `youlyplus/` and `letras/`: lyrics
   provider adapters.
@@ -41,8 +42,8 @@ feature boundary.
 
 - Account credentials and user-provided integration keys are configured at runtime, not committed.
 - Provider requests and parsers live outside the UI layer.
-- Better Lyrics web assets are generated from `betterlyrics/web` and checked into the Android
-  module so the shipped renderer is reproducible.
+- The current Better Lyrics boundary is Kotlin source under `betterlyrics/src/main/kotlin/`; there
+  is no tracked web source, npm lockfile or generated renderer tree in this checkout.
 - Official release signing is external to public CI and uses the maintainer-only keystore.
 
 ## Change guide

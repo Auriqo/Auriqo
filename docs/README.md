@@ -18,8 +18,8 @@ Start here:
 - [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md): bundled fonts, source integrations and dependency-license gates.
 - [PROVENANCE.md](PROVENANCE.md): code and asset provenance.
 - [LYRICS_PROVIDERS.md](LYRICS_PROVIDERS.md): lyrics provider behavior.
-- [BETTER_LYRICS_ANDROID.md](BETTER_LYRICS_ANDROID.md): renderer boundary, UX, marketplace, shaders and Unison.
-- [BETTER_LYRICS_SNAPSHOT.md](BETTER_LYRICS_SNAPSHOT.md): pinned upstream versions, hashes and regeneration.
+- [LYRICS_PROVIDERS.md](LYRICS_PROVIDERS.md): lyrics provider behavior, including Better Lyrics.
+- [PROVENANCE.md](PROVENANCE.md): Better Lyrics source boundary and licensing notes.
 - [WEAR_OS.md](WEAR_OS.md): standard Media3 controls and the GMS companion protocol.
 - [WORKERS.md](WORKERS.md): Worker endpoints, configuration and deployment.
 - [CI_RELEASE_REVIEW.md](CI_RELEASE_REVIEW.md): public CI and release boundary.
